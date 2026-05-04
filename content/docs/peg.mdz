@@ -112,12 +112,21 @@ Primitive patterns are not that useful by themselves, but can be passed to
 @codeblock[janet]```
 (peg/match "hello" "hello") # -> @[]
 (peg/match "hello" "hi") # -> nil
+
 (peg/match 1 "hi") # -> @[]
 (peg/match 1 "") # -> nil
+(peg/match 0 "") # -> @[]
+(peg/match -1 "") # -> @[]
+
 (peg/match '(range "AZ") "F") # -> @[]
 (peg/match '(range "AZ") "-") # -> nil
+
 (peg/match '(set "AZ") "F") # -> nil
 (peg/match '(set "ABCDEFGHIJKLMNOPQRSTUVWXYZ") "F") # -> @[]
+
+(peg/match true "smile") # -> @[]
+
+(peg/match false "wink") # -> nil
 ```
 
 ## Combining patterns
