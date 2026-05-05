@@ -445,6 +445,8 @@ grammars simpler.
 (peg/match ~(drop (capture 1)) "x") # -> @[]
 
 (peg/match ~(* (only-tags (* (<- 1 :x) 1)) (backref :x)) "xy") # -> @["x"]
+
+(peg/match ~(nth 2 (* '1 '1 '1)) "abc") # -> @["c"]
 ```
 
 ## Grammars and recursion
