@@ -279,6 +279,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(if (some (set "aeiou")) 3) "aei") # -> @[]
 (peg/match '(if (some (set "aeio")) 3) "uuu") # -> nil
+
+(peg/match '(if-not (some (range "09")) 3) "abc") # -> @[]
+(peg/match '(if-not (some (range "09")) 3) "012") # -> nil
 ```
 
 ## Captures
