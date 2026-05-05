@@ -252,6 +252,80 @@ succeeds. If no sub-pattern succeeds, then the whole pattern fails. Note that
 this means that the order of @code`x y z` in choice @strong{does} matter. If
 @code`y` matches everything that @code`z` matches, @code`z` will never succeed.
 
+@codeblock[janet]```
+(peg/match '(choice "ant" "bee") "bee") # -> @[]
+(peg/match '(+ 3 0) "abcd") # -> @[]
+
+(peg/match '(sequence "x" 2 "y") "x!=y") # -> @[]
+(peg/match '(* 1 "a" 1 "b" 1) "{a=b}") # -> @[]
+
+(peg/match '(any "j") "") # -> @[]
+(peg/match '(any "j") "j") # -> @[]
+
+(peg/match '(some "J") "") # -> nil
+(peg/match '(some "J") "JJJ") # -> @[]
+
+(peg/match '(between 1 3 "Z") "ZZZ") # -> @[]
+(peg/match '(between 2 3 "Z") "Z") # -> nil
+
+(peg/match '(at-least 2 "A") "AAAAH!") # -> @[]
+(peg/match '(at-least 3 "A") "AA") # -> nil
+
+(peg/match '(at-most 2 "A") "AAA") # -> @[]
+(peg/match '(* (at-most 2 "A") "B") "AAB") # -> @[]
+
+(peg/match '(repeat 2 "A") "AAAAH!") # -> @[]
+(peg/match '(* (repeat 2 "A") "HH!" -1) "AAHH!") # -> @[]
+
+(peg/match '(if (some (set "aeiou")) 3) "aei") # -> @[]
+(peg/match '(if (some (set "aeio")) 3) "uuu") # -> nil
+
+(peg/match '(if-not (some (range "09")) 3) "abc") # -> @[]
+(peg/match '(if-not (some (range "09")) 3) "012") # -> nil
+
+(peg/match '(not (set "XYZ")) "A") # -> @[]
+(peg/match '(* (not (set "XYZ")) 3 -1) "123") # -> @[]
+
+(peg/match '(! "pegasus") "horse") # -> @[]
+(peg/match '(* (! "cat") (set "dgo")) "dog") # -> @[]
+
+(peg/match '(look 1 "b") "ab") # -> @[]
+(peg/match '(* 1 (look -1 "a")) "ab") # -> @[]
+
+(peg/match '(> "ahead") "ahead") # -> @[]
+(peg/match '(* (> 3 "cat") "my") "my cat") # -> @[]
+
+(peg/match '(to "!") "jump!") # -> @[]
+(peg/match '(* (to "!") "!") "jump!") # -> @[]
+
+(peg/match '(thru "?") "swim?") # -> @[]
+(peg/match '(* (thru "?") "?") "swim?") # -> nil
+
+# see capturing section for `capture`, `'`, and tagging
+(peg/match '(* (capture "a") (backmatch)) "aa") # -> @["a"]
+(peg/match ~(* '"a" "b" '(backmatch)) "aba") # -> @["a" "a"]
+(peg/match ~(* (capture "a" :x) "b" '(backmatch :x)) "aba") # -> @["a" "a"]
+
+(peg/match '(opt "s") "a") # -> @[]
+(peg/match '(* "cat" (opt "s")) "cat") # -> @[]
+(peg/match '(* "cat" (opt "s")) "cats") # -> @[]
+
+(peg/match '(? ":") "x") # -> @[]
+(peg/match '(some (* (set "xyz") (? ","))) "x,y,z") # -> @[]
+
+(peg/match '(5 (range "az")) "qwerty") # -> @[]
+(peg/match '(3 (range "09")) "12x") # -> nil
+
+(peg/match '(sub (to ";") (some (range "az"))) "hello;hola") # -> @[]
+(peg/match '(* (sub (to ";") (thru -1)) ";bob") "alice;boba") # -> @[]
+
+(peg/match '(split "," (some (range "09"))) "1,4,9,16,25") # -> @[]
+(peg/match '(split (some " ") (any 1)) "a bee  can   do") # -> @[]
+
+(peg/match '(til ";" (some (range "ac"))) "abc_;xyz") # -> @[]
+(peg/match '(* (til ";" (some (set "ehy"))) 2 -1) "hey_;hi") # -> @[]
+```
+
 ## Captures
 
 So far we have only been concerned with "does this text match this language?".
