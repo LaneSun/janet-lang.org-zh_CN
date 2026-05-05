@@ -402,6 +402,9 @@ grammars simpler.
 (peg/match ''"x" "xy") # -> @["x"]
 (peg/match ~'"x" "xy") # -> @["x"]
 (peg/match '(* 1 (capture "b")) "ab") # -> @["b"]
+
+(peg/match '(* (capture "a" :x) 1 (backref :x)) "a;b") # -> @["a" "a"]
+(peg/match '(* (<- "a" :y) (-> :y)) "a;b") # -> @["a" "a"]
 ```
 
 ## Grammars and recursion
