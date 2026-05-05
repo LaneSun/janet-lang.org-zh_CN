@@ -312,6 +312,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(? ":") "x") # -> @[]
 (peg/match '(some (* (set "xyz") (? ","))) "x,y,z") # -> @[]
+
+(peg/match '(5 (range "az")) "qwerty") # -> @[]
+(peg/match '(3 (range "09")) "12x") # -> nil
 ```
 
 ## Captures
