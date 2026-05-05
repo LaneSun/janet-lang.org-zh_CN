@@ -321,6 +321,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(split "," (some (range "09"))) "1,4,9,16,25") # -> @[]
 (peg/match '(split (some " ") (any 1)) "a bee  can   do") # -> @[]
+
+(peg/match '(til ";" (some (range "ac"))) "abc_;xyz") # -> @[]
+(peg/match '(* (til ";" (some (set "ehy"))) 2 -1) "hey_;hi") # -> @[]
 ```
 
 ## Captures
