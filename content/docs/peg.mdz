@@ -436,6 +436,11 @@ grammars simpler.
 (peg/match ~(* (<- 1 :x) (<- 1 :x) (-> :x)) "xy") # -> @["x" "y" "y"]
 (peg/match ~(* (<- 1 :x) (unref (<- 1 :x) :x) (-> :x)) "xy") # -> @["x" "y" "x"]
 (peg/match ~(* (<- 1 :x) (unref (<- 1 :x)) (-> :x)) "xy") # -> @["x" "y" "x"]
+
+(last (protect (peg/match ~(error (* 1 '1 '1)) "abc"))) # -> "c"
+(last (protect (peg/match ~(error 1) "a"))) # -> "match error at line 1, column 1"
+(last (protect (peg/match ~(error) ""))) # -> "match error at line 1, column 1"
+(peg/match ~(error -1) "nah") # -> nil
 ```
 
 ## Grammars and recursion
