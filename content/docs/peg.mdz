@@ -396,6 +396,14 @@ grammars simpler.
          allowed in Janet files. To tag the capture without forcing a
          particular base, use @code`(number patt nil :tag)`. }}}
 
+@codeblock[janet]```
+(peg/match '(capture "x") "xy") # -> @["x"]
+(peg/match '(<- "x") "xy") # -> @["x"]
+(peg/match ''"x" "xy") # -> @["x"]
+(peg/match ~'"x" "xy") # -> @["x"]
+(peg/match '(* 1 (capture "b")) "ab") # -> @["b"]
+```
+
 ## Grammars and recursion
 
 The feature that makes PEGs so much more powerful than pattern matching
