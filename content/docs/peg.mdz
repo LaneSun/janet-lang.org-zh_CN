@@ -300,6 +300,11 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(thru "?") "swim?") # -> @[]
 (peg/match '(* (thru "?") "?") "swim?") # -> nil
+
+# see capturing section for `capture`, `'`, and tagging
+(peg/match '(* (capture "a") (backmatch)) "aa") # -> @["a"]
+(peg/match ~(* '"a" "b" '(backmatch)) "aba") # -> @["a" "a"]
+(peg/match ~(* (capture "a" :x) "b" '(backmatch :x)) "aba") # -> @["a" "a"]
 ```
 
 ## Captures
