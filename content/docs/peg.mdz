@@ -414,6 +414,8 @@ grammars simpler.
 (peg/match ~(/ (* '(to ",") 1 '(to -1)) ,|{$0 $1}) "x,y") # -> @[{"x" "y"}]
 
 (peg/match ~(constant :smile) "whatever") # -> @[:smile]
+
+(peg/match ~(argument 1) "ursula" 0 :franklin :leguin) # -> @[:leguin]
 ```
 
 ## Grammars and recursion
