@@ -255,6 +255,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 @codeblock[janet]```
 (peg/match '(choice "ant" "bee") "bee") # -> @[]
 (peg/match '(+ 3 0) "abcd") # -> @[]
+
+(peg/match '(sequence "x" 2 "y") "x!=y") # -> @[]
+(peg/match '(* 1 "a" 1 "b" 1) "{a=b}") # -> @[]
 ```
 
 ## Captures
