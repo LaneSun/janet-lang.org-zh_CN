@@ -457,6 +457,10 @@ grammars simpler.
 
 (peg/match ~(int 1) "\x80") # -> @[-128]
 (peg/match ~(int 2) "\xFF\x7F") # -> @[32767]
+
+(peg/match ~(int-be 1) "\x80") # -> @[-128]
+(peg/match ~(int-be 2) "\xFF\x7F") # -> @[-129]
+(peg/match ~(int-be 2) "\x7F\xFF") # -> @[32767]
 ```
 
 ## Grammars and recursion
