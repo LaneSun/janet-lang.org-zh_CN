@@ -447,6 +447,9 @@ grammars simpler.
 (peg/match ~(* (only-tags (* (<- 1 :x) 1)) (backref :x)) "xy") # -> @["x"]
 
 (peg/match ~(nth 2 (* '1 '1 '1)) "abc") # -> @["c"]
+
+(peg/match ~(uint 1) "a") # -> @[97]
+(peg/match ~(uint 2) "\xFF\x7F") # -> @[32767]
 ```
 
 ## Grammars and recursion
