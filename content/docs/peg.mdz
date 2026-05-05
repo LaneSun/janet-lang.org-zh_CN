@@ -450,6 +450,10 @@ grammars simpler.
 
 (peg/match ~(uint 1) "a") # -> @[97]
 (peg/match ~(uint 2) "\xFF\x7F") # -> @[32767]
+
+(peg/match ~(uint-be 1) "a") # -> @[97]
+(peg/match ~(uint-be 2) "\xFF\x7F") # -> @[65407]
+(peg/match ~(uint-be 2) "\x7F\xFF") # -> @[32767]
 ```
 
 ## Grammars and recursion
