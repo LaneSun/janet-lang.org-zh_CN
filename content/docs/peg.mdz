@@ -443,6 +443,8 @@ grammars simpler.
 (peg/match ~(error -1) "nah") # -> nil
 
 (peg/match ~(drop (capture 1)) "x") # -> @[]
+
+(peg/match ~(* (only-tags (* (<- 1 :x) 1)) (backref :x)) "xy") # -> @["x"]
 ```
 
 ## Grammars and recursion
