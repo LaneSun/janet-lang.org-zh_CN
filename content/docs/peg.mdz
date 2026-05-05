@@ -432,6 +432,10 @@ grammars simpler.
 
 (peg/match ~(cmt '(to -1) ,keyword) "greetings") # -> @[:greetings]
 (peg/match ~(cmt (* '1 "=" '1) ,table) "x=1") # -> @[@{"x" "1"}]
+
+(peg/match ~(* (<- 1 :x) (<- 1 :x) (-> :x)) "xy") # -> @["x" "y" "y"]
+(peg/match ~(* (<- 1 :x) (unref (<- 1 :x) :x) (-> :x)) "xy") # -> @["x" "y" "x"]
+(peg/match ~(* (<- 1 :x) (unref (<- 1 :x)) (-> :x)) "xy") # -> @["x" "y" "x"]
 ```
 
 ## Grammars and recursion
