@@ -285,6 +285,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(not (set "XYZ")) "A") # -> @[]
 (peg/match '(* (not (set "XYZ")) 3 -1) "123") # -> @[]
+
+(peg/match '(! "pegasus") "horse") # -> @[]
+(peg/match '(* (! "cat") (set "dgo")) "dog") # -> @[]
 ```
 
 ## Captures
