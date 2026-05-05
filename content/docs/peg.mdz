@@ -270,6 +270,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(at-least 2 "A") "AAAAH!") # -> @[]
 (peg/match '(at-least 3 "A") "AA") # -> nil
+
+(peg/match '(at-most 2 "A") "AAA") # -> @[]
+(peg/match '(* (at-most 2 "A") "B") "AAB") # -> @[]
 ```
 
 ## Captures
