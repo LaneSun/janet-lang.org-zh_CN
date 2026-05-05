@@ -423,6 +423,9 @@ grammars simpler.
 
 (peg/match ~(column) "0123") # -> @[1]
 (peg/match ~(* 2 (column)) "0123") # -> @[3]
+
+(peg/match ~(line) "0123") # -> @[1]
+(peg/match ~(* 2 (line)) "0\n1") # -> @[2]
 ```
 
 ## Grammars and recursion
