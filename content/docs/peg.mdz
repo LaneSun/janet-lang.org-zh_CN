@@ -261,6 +261,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(any "j") "") # -> @[]
 (peg/match '(any "j") "j") # -> @[]
+
+(peg/match '(some "J") "") # -> nil
+(peg/match '(some "J") "JJJ") # -> @[]
 ```
 
 ## Captures
