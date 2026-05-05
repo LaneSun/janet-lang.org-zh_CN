@@ -541,7 +541,7 @@ grammars simpler.
 (peg/match '(number (some (range "09" "AF")) 16) "FF") # -> @[255]
 
 # length obtained from top of capture stack placed there via `number`
-(peg/match ~'(lenprefix (number (range "09")) 1) "2xy") # -> @["2xy"]
+(peg/match ~(lenprefix (number (range "09")) '1) "2xy") # -> @["x" "y"]
 ```
 
 ## Grammars and recursion
