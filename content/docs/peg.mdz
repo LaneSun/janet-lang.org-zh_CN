@@ -407,6 +407,11 @@ grammars simpler.
 (peg/match '(* (<- "a" :y) (-> :y)) "a;b") # -> @["a" "a"]
 
 (peg/match '(group (* '1 '1 '1)) "abc") # -> @[@["a" "b" "c"]]
+
+(peg/match '(replace (capture 1) {"x" :ant "y" :bee}) "x") # -> @[:ant]
+(peg/match ~(replace (* '1 '1) ,(fn [x y] [y x])) "01") # -> @[["1" "0"]]
+(peg/match ~(/ '(to "=") @{"a" "apricot"}) "a=3") # -> @["apricot"]
+(peg/match ~(/ (* '(to ",") 1 '(to -1)) ,|{$0 $1}) "x,y") # -> @[{"x" "y"}]
 ```
 
 ## Grammars and recursion
