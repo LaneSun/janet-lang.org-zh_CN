@@ -429,6 +429,9 @@ grammars simpler.
 
 (peg/match ~(accumulate (* '1 1 '1 1 '1)) "c,a,t") # -> @["cat"]
 (peg/match ~(% (some (* 1 '(to ";") ";"))) "fee;fie;foe;") # -> @["eeieoe"]
+
+(peg/match ~(cmt '(to -1) ,keyword) "greetings") # -> @[:greetings]
+(peg/match ~(cmt (* '1 "=" '1) ,table) "x=1") # -> @[@{"x" "1"}]
 ```
 
 ## Grammars and recursion
