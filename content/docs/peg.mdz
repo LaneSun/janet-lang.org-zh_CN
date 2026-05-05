@@ -276,6 +276,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(repeat 2 "A") "AAAAH!") # -> @[]
 (peg/match '(* (repeat 2 "A") "HH!" -1) "AAHH!") # -> @[]
+
+(peg/match '(if (some (set "aeiou")) 3) "aei") # -> @[]
+(peg/match '(if (some (set "aeio")) 3) "uuu") # -> nil
 ```
 
 ## Captures
