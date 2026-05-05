@@ -252,6 +252,11 @@ succeeds. If no sub-pattern succeeds, then the whole pattern fails. Note that
 this means that the order of @code`x y z` in choice @strong{does} matter. If
 @code`y` matches everything that @code`z` matches, @code`z` will never succeed.
 
+@codeblock[janet]```
+(peg/match '(choice "ant" "bee") "bee") # -> @[]
+(peg/match '(+ 3 0) "abcd") # -> @[]
+```
+
 ## Captures
 
 So far we have only been concerned with "does this text match this language?".
