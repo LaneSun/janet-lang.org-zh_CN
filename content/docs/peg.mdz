@@ -420,6 +420,9 @@ grammars simpler.
 (peg/match ~(position) "run") # -> @[0]
 (peg/match ~(* (to -1) (position)) "slam dunk") # -> @[9]
 (peg/match ~(some (* ($) (to ",") 1)) "i,j,k,l,") # -> @[0 2 4 6]
+
+(peg/match ~(column) "0123") # -> @[1]
+(peg/match ~(* 2 (column)) "0123") # -> @[3]
 ```
 
 ## Grammars and recursion
