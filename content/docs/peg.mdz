@@ -288,6 +288,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(! "pegasus") "horse") # -> @[]
 (peg/match '(* (! "cat") (set "dgo")) "dog") # -> @[]
+
+(peg/match '(look 1 "b") "ab") # -> @[]
+(peg/match '(* 1 (look -1 "a")) "ab") # -> @[]
 ```
 
 ## Captures
