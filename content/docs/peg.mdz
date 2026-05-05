@@ -258,6 +258,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(sequence "x" 2 "y") "x!=y") # -> @[]
 (peg/match '(* 1 "a" 1 "b" 1) "{a=b}") # -> @[]
+
+(peg/match '(any "j") "") # -> @[]
+(peg/match '(any "j") "j") # -> @[]
 ```
 
 ## Captures
