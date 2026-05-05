@@ -305,6 +305,10 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 (peg/match '(* (capture "a") (backmatch)) "aa") # -> @["a"]
 (peg/match ~(* '"a" "b" '(backmatch)) "aba") # -> @["a" "a"]
 (peg/match ~(* (capture "a" :x) "b" '(backmatch :x)) "aba") # -> @["a" "a"]
+
+(peg/match '(opt "s") "a") # -> @[]
+(peg/match '(* "cat" (opt "s")) "cat") # -> @[]
+(peg/match '(* "cat" (opt "s")) "cats") # -> @[]
 ```
 
 ## Captures
