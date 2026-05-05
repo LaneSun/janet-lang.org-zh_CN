@@ -294,6 +294,9 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 
 (peg/match '(> "ahead") "ahead") # -> @[]
 (peg/match '(* (> 3 "cat") "my") "my cat") # -> @[]
+
+(peg/match '(to "!") "jump!") # -> @[]
+(peg/match '(* (to "!") "!") "jump!") # -> @[]
 ```
 
 ## Captures
