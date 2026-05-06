@@ -546,14 +546,15 @@ grammars simpler.
 
 ## Grammars and recursion
 
-The feature that makes PEGs so much more powerful than pattern matching
-solutions like (vanilla) regex is mutual recursion.  To do recursion in a PEG,
-you can wrap multiple patterns in a grammar, which is a Janet struct. The
-patterns must be named by keywords, which can then be used in all sub-patterns
-in the grammar.
+The feature that makes PEGs so much more powerful than pattern
+matching solutions like (vanilla) regex is mutual recursion.  To do
+recursion in a PEG, you can wrap multiple patterns in a grammar, which
+is a Janet struct or table. The patterns must be named by keywords,
+which can then be used in all sub-patterns in the grammar.
 
-Each grammar, defined by a struct, must also have a main rule, called
-@code`:main`, that is the pattern that the entire grammar is defined by.
+Each grammar, defined by a struct or table, must also have a main
+rule, called @code`:main`, that is the pattern that the entire grammar
+is defined by.
 
 An example grammar that uses mutual recursion:
 
