@@ -405,9 +405,20 @@ grammars simpler.
         @td{ Alias for @code`(accumulate patt ?tag)` }}
 
     @tr{@td{@code`(cmt patt fun ?tag)` }
-        @td{ Invokes fun with all of the captures of patt as arguments (if patt
-        matches). If the result is truthy, then captures the result. The whole
-        expression fails if fun returns false or nil. }}
+        @td{ Invokes @code`fun` with all of the captures of
+        @code`patt` as arguments (if @code`patt` matches). If the
+        result is truthy, then captures the result. The whole
+        expression fails if @code`fun` returns false or nil. }}
+
+    @tr{@td{@code`(cms patt fun ?tag)` }
+        @td{ Invokes @code`fun` with all of the captures of
+        @code`patt` as arguments (if @code`patt` matches). If the
+        result is a tuple or array, each element of the indexed
+        type is captured separately (i.e. the indexed type is
+        spliced). If the result is any other truthy non-indexed
+        type, the result is captured as is (i.e. as with
+        @code`cmt`). The whole expression fails if @code`fun`
+        returns false or nil. }}
 
     @tr{@td{@code`(backref tag ?tag)` }
         @td{ Duplicates the last capture with the tag @code`tag`. If no such
@@ -505,7 +516,11 @@ grammars simpler.
 (peg/match ~(% (some (* 1 '(to ";") ";"))) "fee;fie;foe;") # -> @["eeieoe"]
 
 (peg/match ~(cmt '(to -1) ,keyword) "greetings") # -> @[:greetings]
+(peg/match ~(cmt (* '1 '1) ,|[$0 $1]) "xy") # -> @[["x" "y"]]
 (peg/match ~(cmt (* '1 "=" '1) ,table) "x=1") # -> @[@{"x" "1"}]
+
+(peg/match ~(cms '(to -1) ,keyword) "greetings") # -> @[:greetings]
+(peg/match ~(cms (* '1 '1) ,|[$0 $1]) "xy") # -> @["x" "y"]
 
 (peg/match ~(* (<- 1 :x) (<- 1 :x) (-> :x)) "xy") # -> @["x" "y" "y"]
 (peg/match ~(* (<- 1 :x) (unref (<- 1 :x) :x) (-> :x)) "xy") # -> @["x" "y" "x"]
