@@ -73,7 +73,7 @@
 
 由于 compare 最终会回退到原始运算符，所以多态比较运算符对 Janet 类型产生全序。
 
-抽象类型上的 compare 方法可以在 C 中实现，而基于表的"对象"的 compare 方法可以在 Janet 中实现。关于后者的更多信息，请参见 @link[/docs/object_oriented.html][面向对象编程部分] 和 @link[/docs/prototypes.html][原型部分] 以了解在表上开发面向对象方法的更多信息。
+抽象类型上的 compare 方法可以在 C 中实现，而基于表的"对象"的 compare 方法可以在 Janet 中实现。关于后者的更多信息，请参见 @link[object_oriented.html][面向对象编程部分] 和 @link[prototypes.html][原型部分] 以了解在表上开发面向对象方法的更多信息。
 
 ## 深度相等运算符
 

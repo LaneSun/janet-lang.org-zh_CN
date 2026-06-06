@@ -5,7 +5,7 @@
  :nav-title "peg"
  :template "docpage.html"}
 ---
-更多信息请参见 @link[/docs/peg.html][PEG 文档]。
+更多信息请参见 @link[../docs/peg.html][PEG 文档]。
 
 ## Index
 

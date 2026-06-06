@@ -175,4 +175,4 @@ Hello, World!
 
 注意：相关功能请参见 @code[all-bindings] 函数。
 
-你也可以在网站上浏览 @link[/doc.html][核心库 API]。
+你也可以在网站上浏览 @link[../doc.html][核心库 API]。

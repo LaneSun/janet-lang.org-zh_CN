@@ -171,4 +171,4 @@ fiber 掩码参数（上面的 @code`:tp`）决定了哪些信号会自动写入
 
 ## 标准流
 
-Janet 核心 API 中的 @code`stdin`、@code`stdout` 和 @code`stderr` 是文件。文件操作会阻塞事件循环。@link[/spork/api/stream.html]{spork/stream} 模块中的函数创建不会阻塞事件循环的标准流，但它们在 Microsoft Windows 上不起作用。
+Janet 核心 API 中的 @code`stdin`、@code`stdout` 和 @code`stderr` 是文件。文件操作会阻塞事件循环。@link[../spork/api/stream.html]{spork/stream} 模块中的函数创建不会阻塞事件循环的标准流，但它们在 Microsoft Windows 上不起作用。

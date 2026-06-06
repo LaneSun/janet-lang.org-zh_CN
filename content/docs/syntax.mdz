@@ -212,7 +212,7 @@ Yet another buffer
 
 ## 文法
 
-对于寻找更简洁的文法描述的人来说，下面是用于识别 Janet 源代码的 PEG 文法。PEG 语法本身类似于 EBNF。关于 PEG 语法的更多信息可以在 @link[/docs/peg.html][PEG 章节] 中找到。
+对于寻找更简洁的文法描述的人来说，下面是用于识别 Janet 源代码的 PEG 文法。PEG 语法本身类似于 EBNF。关于 PEG 语法的更多信息可以在 @link[peg.html][PEG 章节] 中找到。
 
 @codeblock[janet]```
 (def grammar

@@ -6,7 +6,7 @@
  :template "docpage.html"}
 ---
 
-数组是 Janet 中可变的有索引类型。它们包含一系列通过索引键化的值。它们也可以用于实现栈和队列。更多信息请参见 @link[/docs/data_structures/arrays.html][数组] 文档。
+数组是 Janet 中可变的有索引类型。它们包含一系列通过索引键化的值。它们也可以用于实现栈和队列。更多信息请参见 @link[../docs/data_structures/arrays.html][数组] 文档。
 
 ## 索引
 

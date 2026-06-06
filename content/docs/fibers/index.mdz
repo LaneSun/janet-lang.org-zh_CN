@@ -87,4 +87,4 @@ Janet 通过协程（coroutines）或 fiber 支持单核异步编程。Fiber 允
 
 ## 惰性求值
 
-Janet 的核心函数是立即求值的。@link[/spork/api/generators.html]{spork/generators} 模块包含惰性求值的生成器函数。
+Janet 的核心函数是立即求值的。@link[../../spork/api/generators.html]{spork/generators} 模块包含惰性求值的生成器函数。

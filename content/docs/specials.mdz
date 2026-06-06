@@ -82,7 +82,7 @@
 (fn :bob [] :sit)
 ```
 
-有关函数的更多信息，请参见 @link[/docs/functions.html][函数章节]。
+有关函数的更多信息，请参见 @link[functions.html][函数章节]。
 
 ## @code`(do body...)`
 

@@ -34,11 +34,11 @@
   :source ["mylib.janet"])
 ```
 
-关于编写模块的信息，请参阅 @link[/docs/modules.html]{模块文档页面}。
+关于编写模块的信息，请参阅 @link[../docs/modules.html]{模块文档页面}。
 
 ### 创建原生模块
 
-编写好定义原生模块的 C 代码后（请参阅 @link[/capi/embedding.html]{嵌入}页面了解如何操作），你必须在 @code`project.janet` 中声明它，以便 @code`jpm` 为你构建原生模块。
+编写好定义原生模块的 C 代码后（请参阅 @link[../capi/embedding.html]{嵌入}页面了解如何操作），你必须在 @code`project.janet` 中声明它，以便 @code`jpm` 为你构建原生模块。
 
 @codeblock[janet]```
 (declare-native

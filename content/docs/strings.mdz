@@ -95,7 +95,7 @@ Line 2
 
 ### 查找子字符串
 
-Janet 有多个用于查找和替换字符串的函数。Janet 的字符串查找函数不支持模式或正则表达式；它们仅适用于字符串字面量。如需更灵活的查找和替换，请参阅 @link[/docs/peg.html][PEG 部分]。
+Janet 有多个用于查找和替换字符串的函数。Janet 的字符串查找函数不支持模式或正则表达式；它们仅适用于字符串字面量。如需更灵活的查找和替换，请参阅 @link[peg.html][PEG 部分]。
 
 @codeblock[janet]```
 (string/find "h" "h h h h") #-> 0

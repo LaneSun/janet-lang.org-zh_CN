@@ -98,4 +98,4 @@ arr # -> @[:hi nil :hello]
     @li{@code[interpose]}
     @li{@code[frequencies]}}
 
-有关这些函数的文档，请在 REPL 中使用 @code[doc] 宏，或查阅 @link[/api/array.html][数组 API]。
+有关这些函数的文档，请在 REPL 中使用 @code[doc] 宏，或查阅 @link[../../api/array.html][数组 API]。
