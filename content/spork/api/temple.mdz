@@ -9,32 +9,26 @@
  :template "docpage.html"}
 ---
 
-HTML templates for Janet.
+面向 Janet 的 HTML 模板。
 
-Simplified version of Mendoza's template system that is cleaner and
-easier to use.  Templates can be used recursively, and output is
-printed via @code`print`, so goes to @code`(dyn :out)`.
+Mendoza 模板系统的简化版本，更简洁且更易于使用。模板可以递归使用，输出通过 @code`print` 打印，因此输出到 @code`(dyn :out)`。
 
-Expands on the mendoza templates with the @code`{-` ... @code`-}`
-brackets, which do non-escaped substitution, so temple can be used for
-formats besides HTML.  Also exposes the @code`escape` function inside
-templates for HTML escaping if you want to manually print to template
-output.
+通过 @code`{-` ... @code`-}` 括号扩展了 mendoza 模板，这些括号执行非转义替换，因此 temple 可以用于 HTML 以外的格式。还暴露了模板内部的 @code`escape` 函数，用于 HTML 转义，以便您需要手动打印到模板输出时使用。
 
 
-## Example
+## 示例
 
 ### foo.temple
 
 @codeblock```
-{$ (def n 20) # Run at template compile time $}
+{$ (def n 20) # 在模板编译时运行 $}
 <html>
   <body>
-    {{ (string/repeat "<>" n) # HTML escaped }}
+    {{ (string/repeat "<>" n) # HTML 转义 }}
     <ul>
-      {% (each x (range n) (print "<li>" x " " (args :a) "</li>")) # No auto-print %}
+      {% (each x (range n) (print "<li>" x " " (args :a) "</li>")) # 不自动打印 %}
     </ul>
-    {- (string/repeat "<span>1</span>" n) # Not HTML escaped -}
+    {- (string/repeat "<span>1</span>" n) # 不转义 HTML -}
   </body>
 </html>
 ```
@@ -49,11 +43,8 @@ output.
 (foo/render :a "hello")
 ```
 
-There is one more involved example in
-/janet-lang/spork/examples/temple/. You can run it with
-@code`janet examples/temple/example.janet`.
+还有一个更复杂的示例位于 /janet-lang/spork/examples/temple/。您可以通过 @code`janet examples/temple/example.janet` 运行它。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[temple/]
-

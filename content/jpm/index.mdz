@@ -1,14 +1,10 @@
-{:title "The Janet Project Manager (jpm)"
+{:title "Janet 项目管理器 (jpm)"
  :nav-title "JPM"
  :template "docpage.html"
  :order 5}
 ---
 
-JPM is a build tool that can be installed along with Janet to help build and install
-libraries for Janet. The main uses are installing dependencies, compiling C/C++ to native libraries, and
-other project management tasks. The source code for JPM
-can be found at @link[https://github.com/janet-lang/jpm.git][https://github.com/janet-lang/jpm.git].
-With janet already installed, JPM is also self bootstrapping.
+JPM 是一个构建工具，可与 Janet 一同安装，用于帮助构建和安装 Janet 的库。其主要用途包括安装依赖、将 C/C++ 编译为原生库，以及其他项目管理任务。JPM 的源代码可在 @link[https://github.com/janet-lang/jpm.git][https://github.com/janet-lang/jpm.git] 找到。在 Janet 已安装的情况下，JPM 也可以自举。
 
 @codeblock```
 git clone --depth=1 https://github.com/janet-lang/jpm.git
@@ -16,37 +12,20 @@ cd jpm
 sudo janet bootstrap.janet
 ```
 
-The bootstrap script can also be configured to install jpm to
-different directories by setting the @code`DESTDIR` environment
-variable. Ideally, jpm should be installed to the same tree as Janet,
-although this is not strictly required. See the README in jpm's
-repository for more information.
+引导脚本也可通过设置 @code`DESTDIR` 环境变量来配置将 jpm 安装到不同的目录。理想情况下，jpm 应安装到与 Janet 相同的目录树中，尽管这并不是严格要求的。更多信息请参阅 jpm 仓库中的 README。
 
-## Updating JPM
+## 更新 JPM
 
-Once installed and configured, JPM can update itself from the git repository at any time.
+一旦安装并配置完成，JPM 可以随时从 git 仓库更新自身。
 
 @codeblock```
 sudo jpm install jpm
 ```
 
-@p{@code`jpm`'s main functions are installing dependencies and building native
-    Janet modules, but it is meant to be used for much of the life-cycle for
-    Janet projects. Since Janet code doesn't usually need to be compiled, you
-    don't always need @code`jpm`, especially for scripts, but @code`jpm` comes
-    with some functionality that is difficult to duplicate, like compiling Janet
-    source code and all imported modules into a statically linked executable for
-    distribution.
+@p{@code`jpm` 的主要功能是安装依赖和构建原生的 Janet 模块，但它旨在用于 Janet 项目生命周期的大部分环节。由于 Janet 代码通常不需要编译，你并不总是需要 @code`jpm`，尤其是对于脚本而言，但 @code`jpm` 提供了一些难以复制的功能，例如将 Janet 源代码和所有导入的模块编译成一个静态链接的可执行文件以便分发。
+
 }
 
-## Glossary
+## 术语表
 
-A self-contained unit of Janet source code as recognized by @code`jpm`
-is called a project. A project is a directory containing a
-@code`project.janet` file, which contains build recipes. Often, a
-project will correspond to a single git repository, and contain a
-single library. However, a project's @code`project.janet` file can
-contain build recipes for as many libraries, native extensions, and
-executables as it wants. Each of these recipes builds an
-artifact. Artifacts are the output files that will either be
-distributed or installed on the end-user or developer's machine.
+被 @code`jpm` 识别为一个独立的 Janet 源代码单元称为一个项目。项目是一个包含 @code`project.janet` 文件的目录，该文件包含构建规则。通常，一个项目对应一个 git 仓库，并包含一个单独的库。然而，一个项目的 @code`project.janet` 文件可以包含任意数量的库、原生扩展和可执行文件的构建规则。每条这样的规则构建一个产物。产物是最终分发或安装在最终用户或开发者机器上的输出文件。

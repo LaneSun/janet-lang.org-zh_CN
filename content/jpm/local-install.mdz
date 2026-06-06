@@ -1,15 +1,11 @@
-{:title "Local Install"
+{:title "本地安装"
  :template "docpage.html"
  :order 3}
 ---
 
-## Local Installation, aka Custom Trees
+## 本地安装，即自定义树
 
-For per-project or per-user development (as opposed to system-wide development), you can use
-custom jpm trees rather than a system default by passing the @code`--tree=<somewhere>` argument
-all jpm commands or setting the @code`JANET_TREE` environment variable. This will set the location
-where jpm will install modules, headers, scripts, and other data to. For project local development in
-a tree @code`./jpm_tree`, you can use the @code`--local` or @code`-l` shorthand for this.
+对于按项目或按用户的开发（相对于系统范围的开发），你可以使用自定义的 jpm 树，而不是系统默认的树，只需向所有 jpm 命令传递 @code`--tree=<somewhere>` 参数，或设置 @code`JANET_TREE` 环境变量。这将设置 jpm 安装模块、头文件、脚本和其他数据的位置。对于项目本地开发，如果使用 @code`./jpm_tree` 树，可以使用 @code`--local` 或 @code`-l` 缩写。
 
 @codeblock```
 jpm --tree=/opt/jpm_tree deps

@@ -7,8 +7,8 @@
  :template "docpage.html"}
  ---
 
-A simple task executor library/server.
+一个简单的任务执行器库/服务器。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[tasker/]

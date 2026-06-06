@@ -9,17 +9,16 @@
  :template "docpage.html"}
 ---
 
-HTMLgen is a rendering engine that can render plain data structures into
-an HTML string. Its API has only one constant and two functions:
+HTMLgen 是一个渲染引擎，可以将纯数据结构渲染为 HTML 字符串。其 API 只有一个常量和两个函数：
 
 @ul{
-  @li{constant @code`doctype` is a string with html5 doctype header}
-  @li{function  @code`raw` returns the function that will add the raw string, passed as an argument to the function, to the output, when rendered, without any escaping.}
-  @li{function @code`html` has one required argument @code`data` with the data structure rendered into bytes with HTML code. And optional @code`buf` to which function renders final bytes. If you do not provide the @code`buf`, it will create a new one.} }
+  @li{常量 @code`doctype` 是一个包含 html5 doctype 头部信息的字符串}
+  @li{函数 @code`raw` 返回一个函数，该函数会将原始字符串（作为参数传入）在渲染时直接添加到输出中，不进行任何转义。}
+  @li{函数 @code`html` 有一个必需参数 @code`data`，即要渲染为带 HTML 代码的字节串的数据结构。还有一个可选参数 @code`buf`，函数会将最终的字节渲染到该缓冲区中。如果不提供 @code`buf`，则会创建一个新的缓冲区。} }
 
-## Rules for rendering data structures
+## 数据结构渲染规则
 
-Example:
+示例：
 
 @codeblock[janet]```
 (use spork/htmlgen)
@@ -36,25 +35,18 @@ Example:
 =>  @"<head><meta charset=\"htf-8\"/><title>Spork</title></head><body><header>Menu</header><main><section>News</section></main><footer>All right reserved 2022</footer></body>"
 ```
 
-We will show how HTMLgen renders from the data structure by dissecting
-the example above:
+下面我们通过剖析上面的示例来展示 HTMLgen 如何从数据结构进行渲染：
 
 @ul{
-  @li{@code`array` \(and @code`fiber` which is not in the example) each member of
-    the sequence renders by one of these rules.}
-  @li{@code`tuple` represents the HTML tag. The first member must be the name of
-    the HTML tag. The second member can be a dictionary with HTML attributes
-    for the HTML tag. All the other members are children of the tag and renders
-    according to these rules.}
-  @li{@code`string`, @code`buffer`, @code`number` and @code`boolean` coerces to string and,
-    if necessary, escaped and pushed to the buffer.}
-  @li{@code`function` gets the buffer, with which it can do whatever it wants to,
-    presumably push some more content, but anything.}
-  @li{@code`nil` do not do anything to the buffer.}
+  @li{@code`数组`（以及未在示例中出现的 @code`fiber`）——序列中的每个成员都按照以下规则之一进行渲染。}
+  @li{@code`元组`表示一个 HTML 标签。第一个成员必须是 HTML 标签的名称。第二个成员可以是一个包含 HTML 属性的字典。其余所有成员都是该标签的子元素，并按照这些规则进行渲染。}
+  @li{@code`字符串`、@code`缓冲区`、@code`数字`和 @code`布尔值`会强制转换为字符串，并在必要时进行转义，然后推入缓冲区。}
+  @li{@code`函数`接收缓冲区，它可以对缓冲区进行任意操作，通常是推入更多内容，但也可以做其他任何事情。}
+  @li{@code`nil` 不对缓冲区做任何操作。}
 }
 
-As you may see, the rules are straightforward, yet with the @code`fiber` and @code`function` types you have pretty endless possibilities when constructing the HTML code from data structures.
+可以看到，这些规则非常直观，但借助 @code`fiber` 和 @code`函数` 类型，在从数据结构构建 HTML 代码时，您将拥有几乎无限的可能性。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[htmlgen/]

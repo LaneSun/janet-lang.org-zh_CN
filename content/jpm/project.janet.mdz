@@ -3,58 +3,42 @@
  :order 2}
 ---
 
-## The @code`project.janet` file
+## @code`project.janet` 文件
 
-To create your own software in Janet, it is a good idea to understand what the
-@code`project.janet` file is and how it defines rules for building, testing, and
-installing software. The code in @code`project.janet` is normal Janet source
-code that is run in a special environment.
+要在 Janet 中创建自己的软件，最好先了解 @code`project.janet` 文件是什么，以及它如何定义构建、测试和安装软件的规则。@code`project.janet` 中的代码是在特殊环境中运行的普通 Janet 源代码。
 
-A @code`project.janet` file is loaded by @code`jpm` and evaluated to create
-various recipes, or rules. For example, @code`declare-project` creates several
-rules, including @code`"install"`, @code`"build"`, @code`"clean"`, and
-@code`"test"`. These are a few of the rules that @code`jpm` expects
-@code`project.janet` to create when executed.
+@code`project.janet` 文件由 @code`jpm` 加载并求值，以创建各种 recipe（即规则）。例如，@code`declare-project` 会创建多个规则，包括 @code`"install"`、@code`"build"`、@code`"clean"` 和 @code`"test"`。这些是 @code`jpm` 期望 @code`project.janet` 在执行时创建的一些规则。
 
-### Declaring a project
+### 声明项目
 
-Use the @code`declare-project` as the first @code`declare-` macro towards the
-beginning of your @code`project.janet` file. You can also pass in any metadata
-about your project that you want, and add dependencies on other Janet projects
-here.
+将 @code`declare-project` 作为 @code`project.janet` 文件开头的第一个 @code`declare-` 宏。你还可以在此传入任何所需的项目元数据，并添加对其他 Janet 项目的依赖。
 
 @codeblock[janet]```
 (declare-project
-  :name "mylib" # required
-  :description "a library that does things" # some example metadata.
+  :name "mylib" # 必需
+  :description "a library that does things" # 一些示例元数据
 
-  # Optional urls to git repositories that contain required artifacts.
+  # 包含所需构件的 git 仓库的可选 URL
   :dependencies ["https://github.com/janet-lang/json.git"])
 ```
 
-### Creating a module
+### 创建模块
 
-A 100% Janet library is the easiest kind of software to distribute in Janet.
-Since it does not need to be built and since installing it means simply moving
-the files to a system directory, we only need to specify the files that comprise
-the library in @code`project.janet`.
+纯 Janet 库是在 Janet 中最容易分发的软件类型。由于它不需要构建，安装只需将文件移动到系统目录，我们只需在 @code`project.janet` 中指定组成库的文件即可。
 
 @codeblock[janet]```
 (declare-source
-  # :source is an array or tuple that can contain
-  # source files and directories that will be installed.
-  # Often will just be a single file or single directory.
+  # :source 是一个数组或元组，可以包含
+  # 将要安装的源文件和目录。
+  # 通常只是一个文件或一个目录。
   :source ["mylib.janet"])
 ```
 
-For information on writing modules, see @link[/docs/modules.html]{the modules docpage}.
+关于编写模块的信息，请参阅 @link[/docs/modules.html]{模块文档页面}。
 
-### Creating a native module
+### 创建原生模块
 
-Once you have written your C code that defines your native module (see the
-@link[/capi/embedding.html]{embedding} page on how to do this), you must declare
-it in @code`project.janet` in order for @code`jpm` to build the native modules
-for you.
+编写好定义原生模块的 C 代码后（请参阅 @link[/capi/embedding.html]{嵌入}页面了解如何操作），你必须在 @code`project.janet` 中声明它，以便 @code`jpm` 为你构建原生模块。
 
 @codeblock[janet]```
 (declare-native
@@ -63,17 +47,11 @@ for you.
  :embedded ["extra-functions.janet"])
 ```
 
-This makes @code`jpm` create a native module called @code`mynative` when
-@code`jpm build` is run, the arguments for which should be pretty
-straightforward. The @code`:embedded` argument is Janet source code that will be
-embedded as an array of bytes directly into the C source code. It is not
-recommended to use the @code`:embedded` argument, as one can simply create
-multiple artifacts, one for a pure C native module and one for Janet source
-code.
+这样，当运行 @code`jpm build` 时，@code`jpm` 会创建一个名为 @code`mynative` 的原生模块，其参数相当直观。@code`:embedded` 参数是将作为字节数组直接嵌入 C 源代码的 Janet 源代码。不建议使用 @code`:embedded` 参数，因为可以简单地创建多个构件，一个用于纯 C 原生模块，一个用于 Janet 源代码。
 
-### Creating an executable
+### 创建可执行文件
 
-The declaration for an executable file is pretty simple.
+可执行文件的声明非常简单。
 
 @codeblock[janet]```
 (declare-executable
@@ -82,89 +60,52 @@ The declaration for an executable file is pretty simple.
  :install true)
 ```
 
-@p{@code`jpm` is smart enough to figure out from the one entry file what
-    libraries and other code your executable depends on, and bundles them into
-    the final application for you. The final executable will be located at
-    @code`build/myexec`, or @code`build\myexec.exe` on Windows.}
+@p{@code`jpm` 足够智能，可以从一个入口文件推断出你的可执行文件依赖哪些库和其他代码，并将它们打包到最终的应用中。最终的可执行文件将位于 @code`build/myexec`，在 Windows 上位于 @code`build\myexec.exe`。}
 
-If the optional key-value pair @code`:install true` is specified in the
-@code`declare-executable` form, by default, the appropriate @code`jpm install`
-command will install the resulting executable to the @code`JANET_BINPATH`
-\(but see the jpm man page for further details).
+如果在 @code`declare-executable` 表单中指定了可选的键值对 @code`:install true`，默认情况下，相应的 @code`jpm install` 命令会将生成的可执行文件安装到 @code`JANET_BINPATH`（但请参阅 jpm 手册页了解更多详情）。
 
-Also note that the entry of an executable file should look different than a
-normal Janet script.  It should define a @code`main` function that can receive a
-variable number of parameters, the command-line arguments. It will be called as
-the entry point to your executable.
+另请注意，可执行文件的入口应与普通 Janet 脚本不同。它应定义一个 @code`main` 函数，该函数可以接收可变数量的参数（即命令行参数）。它将被作为可执行文件的入口点调用。
 
 @codeblock[janet]```
 (import mylib1)
 (import mylib2)
 
-# This will be printed when you run `jpm build`
+# 当运行 `jpm build` 时，此行将被打印
 (print "build time!")
 
 (defn main
   [& args]
-  # You can also get command-line arguments through (dyn :args)
+  # 你也可以通过 (dyn :args) 获取命令行参数
   (print "args: " ;(interpose ", " args))
   (mylib1/do-thing)
   (mylib2/do-thing))
 ```
 
-It's important to remember that code at the top level will run when you invoke
-@code`jpm build`, not at executable runtime. This is because in order to create
-the executable, we marshal the @code`main` function of the app and write it to
-an image. In order to create the main function, we need to actually compile and
-run everything that it references, in the above case @code`mylib1` and
-@code`mylib2`.
+重要的是要记住，顶层代码将在调用 @code`jpm build` 时运行，而不是在可执行文件运行时。这是因为为了创建可执行文件，我们会编组应用的 @code`main` 函数并将其写入镜像。为了创建 main 函数，我们需要实际编译并运行它所引用的所有内容，在上述情况下是 @code`mylib1` 和 @code`mylib2`。
 
-This has a number of benefits, but the largest is that we only include bytecode
-for the functions that our application uses. If we only use one function from a
-library of 1000 functions, our final executable will not include the bytecode
-for the other 999 functions (unless our one function references some of those
-other functions, of course). This feature, called tree-shaking, only works
-for Janet code. Native modules will be linked to the final executable statically
-in full if they are used at all. A native module is considered "used" if is
-imported at any time during @code`jpm build`. This may change, but it is
-currently the most reliable way to check if a native modules needs to be linked
-into the final executable.
+这有很多好处，但最大的好处是我们只包含应用程序使用的函数的字节码。如果我们从一个包含 1000 个函数的库中只使用一个函数，那么最终的可执行文件不会包含其他 999 个函数的字节码（当然，除非我们这一个函数引用了其中一些其他函数）。这个称为 tree-shaking（树摇）的特性仅适用于 Janet 代码。原生模块如果被使用，将完整地静态链接到最终可执行文件中。如果某个原生模块在 @code`jpm build` 期间的任何时候被导入，则认为该模块被"使用"。这一点可能会改变，但目前这是检查原生模块是否需要链接到最终可执行文件的最可靠方法。
 
-There are some limitations to this approach. Any dynamically required modules
-will not always be linked into the final executable. If @code`require` or
-@code`import` is not called during @code`jpm build`, then the code will not be
-linked into the executable. The module can still be required if it is available
-at runtime, though.
+这种方法有一些局限性。任何动态需要的模块并不总是会链接到最终的可执行文件中。如果在 @code`jpm build` 期间没有调用 @code`require` 或 @code`import`，那么代码将不会链接到可执行文件中。不过，如果该模块在运行时可用，仍然可以被 require。
 
-For an example Janet executable built with @code`jpm`, see
-@link[https://github.com/bakpakin/littleserver][https://github.com/bakpakin/littleserver].
+有关使用 @code`jpm` 构建的 Janet 可执行文件示例，请参阅
+@link[https://github.com/bakpakin/littleserver][https://github.com/bakpakin/littleserver]。
 
-### Other @code`declare-` callables
+### 其他 @code`declare-` 可调用项
 
-Some additional @code`declare-` callables are:
+其他一些 @code`declare-` 可调用项包括：
 
 @ul{@li{@code`declare-bin`
 
-        @p{Declare a generic file to be installed as an
-           executable. Specify file path via @code`:main`.}}
+        @p{声明一个要作为可执行文件安装的通用文件。通过 @code`:main` 指定文件路径。}}
 
     @li{@code`declare-binscript`
 
-        @p{Declare a janet file to be installed as an executable
-           script.  Creates a shim on windows.  If
-           @code`:hardcode-syspath` is true, will insert code into the
-           script such that it will run correctly even when
-           @code`JANET_PATH` is changed.  If @code`:is-janet` is
-           truthy, will also automatically insert a correct shebang
-           line if jpm's configuration is set with
-           @code`:auto-shebang` as truthy.}}
+        @p{声明一个要作为可执行脚本安装的 Janet 文件。在 Windows 上创建一个填充程序（shim）。如果 @code`:hardcode-syspath` 为真，将在脚本中插入代码，使其即使 @code`JANET_PATH` 被更改也能正确运行。如果 @code`:is-janet` 为真值，并且 jpm 的配置中 @code`:auto-shebang` 也为真值，还将自动插入正确的 shebang 行。}}
 
     @li{@code`declare-headers`
 
-        @p{Declare headers for a library installation. Installed
-           headers can be used by other native libraries.  Specify
-           paths via @code`:headers` and prefix via @code`:prefix`.}}
+        @p{声明库安装所需的头文件。安装的头文件可供其他原生库使用。通过 @code`:headers` 指定路径，通过 @code`:prefix` 指定前缀。}}
 
     @li{@code`declare-manpage`
 
-        @p{Mark a manpage for installation.}}}
+        @p{标记一个要安装的手册页。}}}

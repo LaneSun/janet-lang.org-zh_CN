@@ -9,26 +9,21 @@
  :template "docpage.html"}
 ---
 
-Simple path manipulation module for Janet. Supports manipulation both
-windows and posix paths on any platform, and provides functions that
-work according to the current host platform.
+用于 Janet 的简易路径操作模块。支持在任何平台上操作 Windows 和 POSIX 路径，并提供根据当前主机平台工作的函数。
 
-All functions have three forms, under @code`path`, @code`path/win`, and
-@code`path/posix`. The prefix indicates which type of path the function
-manipulates.
+所有函数都有三种形式，位于 @code`path`、@code`path/win` 和 @code`path/posix` 下。前缀指示函数操作的是哪种类型的路径。
 
-## Example
+## 示例
 
 @codeblock[janet]```
 
 (import spork/path)
 
-# Examples for a non-windows system, use path/win/ for windows and
-# path/posix/ for posix.
+# 针对非 Windows 系统的示例，Windows 使用 path/win/，POSIX 使用 path/posix/。
 
 (path/ext "my/long/path.txt") # -> ".txt"
-path/sep # -> "/" on posix, "\\" on windows
-path/delim # -> ":" on posix, ";" on windows
+path/sep # -> 在 POSIX 上为 "/"，在 Windows 上为 "\\"
+path/delim # -> 在 POSIX 上为 ":"，在 Windows 上为 ";"
 (path/basename "some/path.txt") # -> "path.txt"
 (path/dirname "some/path.txt") # -> "some/"
 (path/parts "some/path/file.txt") # -> ["some" "path" "file.txt"]
@@ -41,6 +36,6 @@ path/delim # -> ":" on posix, ";" on windows
   "a/nested/directory/with/different/children") # -> "../../../different/children"
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[path/]

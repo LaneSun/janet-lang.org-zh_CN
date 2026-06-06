@@ -9,15 +9,12 @@
  :template "docpage.html"}
 ---
 
-A small utility for random number generation, especially with a focus on
-discrete numbers. The most powerful idea here is the ability to have branches
-that execute in a probabilistic manner - i.e. one branch is taken half the time
-randomly, and another is taken otherwise.
+一个用于随机数生成的小工具，特别关注离散数字。这里最强大的概念是能够以概率方式执行分支的能力——即，一个分支有一半的时间被随机执行，否则执行另一个分支。
 
-## Example
+## 示例
 
 @codeblock[janet]```
-# Print either a, b, or c
+# 打印 a、b 或 c
 (import spork/randgen)
 (randgen/rand-path
   (print "a")
@@ -25,8 +22,6 @@ randomly, and another is taken otherwise.
   (print "c"))
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[randgen/]
-
-

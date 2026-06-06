@@ -1,15 +1,12 @@
-{:title "Prototypes"
+{:title "原型"
  :template "docpage.html"
  :order 17}
 ---
 
-To support basic generic programming, Janet tables support a prototype table. A
-prototype table contains default values for a table if certain keys are not
-found in the original table. This allows many similar tables to share contents
-without duplicating memory.
+为了支持基本的泛型编程，Janet 的表支持原型表（prototype table）。当在原始表中找不到某些键时，原型表提供默认值。这使得许多相似的表可以共享内容而无需重复占用内存。
 
 @codeblock[janet]```
-# Simple Object Oriented behavior in Janet
+# Janet 中简单的面向对象行为
 (def proto1 @{:type :custom1
               :behave (fn [self x] (print "behaving " x))})
 (def proto2 @{:type :custom2
@@ -25,24 +22,13 @@ without duplicating memory.
 (:behave thing2 :b) # prints "behaving 2 :b"
 ```
 
-Looking up a value in a table with a prototype can be summed up with the
-following algorithm.
+在带有原型的表中查找值的过程可以总结为以下算法。
 
-@ol{@li{@code`(get my-table my-key)` is called.}
-    @li{@code`my-table` is checked for the key @code`my-key`. If there is a value
-         for the key, it is returned.}
-    @li{If there is a prototype table for @code`my-table`, set @code`my-table` =
-        @code`my-table's prototype` and go to 2. Otherwise go to 4.}
-    @li{Return @code`nil` as the key was not found.}}
+@ol{@li{调用 @code`(get my-table my-key)`.}
+    @li{在 @code`my-table` 中查找键 @code`my-key`。如果该键存在对应的值，则返回该值。}
+    @li{如果 @code`my-table` 存在原型表，则将 @code`my-table` 设置为 @code`my-table` 的原型，并回到步骤 2。否则进入步骤 4。}
+    @li{如果未找到该键，则返回 @code`nil`。}}
 
-Janet will check up to about a 1000 prototypes recursively by default before
-giving up and returning @code`nil`. This is to prevent an infinite loop. This
-value can be changed by adjusting the @code`JANET_RECURSION_GUARD` value in
-@code`janet.h`.
+默认情况下，Janet 会递归查找大约 1000 个原型，如果仍未找到则放弃并返回 @code`nil`。这是为了防止无限循环。可以通过调整 @code`janet.h` 中的 @code`JANET_RECURSION_GUARD` 值来修改此限制。
 
-Note that Janet prototypes are not as expressive as metatables in Lua and many
-other languages.  This is by design, as adding Lua- or Python-like capabilities
-would not be technically difficult.  Users should prefer plain data and
-functions that operate on them rather than mutable objects with methods.
-However, some object-oriented capabilities are useful in Janet for systems that
-require extra flexibility.
+请注意，Janet 的原型在表达能力上不如 Lua 和其他许多语言中的元表（metatable）。这是有意为之，因为添加类似 Lua 或 Python 的功能在技术上并不困难。用户应优先使用普通数据和操作这些数据的函数，而不是带有方法的可变对象。然而，对于需要额外灵活性的系统，某些面向对象的能力在 Janet 中仍然是有用的。

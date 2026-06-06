@@ -1,25 +1,12 @@
-{:title "Versioning and Bundling"
+{:title "版本管理与捆绑"
  :template "docpage.html"
  :order 4}
 ---
 
-## Versioning and Library Bundling
+## 版本管理与库捆绑
 
-JPM does not do any semantic version resolution at the moment. Instead, it is recommended to make all changes
-to libraries as backwards-compatible as possible, and release new libraries for breaking changes in almost all
-cases. For creators of executable programs (versus a library author), it is recommended to use a local tree
-and lockfiles to pin versions for consistent builds.
+JPM 目前不进行任何语义版本解析。相反，建议尽量使对库的所有更改保持向后兼容，并在几乎所有的破坏性变更情况下发布新的库。对于可执行程序的创建者（相对于库作者），建议使用本地树和锁定文件来固定版本，以实现一致性的构建。
 
-As a matter of style, it is also recommended to group small libraries
-together into "bundles" that are updated, tested, and deployed
-together. Since Janet libraries are often quite small, the cost of
-downloading more functionality that one might need isn't particularly
-high, and JPM can remove unused functions and bindings from generated
-standalone binaries and images, so there is no runtime cost either. By
-avoiding a plethora of tiny libraries, users of libraries do not
-manage as many dependencies, and modules are more likely to work
-together they can be tested together.
+作为一种风格，还建议将小型库分组为"捆绑包"，一起进行更新、测试和部署。由于 Janet 库通常很小，下载可能需要的额外功能的成本并不特别高，而且 JPM 可以从生成的独立二进制文件和映像中移除未使用的函数和绑定，因此也没有运行时成本。通过避免过多的小型库，库的使用者不需要管理那么多的依赖，而且模块更有可能协同工作，因为它们可以一起测试。
 
-While @code`jpm` may superficially resemble @code`npm`, it is the
-author's opinion that it is suited to a different style of
-development.
+虽然 @code`jpm` 表面上可能与 @code`npm` 相似，但作者认为它适合一种不同的开发风格。

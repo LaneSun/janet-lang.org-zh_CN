@@ -1,17 +1,13 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "FFI Module"
+{:title "FFI 模块"
  :order 0
  :nav-title "ffi"
  :template "docpage.html"}
 ---
 
-Janet's Foreign Function Interface module is used to interface with native code in
-a way that does not require compiling native "glue" code. The tradeoff is the FFI module
-is "unsafe" - there is no guarantee or even much protection from crashing your program
-or triggering nonsensical behavior. This departs from Janet's usual memory safe programming
-model.
+Janet 的外部函数接口（FFI）模块用于与原生代码交互，无需编译原生"胶水"代码。但代价是 FFI 模块是"不安全的"——它无法保证甚至无法有效保护你的程序免于崩溃或触发异常行为。这与 Janet 通常的内存安全编程模型有所不同。
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[ffi/]

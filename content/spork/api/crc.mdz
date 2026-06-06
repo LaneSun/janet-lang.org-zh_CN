@@ -7,10 +7,10 @@
  :template "docpage.html"}
  ---
 
-Generate CRC (Cyclic Redundancy Check) variants. 
-  Rather than compile separate variants, we have code to generate the needed tables. 
-  Keeps build simple, footprint small but with many variants accessible.
+生成 CRC（循环冗余校验）变体。
+  与其编译单独的变体，我们通过代码生成所需的表。
+  保持构建简单，占用空间小，同时可访问多种变体。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[crc/]

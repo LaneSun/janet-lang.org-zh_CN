@@ -1,29 +1,15 @@
-{:title "Syntax and the Parser"
+{:title "语法与解析器"
  :template "docpage.html"
  :order 1}
 ---
 
-A Janet program begins life as a text file, just a sequence of bytes like any
-other file on the system. Janet source files should be UTF-8 or ASCII encoded.
-Before Janet can compile or run the program, it must transform the source code
-into a data structure. Like Lisp, Janet source code is homoiconic - code is
-represented as Janet's core data structures - thus all the facilities in the
-language for the manipulation of tuples, strings and tables can easily be used
-for manipulation of the source code as well.
+Janet 程序最初以文本文件的形式存在，就像系统上任何其他文件一样，只是一串字节序列。Janet 源文件应采用 UTF-8 或 ASCII 编码。在 Janet 能够编译或运行程序之前，它必须将源代码转换为一种数据结构。与 Lisp 一样，Janet 源代码是同像的（homoiconic）——代码以 Janet 的核心数据结构表示——因此语言中用于操作元组、字符串和表的所有功能，同样可以轻松地用于操作源代码。
 
-However, before Janet code transforms into a data structure, it must be read, or
-parsed, by the Janet parser. The parser, often called the reader in Lisp, is a
-machine that takes in plain text and outputs data structures which can be used
-by both the compiler and macros. In Janet, it is a parser rather than a reader
-because there is no code execution at reading time. This approach is safer and
-more straightforward, and makes syntax highlighting, formatting, and other syntax
-analysis simpler. While a parser is not extensible, in Janet the philosophy is
-to extend the language via macros rather than reader macros.
+然而，在 Janet 代码转换为数据结构之前，它必须由 Janet 解析器读取或解析。解析器（在 Lisp 中通常称为读取器）是一种将纯文本输入并输出可由编译器和宏使用的数据结构的机器。在 Janet 中，它是一个解析器而不是读取器，因为在读取时不会执行代码。这种方法更安全、更直接，并使语法高亮、格式化和其他语法分析更简单。虽然解析器不可扩展，但 Janet 的理念是通过宏而不是读取器宏来扩展语言。
 
-## @code`nil`, @code`true` and @code`false`
+## @code`nil`、@code`true` 和 @code`false`
 
-The values @code`nil`, @code`true` and @code`false` are all literals that can be
-entered as such in the parser.
+值 @code`nil`、@code`true` 和 @code`false` 都是字面量，可以直接在解析器中输入。
 
 @codeblock[janet]```
 nil
@@ -31,20 +17,16 @@ true
 false
 ```
 
-## Symbols
+## 符号
 
-Janet symbols are represented as a sequence of alphanumeric characters not
-starting with a digit or a colon. They can also contain the characters @code`!`,
-@code`@`, @code`$`, @code`%`, @code`^`, @code`&`, @code`*`, @code`-`, @code`_`,
-@code`+`, @code`=`, @code`:`, @code`<`, @code`>`, @code`.`, @code`?`
-as well as any Unicode codepoint not in the ASCII
-range.
+Janet 符号表示为一串字母数字字符，不能以数字或冒号开头。它们还可以包含字符 @code`!`、
+@code`@`、@code`$`、@code`%`、@code`^`、@code`&`、@code`*`、@code`-`、@code`_`、
+@code`+`、@code`=`、@code`:`、@code`<`、@code`>`、@code`.`、@code`?`
+以及任何不在 ASCII 范围内的 Unicode 码点。
 
-By convention, most symbols should be all lower case and use dashes to connect
-words (sometimes called kebab case).
+按照惯例，大多数符号应全部小写并使用连字符连接单词（有时称为 kebab case）。
 
-Symbols that come from another module will typically contain a slash that
-separates the name of the module from the name of the definition in the module.
+来自其他模块的符号通常包含一个斜杠，用于分隔模块名称和模块中定义的名称。
 
 @codeblock[janet]```
 symbol
@@ -57,12 +39,9 @@ my-module/my-function
 你好
 ```
 
-## Keywords
+## 关键字
 
-Janet keywords are like symbols that begin with the character @code`:`. However,
-they are used differently and treated by the compiler as a constant rather than
-a name for something. Keywords are used mostly for keys in tables and structs,
-or pieces of syntax in macros.
+Janet 关键字类似于符号，但以 @code`:` 字符开头。然而，它们的用法不同，编译器将其视为常量而不是某个事物的名称。关键字主要用于表和结构体中的键，或宏中的语法片段。
 
 @codeblock[janet]```
 :keyword
@@ -73,17 +52,9 @@ or pieces of syntax in macros.
 :
 ```
 
-## Numbers
+## 数字
 
-Janet numbers are represented by IEEE 754 floating point numbers.  The syntax is
-similar to that of many other languages as well. Numbers can be written in base
-10, with underscores used to separate digits into groups. A decimal point can be
-used for floating point numbers. Numbers can also be written in other bases by
-prefixing the number with the desired base and the character @code`r`. For
-example, 16 can be written as @code`16`, @code`1_6`, @code`16r10`, @code`4r100`,
-or @code`0x10`. The @code`0x` prefix can be used for hexadecimal as it is so
-common. The radix must be written in base 10, and can be any integer from 2 to
-36. For any radix above 10, use the letters as digits (not case sensitive).
+Janet 数字由 IEEE 754 浮点数表示。其语法与许多其他语言类似。数字可以用十进制书写，使用下划线将数字分组。浮点数可以使用小数点。数字也可以用其他进制表示，方法是在数字前加上所需的进制和字符 @code`r`。例如，16 可以写作 @code`16`、@code`1_6`、@code`16r10`、@code`4r100` 或 @code`0x10`。由于十六进制非常常用，可以使用 @code`0x` 前缀。进制必须用十进制书写，可以是 2 到 36 之间的任意整数。对于任何大于 10 的进制，使用字母作为数字（不区分大小写）。
 
 @codeblock[janet]```
 0
@@ -98,30 +69,24 @@ common. The radix must be written in base 10, and can be any integer from 2 to
 0xbeef
 ```
 
-## Strings
+## 字符串
 
-Strings in Janet are surrounded by double quotes. Strings are 8-bit clean,
-meaning they can contain any arbitrary sequence of bytes, including embedded 0s.
-To insert a double quote into a string itself, escape the double quote with a
-backslash. For unprintable characters, you can either use one of a few common
-escapes, use the @code`\xHH` escape to escape a single byte in hexadecimal. The
-supported escapes are:
+Janet 中的字符串由双引号括起来。字符串是 8 位干净的，这意味着它们可以包含任意字节序列，包括嵌入的 0。要在字符串中插入双引号，请使用反斜杠转义双引号。对于不可打印的字符，您可以使用一些常见的转义序列，或者使用 @code`\xHH` 转义以十六进制转义单个字节。支持的转义序列有：
 
-@ul{@li{@code`\xHH` Escape a single arbitrary byte in hexadecimal.}
-    @li{@code`\n` Newline (ASCII 10)}
-    @li{@code`\t` Tab character (ASCII 9)}
-    @li{@code`\r` Carriage Return (ASCII 13)}
-    @li{@code`\0` Null (ASCII 0)}
-    @li{@code`\z` Null (ASCII 0)}
-    @li{@code`\f` Form Feed (ASCII 12)}
-    @li{@code`\e` Escape (ASCII 27)}
-    @li{@code`\"` Double Quote (ASCII 34)}
-    @li{@code`\uxxxx` Escape UTF-8 codepoint with 4 hex digits.}
-    @li{@code`\Uxxxxxx` Escape UTF-8 codepoint with 6 hex digits.}
-    @li{@code`\\` Backslash (ASCII 92)}}
+@ul{@li{@code`\xHH` 以十六进制转义单个任意字节。}
+    @li{@code`\n` 换行符（ASCII 10）}
+    @li{@code`\t` 制表符（ASCII 9）}
+    @li{@code`\r` 回车符（ASCII 13）}
+    @li{@code`\0` 空字符（ASCII 0）}
+    @li{@code`\z` 空字符（ASCII 0）}
+    @li{@code`\f` 换页符（ASCII 12）}
+    @li{@code`\e` 转义符（ASCII 27）}
+    @li{@code`\"` 双引号（ASCII 34）}
+    @li{@code`\uxxxx` 用 4 位十六进制数字转义 UTF-8 码点。}
+    @li{@code`\Uxxxxxx` 用 6 位十六进制数字转义 UTF-8 码点。}
+    @li{@code`\\` 反斜杠（ASCII 92）}}
 
-Strings can also contain literal newline characters that will be ignored.  This
-lets one define a multiline string that does not contain newline characters.
+字符串还可以包含会被忽略的字面换行符。这允许定义不包含换行符的多行字符串。
 
 @codeblock[janet]```
 # same as "Thisisastring"
@@ -131,16 +96,9 @@ a
 string"
 ```
 
-### Long-strings
+### 长字符串
 
-An alternative way of representing strings in Janet is the long-string, or the
-backquote-delimited string. A long-string can be defined to start with a certain
-number of backquotes, and will end the same number of backquotes. Long-strings
-do not contain escape sequences; all bytes will be parsed literally until the
-ending delimiter is found. This is useful for defining multi-line strings containing
-literal newline characters, unprintable characters, or strings that would
-otherwise require many escape sequences.  Note that long-strings cannot be
-empty.
+在 Janet 中另一种表示字符串的方式是长字符串，即反引号分隔的字符串。长字符串以一定数量的反引号开始，并以相同数量的反引号结束。长字符串不包含转义序列；在找到结束分隔符之前，所有字节都将按字面解析。这对于定义包含字面换行符、不可打印字符或原本需要大量转义序列的多行字符串非常有用。注意，长字符串不能为空。
 
 @codeblock[janet]```
 # same as "This\nis\na\nstring."
@@ -158,15 +116,11 @@ a string.
 `
 ```
 
-Long-strings are often used for docstrings, as described in the
-@link[./documentation.html][Documentation chapter].
+长字符串通常用于文档字符串，如 @link[./documentation.html][文档章节] 所述。
 
-## Buffers
+## 缓冲区
 
-Buffers are similar to strings except they are mutable data structures. Strings
-in Janet cannot be mutated after being created, whereas a buffer can be changed
-after creation.  The syntax for a buffer is the same as that for a string or
-long string, but the buffer must be prefixed with the @code`@` character.
+缓冲区与字符串类似，但它们是可变的数据结构。Janet 中的字符串在创建后不能修改，而缓冲区在创建后可以更改。缓冲区的语法与字符串或长字符串相同，但缓冲区必须以 @code`@` 字符为前缀。
 
 @codeblock[janet]```
 @""
@@ -177,42 +131,30 @@ Yet another buffer
 `
 ```
 
-## Tuples
+## 元组
 
-Tuples are a sequence of whitespace separated values surrounded by either
-parentheses or brackets. The parser considers any of the characters ASCII 32,
-@code`\0`, @code`\f`, @code`\n`, @code`\r`, @code`\t`, or @code`\v` to be
-whitespace.
+元组是由空格分隔的值序列，用圆括号或方括号括起来。解析器将 ASCII 32、
+@code`\0`、@code`\f`、@code`\n`、@code`\r`、@code`\t` 或 @code`\v` 中的任何字符视为空白字符。
 
 @codeblock[janet]```
 (do 1 2 3)
 [do 1 2 3]
 ```
 
-Square brackets indicate that a tuple will be used as a tuple literal rather
-than a function call, macro call, or special form. The parser will set a flag on
-a tuple if it has square brackets to let the compiler know to compile the tuple
-into a constructor. The programmer can check if a tuple has brackets via the
-@code`tuple/type` function.
+方括号表示元组将用作元组字面量，而不是函数调用、宏调用或特殊形式。如果元组使用方括号，解析器将设置一个标志，以告知编译器将该元组编译为构造函数。程序员可以通过 @code`tuple/type` 函数检查元组是否有方括号。
 
-## Arrays
+## 数组
 
-Arrays are the same as tuples, but have a leading @code`@` to indicate
-mutability.
+数组与元组相同，但前面有一个 @code`@` 表示可变性。
 
 @codeblock[janet]```
 @(:one :two :three)
 @[:one :two :three]
 ```
 
-## Structs
+## 结构体
 
-Structs are represented by a sequence of whitespace-delimited key-value pairs
-surrounded by curly braces. The sequence is defined as key1, value1, key2,
-value2, etc.  There must be an even number of items between curly braces or the
-parser will signal a parse error. Any value can be a key or value. Using
-@code`nil` or @code`math/nan` as a key, however, will drop that pair from the parsed
-struct.
+结构体由一系列空格分隔的键值对表示，用花括号括起来。序列定义为 key1、value1、key2、value2 等。花括号之间的项数必须为偶数，否则解析器将报告解析错误。任何值都可以作为键或值。但是，使用 @code`nil` 或 @code`math/nan` 作为键将从解析后的结构体中丢弃该键值对。
 
 @codeblock[janet]```
 {}
@@ -222,10 +164,9 @@ struct.
 {1 2 3 4 5 6}
 ```
 
-## Tables
+## 表
 
-Tables have the same syntax as structs, except they have the @code`@` prefix to
-indicate that they are mutable.
+表与结构体语法相同，但带有 @code`@` 前缀以表示它们是可变的。
 
 @codeblock[janet]```
 @{}
@@ -235,54 +176,43 @@ indicate that they are mutable.
 @{1 2 3 4 5 6}
 ```
 
-## Comments
+## 注释
 
-Comments begin with a @code`#` character and continue until the end of the line.
-There are no multiline comments.
+注释以 @code`#` 字符开始，一直持续到行尾。没有多行注释。
 
-## Shorthand
+## 简写
 
-Often called reader macros in other programming languages, Janet provides
-several shorthand notations for some forms. In Janet, this syntax is referred to
-as prefix forms and they are not extensible.
+在其他编程语言中通常称为读取器宏，Janet 为某些形式提供了几种简写符号。在 Janet 中，这种语法称为前缀形式，并且是不可扩展的。
 
 ### @code`'x`
 
-Shorthand for @code`(quote x)`
+@code`(quote x)` 的简写
 
 ### @code`;x`
 
-Shorthand for @code`(splice x)`
+@code`(splice x)` 的简写
 
 ### @code`~x`
 
-Shorthand for @code`(quasiquote x)`
+@code`(quasiquote x)` 的简写
 
 ### @code`,x`
 
-Shorthand for @code`(unquote x)`
+@code`(unquote x)` 的简写
 
 ### @code`|(body $)`
 
-Shorthand for @code`(short-fn (body $))`
+@code`(short-fn (body $))` 的简写
 
-These shorthand notations can be combined in any order, allowing forms like
-@code`''x` \ (@code`(quote (quote x))`), or @code`,;x` \ 
-(@code`(unquote (splice x))`).
+这些简写符号可以按任意顺序组合，从而允许像 @code`''x`（@code`(quote (quote x))`）或 @code`,;x`（@code`(unquote (splice x))`）这样的形式。
 
-## Syntax Highlighting
+## 语法高亮
 
-For syntax highlighting, there is some preliminary Vim syntax highlighting in
-@link[https://github.com/janet-lang/janet.vim][janet.vim].  Generic lisp syntax
-highlighting should, however, provide good results. One can also generate a
-@code`janet.tmLanguage` file for other programs with @code`make grammar` from
-the Janet source code.
+关于语法高亮，@link[https://github.com/janet-lang/janet.vim][janet.vim] 提供了一些初步的 Vim 语法高亮。不过，通用的 Lisp 语法高亮应该也能提供不错的效果。也可以从 Janet 源代码中使用 @code`make grammar` 为其他程序生成 @code`janet.tmLanguage` 文件。
 
-## Grammar
+## 文法
 
-For anyone looking for a more succinct description of the grammar, a PEG grammar
-for recognizing Janet source code is below. The PEG syntax is itself similar to
-EBNF.  More info on the PEG syntax can be found in the @link[/docs/peg.html][PEG section].
+对于寻找更简洁的文法描述的人来说，下面是用于识别 Janet 源代码的 PEG 文法。PEG 语法本身类似于 EBNF。关于 PEG 语法的更多信息可以在 @link[/docs/peg.html][PEG 章节] 中找到。
 
 @codeblock[janet]```
 (def grammar
@@ -291,7 +221,7 @@ EBNF.  More info on the PEG syntax can be found in the @link[/docs/peg.html][PEG
     :symchars (+ (range "09" "AZ" "az" "\x80\xFF") (set "!$%&*+-./:<?=>@^_"))
     :token (some :symchars)
     :hex (range "09" "af" "AF")
-    :escape (* "\\" (+ (set `"'0?\abefnrtvz`)
+    :escape (* "\\" (+ (set `"\"'0?\\abefnrtvz`)
                        (* "x" :hex :hex)
                        (* "u" [4 :hex])
                        (* "U" [6 :hex])

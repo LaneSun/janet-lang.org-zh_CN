@@ -3,11 +3,11 @@
 (setdyn :source-linker (partial gen-docs/github-source-linker "janet-lang/jpm" gen-docs/jpm-version))
 (setdyn :no-community-examples true)
 
-{:title "C Source Generation"
+{:title "C 源码生成"
  :nav-title "cgen"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix-current[cgen/]

@@ -1,10 +1,9 @@
-{:title "Bindings (def and var)"
+{:title "绑定（def 和 var）"
  :template "docpage.html"
  :order 5}
 ---
 
-Values can be bound to symbols for later use using the keyword @code[def]. Using
-undefined symbols will raise an error.
+可以使用关键字 @code[def] 将值绑定到符号以便后续使用。使用未定义的符号将引发错误。
 
 @codeblock[janet](```
 (def a 100)
@@ -13,11 +12,8 @@ undefined symbols will raise an error.
 (def d (- c 100))
 ```)
 
-Bindings created with @code`def` have lexical scoping. Additionally, bindings
-created with @code`def` are immutable; they cannot be changed after definition.
-For mutable bindings, like variables in other programming languages, use the
-@code[var] keyword. The assignment special form @code[set] can then be used to
-update a var.
+使用 @code`def` 创建的绑定具有词法作用域。此外，使用 @code`def` 创建的绑定是不可变的；它们在定义后不能被修改。
+对于可变绑定，如同其他编程语言中的变量，请使用 @code[var] 关键字。然后可以使用赋值特殊形式 @code[set] 来更新一个 var。
 
 @codeblock[janet](```
 (def a 100)
@@ -27,27 +23,19 @@ update a var.
 (print myvar)
 ```)
 
-In the global scope, you can use the @code[:private] option on a def or var to
-prevent it from being exported to code that imports your current module. You can
-also add documentation to a function by passing a string to the @code`def` or
-@code`var` command.
+在全局作用域中，可以在 def 或 var 上使用 @code[:private] 选项，以防止它被导出到导入当前模块的代码中。
+还可以通过向 @code`def` 或 @code`var` 命令传递一个字符串来为函数添加文档。
 
 @codeblock[janet](```
 (def mydef :private "This will have private scope. My doc here." 123)
 (var myvar "docstring here" 321)
 ```)
 
-### Scopes
+### 作用域
 
-Defs and vars (collectively known as bindings) live inside what is called a
-scope. A scope is simply where the bindings are valid. If a binding is
-referenced outside of its scope, the compiler will throw an error. Scopes are
-useful for organizing your bindings and they can expand your programs.  There
-are two main ways to create a scope in Janet.
+Defs 和 vars（统称为绑定）存在于所谓的作用域中。作用域就是绑定有效的地方。如果在作用域外引用一个绑定，编译器将抛出错误。作用域对于组织绑定非常有用，并且可以扩展你的程序。在 Janet 中有两种主要创建作用域的方法。
 
-The first is to use the @code[do] special form. @code[do] executes a series of
-statements in a scope and evaluates to the last statement. Bindings created
-inside the form do not escape outside of its scope.
+第一种是使用 @code[do] 特殊形式。@code[do] 在一个作用域中执行一系列语句，并求值为最后一个语句。在该特殊形式内部创建的绑定不会逃逸到其作用域之外。
 
 @codeblock[janet](```
 (def a :outera)
@@ -63,18 +51,11 @@ b # -> compile error: "unknown symbol \"b\""
 c # -> compile error: "unknown symbol \"c\""
 ```)
 
-Any attempt to reference the bindings from the @code`do` form after it has
-finished executing will fail. Also notice that defining @code[a] inside the
-@code`do` form did not overwrite the original definition of @code[a] for the
-global scope.
+任何在 @code`do` 形式执行完成后尝试引用其中绑定的行为都会失败。还要注意，在 @code`do` 形式内部定义 @code[a] 并不会覆盖全局作用域中 @code[a] 的原始定义。
 
-The second way to create a scope is to create a closure.  The @code[fn] special
-form also introduces a scope just like the @code[do] special form.
+第二种创建作用域的方法是创建一个闭包。@code[fn] 特殊形式也像 @code[do] 特殊形式一样引入一个作用域。
 
-There is another built in macro, @code[let], that does multiple @code`def`s at
-once, and then introduces a scope.  @code[let] is a wrapper around a combination
-of @code`def`s and @code`do`s, and is the most "functional" way of creating
-bindings.
+还有另一个内置宏 @code[let]，它可以一次执行多个 @code`def`，然后引入一个作用域。@code[let] 是对 @code`def` 和 @code`do` 组合的封装，是创建绑定的最"函数式"的方式。
 
 @codeblock[janet](```
 (let [a 1
@@ -83,6 +64,4 @@ bindings.
   (+ a b c)) # -> 6
 ```)
 
-The above is equivalent to the example using @code[do] and @code[def].  This is
-the preferable form in most cases. That said, using @code`do` with multiple
-@code`def`s is fine as well.
+以上等价于使用 @code[do] 和 @code[def] 的示例。在大多数情况下，这是更推荐的形式。也就是说，使用 @code`do` 配合多个 @code`def` 也同样可行。

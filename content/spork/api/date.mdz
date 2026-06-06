@@ -7,7 +7,7 @@
  :template "docpage.html"}
  ---
 
-Utility wrappers around `os/time` and `os/date` for working with dates, particularly formatting them as strings (with `date/to-string`) and reading dates from strings (with `date/from-string`).
+围绕 `os/time` 和 `os/date` 的工具包装，用于处理日期，特别是将日期格式化为字符串（使用 `date/to-string`）以及从字符串中读取日期（使用 `date/from-string`）。
 
 ## Reference
 

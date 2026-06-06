@@ -7,8 +7,8 @@
  :template "docpage.html"}
  ---
 
-Shell utilities for Janet.
+Janet 的 Shell 工具。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[sh/]

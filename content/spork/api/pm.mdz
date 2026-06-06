@@ -7,11 +7,8 @@
  :template "docpage.html"}
  ---
 
-The PM module (short for package manager) contains a number of utilities for downloading
-bundles from the internet, managing dependencies, and building projects. It works in tandem
-with Janet's built-in @code`bundle/` module, as well as supporting legacy JPM projects on a
-best-effort basis.
+PM 模块（package manager 的缩写）包含多个用于从互联网下载包、管理依赖项和构建项目的工具。它与 Janet 内置的 @code`bundle/` 模块协同工作，并尽力支持旧版 JPM 项目。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[pm/]

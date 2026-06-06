@@ -9,14 +9,13 @@
  :template "docpage.html"}
 ---
 
-This module contains a simple test helper when you do not need a specialized
-library.
+该模块包含一个简单的测试辅助工具，当你不需要专门的测试库时可以使用。
 
-## Examples
+## 示例
 
 ### assert
 
-Modified version of `assert`, with some nice error handling.
+`assert` 的修改版，带有更友好的错误处理。
 
 @codeblock[janet]```
 (test/assert false "How is this?")
@@ -28,7 +27,7 @@ Modified version of `assert`, with some nice error handling.
 
 ### assert-not
 
-Invert assert.
+`assert` 的反向版本。
 
 @codeblock[janet]```
 (test/assert-not false "OK")
@@ -38,7 +37,7 @@ Invert assert.
 
 ### assert-error
 
-Test passes if forms throw errors.
+若表达式抛出错误则测试通过。
 
 @codeblock[janet]```
 (test/assert-error "To err is natural" (error "Bad"))
@@ -48,7 +47,7 @@ Test passes if forms throw errors.
 
 ### assert-no-error
 
-Test passes if forms throw errors.
+若表达式不抛出错误则测试通过。
 
 @codeblock[janet]```
 (test/assert-no-error "To not err is desired" (do "Good"))
@@ -58,17 +57,17 @@ Test passes if forms throw errors.
 
 ### start-suite
 
-Starts test suite, which counts all and passed tests.
+启动测试套件，统计所有测试和通过的测试数量。
 
 
 ### end-suite
 
-Ends test suite, prints summary and exits if any have failed.
+结束测试套件，打印摘要，如果有失败则退出。
 
 
-### All together
+### 完整示例
 
-Example of simple test suite.
+简单测试套件的示例。
 
 @codeblock[janet]```
 (import spork/test)
@@ -91,8 +90,7 @@ Test suite 0 finished in 0.000 soconds
 
 ### timeit
 
-Time code execution using os/clock, and print the result.
-Returns the value of the timed expression.
+使用 os/clock 计时代码执行，并打印结果。返回计时表达式的值。
 
 @codeblock[janet]```
 repl> (test/timeit (sum (seq [i :range [1 1000000]] (math/sqrt i))))
@@ -103,8 +101,7 @@ Elapsed time: 0.0718288 seconds
 
 ### capture-stdout
 
-Runs the body and captures stdout. Returns tuple with result and captured
-stdout in string.
+运行主体并捕获 stdout。返回元组，包含结果和捕获到的 stdout 字符串。
 
 @codeblock[janet]```
 (capture-stdout
@@ -116,8 +113,7 @@ stdout in string.
 
 ### capture-stderr
 
-Runs the body and captures stderr. Returns tuple with result and captured
-stderr in string.
+运行主体并捕获 stderr。返回元组，包含结果和捕获到的 stderr 字符串。
 
 @codeblock[janet]```
 (capture-stderr
@@ -129,7 +125,7 @@ stderr in string.
 
 ### supress-stdout
 
-Runs the form, but supresses its stdout.
+运行表达式，但抑制其 stdout。
 
 @codeblock[janet]```
 (suppress-stdout (print "Hello world!"))
@@ -139,7 +135,7 @@ Runs the form, but supresses its stdout.
 
 ### supress-stderr
 
-Runs the form, but supresses its stderr.
+运行表达式，但抑制其 stderr。
 
 @codeblock[janet]```
 (suppress-stderr (eprint "Hello world!"))
@@ -148,15 +144,14 @@ Runs the form, but supresses its stderr.
 
 ### assert-docs
 
-Asserts that all public bindings from the environment have docstring, 
-when the `path` is required.
+当 `path` 为必填参数时，断言环境中所有公开绑定都有文档字符串。
 
 @codeblock[janet]```
 (assert-doc "/spork/test")
 ✘  suppress-stderr does not have proper doc
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[test/]
 

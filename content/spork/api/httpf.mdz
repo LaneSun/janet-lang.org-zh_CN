@@ -7,9 +7,8 @@
  :template "docpage.html"}
  ---
 
-A simple, opinionated HTTP framework for HTML, JDN, and JSON servers.
-Servers can easily be configured from defn bindings with
-appropriate metadata.
+一个简单、有主见的 HTTP 框架，用于构建 HTML、JDN 和 JSON 服务器。
+可以通过带有适当元数据的 defn 绑定轻松配置服务器。
 
 ## Reference
 

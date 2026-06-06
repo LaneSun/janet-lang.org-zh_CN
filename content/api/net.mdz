@@ -1,11 +1,11 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Net Module"
+{:title "网络模块"
  :order 0
  :nav-title "net"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[net/]

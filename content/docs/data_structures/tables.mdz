@@ -1,20 +1,15 @@
-{:title "Tables"
+{:title "表"
  :template "docpage.html"
  :order 3}
 ---
 
-The table is one of the most flexible data structures in Janet and is modeled
-after the associative array or dictionary. Values are put into a table with a
-key, and can be looked up later with the same key. Tables are implemented with
-an underlying open hash table, so they are quite fast and cache friendly.
+表是 Janet 中最灵活的数据结构之一，它基于关联数组（associative array）或字典（dictionary）建模。值通过键（key）放入表中，之后可以使用相同的键进行查找。表使用底层开放哈希表（open hash table）实现，因此速度很快且对缓存友好。
 
-Any Janet value except @code`nil` and @code`math/nan` can be a key or
-a value in a Janet table, and a single Janet table can have any
-mixture of types as keys and values.
+除了 @code`nil` 和 @code`math/nan` 之外，任何 Janet 值都可以作为 Janet 表的键或值，单个 Janet 表可以包含任意混合类型的键和值。
 
-## Creating tables
+## 创建表
 
-The easiest way to create a table is via a table literal.
+创建表最简单的方式是使用表字面量。
 
 @codeblock[janet](```
 (def my-tab @{
@@ -24,9 +19,7 @@ The easiest way to create a table is via a table literal.
  '(1 0) @{:another :table}})
 ```)
 
-Another way to create a table is via the @code[table] function. This has the
-advantage that @code[table] is an ordinary function that can be passed around
-like any other. For most cases, a table literal should be preferred.
+另一种创建表的方式是通过 @code[table] 函数。这种方式的优点是 @code[table] 是一个普通函数，可以像其他函数一样传递。在大多数情况下，应优先使用表字面量。
 
 @codeblock[janet](```
 (def my-tab (table
@@ -36,13 +29,9 @@ like any other. For most cases, a table literal should be preferred.
              '(1 0) @{:another :table}))
 ```)
 
-## Getting and setting values
+## 获取和设置值
 
-Like other data structures in Janet, values in a table can be retrieved with
-the @code[get] function, and new values in a table can be added via the
-@code[put] function or the @code[set] special. Inserting a value of @code`nil`
-into a table removes the key from the table. This means tables cannot contain
-@code`nil` values.
+与 Janet 中的其他数据结构一样，可以使用 @code[get] 函数检索表中的值，通过 @code[put] 函数或 @code[set] 特殊形式向表中添加新值。向表中插入 @code`nil` 值会从表中移除该键，这意味着表不能包含 @code`nil` 值。
 
 @codeblock[janet](```
 (def t @{})
@@ -55,23 +44,19 @@ into a table removes the key from the table. This means tables cannot contain
 (set (t :cheese) :cake)
 (get t :cheese) #-> :cake
 
-# Tables can be called as functions
-# that look up the argument
+# 表可以作为函数调用
+# 查找传入的参数
 (t :cheese) #-> :cake
 ```)
 
-## Prototypes
+## 原型
 
-All tables can have a prototype, a parent table that is checked when a key is
-not found in the first table. By default, tables have no prototype.  Prototypes
-are a flexible mechanism that, among other things, can be used to implement
-inheritance in Janet. Read more in the
-@link[/docs/prototypes.html][documentation for prototypes].
+所有表都可以有一个原型（prototype），即一个父表。当在第一个表中未找到键时，会检查这个父表。默认情况下，表没有原型。原型是一种灵活的机制，可用于实现 Janet 中的继承等特性。更多信息请参阅
+@link[/docs/prototypes.html][原型文档]。
 
-## Useful functions for tables
+## 表的有用函数
 
-The Janet core library has many useful functions for manipulating tables. Below
-is a non-exhaustive list.
+Janet 核心库提供了许多用于操作表的有用函数。以下是一个非详尽的列表。
 
 @ul{@li{@code[frequencies]}
     @li{@code[keys]}
@@ -89,4 +74,4 @@ is a non-exhaustive list.
     @li{@code[walk]}
     @li{@code[zipcoll]}}
 
-See the @link[/api/table.html][Table API] documentation for table-specific functions.
+请参阅 @link[/api/table.html][表 API] 文档以获取表专用函数的信息。

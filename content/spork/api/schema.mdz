@@ -7,40 +7,37 @@
  :template "docpage.html"}
  ---
 
-Simple schema validation library. Specify structure declaratively, and get
-functions that will check that structure and either raise an error or return a boolean.
-While reasonably general, use is intended for data such as one would find
-in configuration files or network protocols.
+简单的 schema 验证库。声明式地指定结构，获取用于检查该结构并在出错时引发错误或返回布尔值的函数。
+虽然相当通用，但主要用于配置文件或网络协议中的数据。
 
-Currently does not support more advanced features such as:
+目前不支持更高级的功能，例如：
 @ul{
-  @li{Recursive schemas}
-  @li{Full error reporting (only a single error is reported)}
-  @li{PEG style grammars (used to enable recursion in PEGs)}
-  @li{Unification (such as in the @code`(match)` macro)}
-  @li{Parsing/data extraction}
+  @li{递归 schema}
+  @li{完整的错误报告（仅报告单个错误）}
+  @li{PEG 风格文法（用于在 PEG 中实现递归）}
+  @li{合一（例如 @code`(match)` 宏中）}
+  @li{解析/数据提取}
 }
 
-Syntax:
+语法：
 @ul{
-@li{@code`:keyword` - match any value of that type}
-@li{Tuples are used to match various combinators:
+@li{@code`:keyword` - 匹配该类型的任何值}
+@li{元组用于匹配多种组合器：
 @ul{
-  @li{@code`(any)` - match any one value}
-  @li{@code`(enum & options)` - match any of the option values}
-  @li{@code`(or & schemas)` - similar to enum, but each option is considered a schema.}
-  @li{@code`(and & schemas)` - Only matches if all clauses match}
-  @li{@code`(values schema)` - Matches only if schema matches all values in a data structure.}
-  @li{@code`(keys schema)` - Matches only if schema matches all keys in a data structure.}
-  @li{@code`(props & k v)` - Takes a sequence of keys and values (alternating in order). Only matches}
-       the data if, for a key, the corresponding schema `v` matches.
-  @li{@code`(length l)` - Only match if the data has a length of l. Uses of the length combinator should assert the data type before doing a length check.}
-  @li{@code`(length min max)` - Only match lengths between min and max inclusive}
-  @li{@code`(peg pattern)` - Matches only if the peg matches}
-  @li{@code`(not pattern)` - Only matches if pattern does not match}
-  @li{@code`(pred predicate)` - Use a predicate function (function of 1 argument) to check if the data is valid.}
+  @li{@code`(any)` - 匹配任意一个值}
+  @li{@code`(enum & options)` - 匹配任意一个选项值}
+  @li{@code`(or & schemas)` - 与 enum 类似，但每个选项被视为一个 schema。}
+  @li{@code`(and & schemas)` - 仅当所有子句都匹配时才匹配}
+  @li{@code`(values schema)` - 仅当 schema 匹配数据结构中的所有值时才匹配}
+  @li{@code`(keys schema)` - 仅当 schema 匹配数据结构中的所有键时才匹配}
+  @li{@code`(props & k v)` - 接受一系列键和值（按顺序交替）。仅当对于某个键，对应的 schema `v` 匹配时才匹配该数据。}
+  @li{@code`(length l)` - 仅当数据长度为 l 时才匹配。使用 length 组合器应在进行长度检查前断言数据类型。}
+  @li{@code`(length min max)` - 仅匹配长度在 min 和 max 之间（含）的数据}
+  @li{@code`(peg pattern)` - 仅当 PEG 匹配时才匹配}
+  @li{@code`(not pattern)` - 仅当 pattern 不匹配时才匹配}
+  @li{@code`(pred predicate)` - 使用谓词函数（一个参数的函数）检查数据是否有效。}
 }}
-@li{anything else - match that value literally}
+@li{其他 - 按字面匹配该值}
 }
 
 ## Reference

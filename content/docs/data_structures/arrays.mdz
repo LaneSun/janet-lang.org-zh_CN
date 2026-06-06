@@ -1,37 +1,26 @@
-{:title "Arrays"
+{:title "数组"
  :template "docpage.html"
  :order 2}
 ---
 
-Arrays are a fundamental datatype in Janet. Arrays are values that contain a
-sequence of other values, indexed from 0. Arrays are also mutable, meaning that
-values can be added or removed in place. Many functions in the Janet core
-library will also create arrays, such as @code`map`, @code`filter`, and
-@code`interpose`.
+数组是 Janet 中的基本数据类型。数组是包含其他值序列的值，从 0 开始索引。数组也是可变的，意味着可以就地添加或删除值。Janet 核心库中的许多函数也会创建数组，例如 @code`map`、@code`filter` 和 @code`interpose`。
 
-## Array length
+## 数组长度
 
-The length of an array is the number of elements in the array. The last element
-of the array is therefore at index length - 1. To get the length of an array,
-use the @code[(length x)] function.
+数组的长度是数组中元素的数量。因此数组的最后一个元素位于索引 length - 1。要获取数组的长度，使用 @code[(length x)] 函数。
 
-## Creating arrays
+## 创建数组
 
-There are many ways to create arrays in Janet, but the easiest is the array
-literal.
+在 Janet 中创建数组有多种方法，但最简单的是数组字面量。
 
 @codeblock[janet]```
 (def my-array @[1 2 3 "four"])
 (def my-array2 @(1 2 3 "four"))
 ```
 
-An array literal begins with an at symbol, @code`@`, followed by square
-brackets or parentheses with 0 or more values inside.
+数组字面量以 at 符号 @code`@` 开头，后跟方括号或圆括号，里面包含 0 个或多个值。
 
-To create an empty array that you will fill later, use the @code`(array/new capacity)` function. This creates an array with a reserved capacity for
-a number of elements. This means that appending elements to the array will not
-re-allocate the memory in the array. Using an empty array literal would not
-pre-allocate any space, so the resulting operation would be less efficient.
+要创建一个稍后填充的空数组，使用 @code`(array/new capacity)` 函数。这会创建一个为一定数量元素预留了容量的数组。这意味着向数组中追加元素时不会重新分配数组的内存。使用空数组字面量不会预分配任何空间，因此后续操作效率会较低。
 
 @codeblock[janet]```
 (def arr (array/new 4))
@@ -43,13 +32,9 @@ arr # -> @[]
 arr # -> @[:one :two :three :four]
 ```
 
-## Getting values
+## 获取值
 
-Arrays are not of much use without being able to get and set values inside
-them. To get values from an array, use the @code`in` or @code`get` function.
-@code`in` will require an index within bounds and will throw an error
-otherwise. @code`get` takes an index and an optional default value. If the
-index is out of bounds it will return @code`nil` or the given default value.
+如果不能获取和设置数组中的值，数组就没多大用处。要从数组中获取值，使用 @code`in` 或 @code`get` 函数。@code`in` 要求索引在范围内，否则会抛出错误。@code`get` 接受一个索引和一个可选的默认值。如果索引越界，它会返回 @code`nil` 或给定的默认值。
 
 @codeblock[janet](```
 (def arr @[:a :b :c :d])
@@ -59,25 +44,18 @@ index is out of bounds it will return @code`nil` or the given default value.
 (get arr 100 :default) # -> :default
 ```)
 
-Instead of @code`in` you can also use the array as a function with the index as
-an argument or call the index as a function with the array as the first
-argument.
+除了使用 @code`in`，你也可以将数组作为函数使用，将索引作为参数；或者将索引作为函数调用，将数组作为第一个参数。
 
 @codeblock[janet](```
 (arr 2) # -> :c
 (0 arr) # -> :a
 ```)
 
-Note that a non-integer key will throw an error when using @code`in`.
+注意，使用 @code`in` 时，非整数键会抛出错误。
 
-## Setting values
+## 设置值
 
-To set values in an array, use either the @code`put` function or the @code`set`
-special.  The @code`put` function is a function that allows putting values in
-any associative data structure. This means that it can associate keys with
-values for arrays, tables, and buffers. If an index is given that is past the
-end of the array, the array is first padded with @code`nil`s so that it is
-large enough to accommodate the new element.
+要设置数组中的值，使用 @code`put` 函数或 @code`set` 特殊形式。@code`put` 函数是一个允许在任何关联数据结构中放入值的函数。这意味着它可以为数组、表和缓冲区关联键和值。如果给定的索引超出了数组末尾，数组会首先用 @code`nil` 填充，使其足够大以容纳新元素。
 
 @codeblock[janet](```
 (def arr @[])
@@ -88,15 +66,11 @@ large enough to accommodate the new element.
 arr # -> @[:hi nil :hello]
 ```)
 
-The syntax for the @code`set` special is slightly different, as it is meant to
-mirror the syntax for getting an element out of a data structure.  Another
-difference is that while @code`put` returns the data structure, @code`set` evaluates to
-the new value.
+@code`set` 特殊形式的语法略有不同，因为它旨在镜像从数据结构中获取元素的语法。另一个区别是，@code`put` 返回数据结构，而 @code`set` 求值为新值。
 
-## Using an array as a stack
+## 将数组用作栈
 
-Arrays can also be used for implementing efficient stacks. The Janet core
-library provides three functions that can be used to treat an array as a stack.
+数组也可以用于实现高效的栈。Janet 核心库提供了三个函数，可用于将数组视为栈。
 
 @ul{@li{@code[(array/push stack value)]}
     @li{@code[(array/pop stack)]}
@@ -104,23 +78,19 @@ library provides three functions that can be used to treat an array as a stack.
 
 ### @code[(array/push stack value)]
 
-Appends a value to the end of the array and returns the array.
+将一个值追加到数组末尾并返回该数组。
 
 ### @code[(array/pop stack)]
 
-Removes the last value from stack and returns it. If the array is empty,
-returns @code`nil`.
+从栈中移除最后一个值并返回它。如果数组为空，返回 @code`nil`。
 
 ### @code[(array/peek stack)]
 
-Returns the last element in stack but does not remove it. Returns @code`nil` if
-the stack is empty.
+返回栈中的最后一个元素但不移除它。如果栈为空，返回 @code`nil`。
 
-## More array functions
+## 更多数组函数
 
-There are several more functions in the @code[array/] namespace and many more
-functions that create or manipulate arrays in the core library. A short list of
-the author's favorites are below:
+@code[array/] 命名空间中还有更多函数，核心库中也有更多创建或操作数组的函数。以下是作者最喜爱的一些函数：
 
 @ul{@li{@code[array/slice]}
     @li{@code[map]}
@@ -128,5 +98,4 @@ the author's favorites are below:
     @li{@code[interpose]}
     @li{@code[frequencies]}}
 
-For documentation on these functions, use the @code[doc] macro in the REPL or
-consult the @link[/api/array.html][Array API].
+有关这些函数的文档，请在 REPL 中使用 @code[doc] 宏，或查阅 @link[/api/array.html][数组 API]。

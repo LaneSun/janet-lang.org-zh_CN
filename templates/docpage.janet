@@ -1,7 +1,7 @@
 (use mendoza/template-env)
 
 (defn render-toc
-  "Render the table of contents for a page."
+  "渲染页面的目录。"
   [node]
   (def url (if (node :pages) (string (node :url) "/index.html") (node :url)))
   {:tag "li"
@@ -24,8 +24,7 @@
     (array/push total-order node)))
 
 (defn get-total-order
-  "Lazily get total order. This must be lazy because the sitemap is not
-  built until after all templates have been parsed."
+  "惰性获取总顺序。必须惰性求值，因为站点地图在所有模板解析完成之前尚未构建。"
   []
   (unless total-order
     (set total-order @[])
@@ -33,7 +32,7 @@
   total-order)
 
 (defn findrel
-  "Find page offset from url in the total order"
+  "在总顺序中根据 URL 查找页面的偏移量。"
   [url offset]
   (def order (get-total-order))
   (def len (length order))
@@ -42,7 +41,7 @@
   (order index))
 
 (defn find-old-versions
-  "Get old versions of this documentation for link purposes."
+  "获取本文档的旧版本，用于链接目的。"
   []
   (sort (seq [d :in (os/dir "static")
               :let [m (peg/match ~'(* (/ ':d+ ,scan-number) "." (/ ':d+ ,scan-number) "." (/ ':d+ ,scan-number)) d)]

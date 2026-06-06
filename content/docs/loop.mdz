@@ -1,29 +1,21 @@
-{:title "Looping"
+{:title "循环"
  :template "docpage.html"
  :order 9}
 ---
 
-A very common and essential operation in all programming is looping. Most
-languages support looping of some kind, either with explicit loops or recursion.
-Janet supports both recursion and a primitive @code[while] loop. While recursion
-is useful in many cases, sometimes it is more convenient to use an explicit loop
-to iterate over a collection like an array.
+在所有编程语言中，循环是一个非常常见且基本的操作。大多数语言都以某种方式支持循环，无论是显式循环还是递归。Janet 同时支持递归和基本的 @code[while] 循环。虽然递归在很多情况下很有用，但有时使用显式循环来遍历像数组这样的集合会更方便。
 
-## Example 1: Iterating a range
+## 示例 1：遍历范围
 
-Suppose you want to calculate the sum of the first 10 natural numbers 0 through
-9. There are many ways to carry out this explicit calculation.  A succinct way
-in Janet is:
+假设你想要计算前 10 个自然数 0 到 9 的和。有许多方法可以进行这个显式计算。Janet 中一种简洁的方式是：
 
 @codeblock[janet]```
 (+ ;(range 10))
 ```
 
-We will limit ourselves however to using explicit looping and no functions like
-@code[(range n)] which generate a list of natural numbers for us.
+然而我们将限制自己只使用显式循环，而不使用像 @code[(range n)] 这样为我们生成自然数列表的函数。
 
-For our first version, we will use only the @code`while` form to iterate,
-similar to how one might sum natural numbers in a language such as C.
+对于第一个版本，我们将仅使用 @code`while` 形式进行迭代，类似于在 C 等语言中对自然数求和的方式。
 
 @codeblock[janet]```
 (var total 0)
@@ -31,67 +23,46 @@ similar to how one might sum natural numbers in a language such as C.
 (while (< i 10)
     (+= total i)
     (++ i))
-(print total) # prints 45
+(print total) # 输出 45
 ```
 
-This is a very imperative program, and it is not the best way to write this in
-Janet.  We are manually updating a counter @code[i] in a loop. Using the macros
-@code[+=] and @code[++], this style of code is similar in density to C code.  It is
-recommended to instead use either macros (such as the @code`loop` or @code`for`
-macros) or a functional style in Janet.
+这是一个非常命令式的程序，不是用 Janet 编写这种代码的最佳方式。我们在循环中手动更新计数器 @code[i]。使用 @code[+=] 和 @code[++] 宏，这种风格的代码密度与 C 代码相似。建议改用宏（如 @code`loop` 或 @code`for` 宏）或函数式风格来编写 Janet 代码。
 
-Since this is such a common pattern, Janet has a macro for this exact purpose.
-The @code[(for x start end body)] form captures this behavior of incrementing a
-counter in a loop.
+由于这是一种非常常见的模式，Janet 为这个确切目的提供了一个宏。@code[(for x start end body)] 形式封装了在循环中递增计数器的行为。
 
 @codeblock[janet]```
 (var total 0)
 (for i 0 10 (+= total i))
-(print total) # prints 45
+(print total) # 输出 45
 ```
 
-We have completely wrapped the imperative counter in a macro. The @code`for`
-macro, while not very flexible, is very terse and covers a common case of
-iteration: iterating over an integer range.  The @code`for` macro will be
-expanded to something very similar to our original version with a @code`while`
-loop.
+我们已经完全将命令式计数器封装在一个宏中。@code`for` 宏虽然不是很灵活，但非常简洁，涵盖了一种常见的迭代情况：遍历整数范围。@code`for` 宏将被扩展为与使用 @code`while` 循环的原始版本非常相似的代码。
 
-We can do something similar with the more flexible @code`loop` macro.
+我们可以使用更灵活的 @code`loop` 宏来做类似的事情。
 
 @codeblock[janet]```
 (var total 0)
 (loop [i :range [0 10]] (+= total i))
-(print total) # prints 45
+(print total) # 输出 45
 ```
 
-This is slightly more verbose than the @code`for` macro, but can be more easily
-extended.  Let's say that we wanted to only count even numbers towards the sum.
-We can do this easily with the @code`loop` macro.
+这比 @code`for` 宏稍微冗长一些，但更容易扩展。假设我们只想计算偶数的和。使用 @code`loop` 宏可以轻松做到这一点。
 
 @codeblock[janet]```
 (var total 0)
 (loop [i :range [0 10] :when (even? i)] (+= total i))
-(print total) # prints 20
+(print total) # 输出 20
 ```
 
-The @code`loop` macro has several verbs (e.g. @code`:range`) and
-modifiers (e.g. @code`:when`) that let the programmer more easily
-generate common looping idioms. The @code`loop` macro is similar to
-the Common Lisp @code`loop` macro, but smaller in scope and with a
-much simpler syntax. As with the @code`for` macro, the @code`loop`
-macro expands to similar code as our original @code`while` expression.
+@code`loop` 宏有多个动词（例如 @code`:range`）和修饰符（例如 @code`:when`），让程序员更容易生成常见的循环惯用法。@code`loop` 宏类似于 Common Lisp 的 @code`loop` 宏，但范围更小，语法也更简单。与 @code`for` 宏一样，@code`loop` 宏会展开为与我们原始的 @code`while` 表达式类似的代码。
 
-## Example 2: Iterating over an indexed data structure
+## 示例 2：遍历索引数据结构
 
-Another common usage for iteration in any language is iterating over the items
-in a data structure, like items in an array, characters in a string, or
-key-value pairs in a table.
+任何语言中另一种常见的迭代用法是遍历数据结构中的元素，比如数组中的元素、字符串中的字符，或者表中的键值对。
 
-Say we have an array of names that we want to print out. We will again start
-with a simple @code`while` loop which we will refine into more idiomatic
-expressions.
+假设我们有一个要打印出来的名字数组。我们将再次从一个简单的 @code`while` 循环开始，然后将其改进为更惯用的表达式。
 
-First, we will define our array of names:
+首先，我们定义名字数组：
 
 @codeblock[janet]```
 (def names
@@ -102,8 +73,7 @@ First, we will define our array of names:
    "Harriet Tubman"])
 ```
 
-With our array of names, we can use a @code`while` loop to iterate through the
-indices of names, get the values, and then print them.
+有了名字数组，我们可以使用 @code`while` 循环遍历 names 的索引，获取值，然后打印出来。
 
 @codeblock[janet]```
 (var i 0)
@@ -113,43 +83,31 @@ indices of names, get the values, and then print them.
     (++ i))
 ```
 
-This is rather verbose. Janet provides the @code[each] macro for iterating
-through the items in a tuple or array, or the bytes in a buffer, symbol, or
-string.
+这相当冗长。Janet 提供了 @code[each] 宏用于遍历元组或数组中的元素，或者缓冲区、符号或字符串中的字节。
 
 @codeblock[janet]```
 (each name names (print name))
 ```
 
-We can also use the @code[loop] macro for this case as well using the @code[:in]
-verb.
+我们也可以使用 @code[loop] 宏来处理这种情况，使用 @code[:in] 动词。
 
 @codeblock[janet]```
 (loop [name :in names] (print name))
 ```
 
-Lastly, we can use the @code`map` function to apply a function over each value
-in the array.
+最后，我们可以使用 @code`map` 函数对数组中的每个值应用一个函数。
 
 @codeblock[janet]```
 (map print names)
 ```
 
-The @code`each` macro is actually more flexible than the normal loop, as it is
-able to iterate over data structures that are not like arrays. For example,
-@code`each` will iterate over the values in a table.
+@code`each` 宏实际上比普通循环更灵活，因为它能够遍历不像数组的数据结构。例如，@code`each` 会遍历表中的值。
 
-## Example 3: Iterating a dictionary
+## 示例 3：遍历字典
 
-In the previous example, we iterated over the values in an array. Another common
-use of looping in a Janet program is iterating over the keys or values in a
-table.  We cannot use the same method as iterating over an array because a table
-or struct does not contain a known integer range of keys. Instead we rely on a
-function @code[next], which allows us to visit each of the keys in a struct or
-table. Note that iterating over a table will not visit the prototype table.
+在前面的示例中，我们遍历了数组中的值。Janet 程序中另一种常见的循环用法是遍历表中的键或值。我们不能使用与遍历数组相同的方法，因为表或结构体不包含已知的整数范围键。相反，我们依赖 @code[next] 函数，它允许我们访问结构体或表中的每个键。注意，遍历表不会访问原型表。
 
-As an example, let's iterate over a table of letters to a word that starts with
-that letter. We will print out the words to our simple children's book.
+作为示例，让我们遍历一个字母到以该字母开头的单词的表。我们将打印出简单的儿童书中的单词。
 
 @codeblock[janet]```
 (def alphabook
@@ -160,11 +118,7 @@ that letter. We will print out the words to our simple children's book.
     "E" "Elephant"})
 ```
 
-As before, we can evaluate this loop using only a @code`while` loop and the
-@code[next] function. The @code `next` function is the primary way to iterate in
-Janet, and is overloaded to support all iterable types. Given a data structure
-and a key, it returns the next key in the data structure. If there are no more
-keys left, it returns @code`nil`.
+和之前一样，我们可以仅使用 @code`while` 循环和 @code[next] 函数来计算这个循环。@code`next` 函数是 Janet 中迭代的主要方式，并且被重载以支持所有可迭代类型。给定一个数据结构和键，它返回数据结构中的下一个键。如果没有更多键了，它返回 @code`nil`。
 
 @codeblock[janet]```
 (var key (next alphabook nil))
@@ -173,33 +127,25 @@ keys left, it returns @code`nil`.
   (set key (next alphabook key)))
 ```
 
-However, we can do better than this with the @code`loop` macro using the
-@code[:pairs] or @code[:keys] verbs.
+然而，使用 @code`loop` 宏配合 @code[:pairs] 或 @code[:keys] 动词，我们可以做得更好。
 
 @codeblock[janet]```
 (loop [[letter word] :pairs alphabook]
   (print letter " is for " word))
 ```
 
-Using the @code[:keys] verb and shorthand notation for indexing a data
-structure:
+使用 @code[:keys] 动词和索引数据结构的简写符号：
 
 @codeblock[janet]```
 (loop [letter :keys alphabook]
   (print letter " is for " (alphabook letter)))
 ```
 
-As an alternative to the @code`loop` macro here, we can also use the macros
-@code`eachk` and @code`eachp`, which behave like @code`each` but @code`loop`
-over the keys of a data structure and the key-value pairs in a data structure
-respectively.
+作为这里 @code`loop` 宏的替代方案，我们也可以使用 @code`eachk` 和 @code`eachp` 宏，它们的行为类似于 @code`each`，但分别遍历数据结构中的键和数据结构中的键值对。
 
-Data structures like tables and structs can be called like functions that look
-up their arguments. This allows for writing shorter code than what is possible
-with @code[(get alphabook letter)].
+像表和结构体这样的数据结构可以像查找其参数的函数一样被调用。这允许编写比使用 @code[(get alphabook letter)] 更短的代码。
 
-We can also use the core library functions @code[keys] and @code[pairs] to get
-arrays of the keys and pairs respectively of the alphabook.
+我们也可以使用核心库函数 @code[keys] 和 @code[pairs] 来分别获取 alphabook 的键数组和键值对数组。
 
 @codeblock[janet]```
 (loop [[letter word] :in (pairs alphabook)]
@@ -209,12 +155,9 @@ arrays of the keys and pairs respectively of the alphabook.
   (print letter " is for " (alphabook letter)))
 ```
 
-Notice that iteration through the table is in no particular order. Iterating the
-keys of a table or struct guarantees no order. If you want to iterate in a
-specific order, use a different data structure or the @code[(sort indexed)]
-function.
+注意，遍历表时没有特定的顺序。遍历表或结构体的键不保证任何顺序。如果你想按特定顺序遍历，请使用不同的数据结构或 @code[(sort indexed)] 函数。
 
-Note that the above examples can also be expressed as:
+注意，以上示例也可以表示为：
 
 @codeblock[janet]```
 (loop [[letter word] :pairs alphabook]
@@ -223,4 +166,3 @@ Note that the above examples can also be expressed as:
 (loop [letter :keys alphabook]
   (print letter " is for " (alphabook letter)))
 ```
-

@@ -9,9 +9,9 @@
  :template "docpage.html"}
 ---
 
-The math module deals with two main areas of mathematics: statistics and linear algebra. 	
+math 模块涉及数学的两个主要领域：统计学和线性代数。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[math/]
 

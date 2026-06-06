@@ -9,12 +9,11 @@
  :template "docpage.html"}
 ---
 
-A moderately opinionated argument parser for
-@link[https://janet-lang.org][janet]. Use this for writing
-CLI scripts that need to have UNIX style switches and
-options.
+一个带有适度主观倾向的参数解析器，用于
+@link[https://janet-lang.org][janet]。使用它编写
+需要 UNIX 风格开关和选项的 CLI 脚本。
 
-## Sample
+## 示例
 
 @codeblock[janet]```
 #!/usr/bin/env janet
@@ -46,24 +45,23 @@ options.
   (pp res))
 ```
 
-## Usage
+## 用法
 
-Call @code`argparse/argparse` to attempt to parse the command line args
-(available at @code`(dyn :args)`).
+调用 @code`argparse/argparse` 来尝试解析命令行参数
+（可通过 @code`(dyn :args)` 获取）。
 
-The first argument should be a description to be displayed as help
-text.
+第一个参数应为一个描述文本，用于显示为帮助信息。
 
-All subsequent options should be alternating keys and values where the
-keys are options to accept and the values are definitions of each option.
+所有后续参数应为交替的键和值，其中
+键是要接受的选项，值是每个选项的定义。
 
-To accept positional arguments, include a definition for the special
-value @code`:default`. For instance, to gather all positional arguments
-into an array, include @code`:default {:kind :accumulate}` in your
-arguments to @code`argparse`.
+要接受位置参数，请为特殊值
+@code`:default` 提供一个定义。例如，要将所有位置参数收集到
+数组中，请在传递给 @code`argparse` 的参数中包含
+@code`:default {:kind :accumulate}`。
 
-Run @code`(doc argparse/argparse)` after importing for more information.
+导入后运行 @code`(doc argparse/argparse)` 获取更多信息。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[argparse/]

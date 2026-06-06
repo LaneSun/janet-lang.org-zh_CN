@@ -1,14 +1,10 @@
-{:title "Structs"
+{:title "结构体"
  :template "docpage.html"}
 ---
 
-Structs are immutable data structures that map keys to values. They are
-semantically similar to @link[/docs/data_structures/tables.html][tables], but
-are immutable. They also can be used as keys in tables and other structs, and
-follow expected equality semantics. Like tables, they are backed by an
-efficient, native hash table.
+结构体（struct）是一种不可变的数据结构，将键映射到值。它们在语义上类似于 @link[/docs/data_structures/tables.html][表（table）]，但是不可变的。它们也可以用作表和其他结构体中的键，并遵循预期的相等性语义。与表一样，它们由高效的原生哈希表支持。
 
-To create a struct, you may use a struct literal or the @code`struct` function.
+要创建一个结构体，你可以使用结构体字面量或 @code`struct` 函数。
 
 @codeblock[janet]```
 (def my-struct {:key1 2
@@ -18,13 +14,11 @@ To create a struct, you may use a struct literal or the @code`struct` function.
                  :key1 2
                  :key2 4))
 
-# Structs with identical contents are equal
+# 内容相同的结构体相等
 (= my-struct my-struct2) #-> true
 ```
 
-As with other data structures, you may retrieve values in a struct via the
-@code`get` function, or call the struct as a function. Since structs are
-immutable, you cannot add key-value pairs
+与其他数据结构一样，你可以通过 @code`get` 函数检索结构体中的值，或者将结构体作为函数调用。由于结构体是不可变的，你不能添加键值对。
 
 @codeblock[janet]```
 (def st {:a 1 :b 2})
@@ -33,11 +27,9 @@ immutable, you cannot add key-value pairs
 (st :b) #-> 2
 ```
 
-## Converting a table to a struct
+## 将表转换为结构体
 
-A table can be converted to a struct via the @code`table/to-struct` function.
-This is useful for efficiently creating a struct by first incrementally putting
-key-value pairs in a table.
+可以通过 @code`table/to-struct` 函数将表转换为结构体。这对于通过先将键值对逐步放入表中来高效创建结构体非常有用。
 
 @codeblock[janet]```
 (def accum @{})
@@ -46,11 +38,9 @@ key-value pairs in a table.
 (def my-struct (table/to-struct accum))
 ```
 
-## Using structs as keys
+## 将结构体用作键
 
-Because a struct is equal to any struct with the same contents, structs make
-useful keys for tables or other structs. For example, we can use structs to
-represent Cartesian points and keep a mapping from points to other values.
+由于结构体与任何具有相同内容的结构体相等，因此结构体可以成为表或其他结构体的有用键。例如，我们可以使用结构体来表示笛卡尔坐标点，并维护从点到其他值的映射。
 
 @codeblock[janet]```
 (def points @{

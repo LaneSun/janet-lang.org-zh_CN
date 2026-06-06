@@ -1,44 +1,30 @@
-{:title "Executing a Process"
- :nav-title "Executing"
+{:title "执行进程"
+ :nav-title "执行"
  :template "docpage.html"}
 ---
 
-In the simpler approach using @code`os/execute`, once the program is
-started to create a subprocess, the function does not return or error
-until the subprocess has finished executing.  Technically,
-@code`os/execute` \"waits" on the created subprocess.  Further details
-regarding waiting will be covered when discussing @code`os/spawn`.
-The return value for @code`os/execute` is the exit code of the created
-subprocess.
+在使用 @code`os/execute` 的简单方法中，一旦启动程序创建子进程，该函数不会返回或报错，直到子进程执行完毕。从技术上讲，@code`os/execute` 会"等待"创建的子进程。有关等待的更多细节将在讨论 @code`os/spawn` 时介绍。@code`os/execute` 的返回值是所创建子进程的退出码。
 
 ### @code`args`
 
-The only required argument, @code`args`, is a tuple or array of
-strings that represents an invocation of a program along with its
-arguments.
+唯一必需的参数 @code`args` 是一个字符串元组或数组，表示程序的调用及其参数。
 
 @codeblock[janet]```
-# prints: I drank what?
-# also returns 0, the exit code
+# 打印：I drank what?
+# 也返回 0，即退出码
 (os/execute ["janet" "-e" `(print "I drank what?")`] :p) # => 0
 ```
 
 ### @code`flags`
 
-If there is a second argument, @code`flags`, it should be a keyword.
-@code`flags` can affect program launching and subprocess execution
-characteristics.
+如果有第二个参数 @code`flags`，它应该是一个关键字。@code`flags` 可以影响程序启动和子进程执行的特性。
 
-Note in the example above, @code`flags` is @code`:p`, which allows
-searching the current @code`PATH` for a binary to execute.  If
-@code`flags` does not contain @code`p`, the name of the program must
-be an absolute path.
+注意在上面的示例中，@code`flags` 是 @code`:p`，它允许在当前 @code`PATH` 中搜索要执行的二进制文件。如果 @code`flags` 不包含 @code`p`，则程序名称必须是绝对路径。
 
-If @code`flags` contains @code`x`, @code`os/execute` will raise an
-error if the subprocess' exit code is non-zero.
+如果 @code`flags` 包含 @code`x`，当子进程的退出码非零时，@code`os/execute` 会引发错误。
 
 @codeblock[janet]```
-# prints: non-zero exit code
+# 打印：non-zero exit code
 (try
   (os/execute ["janet" "-e" `(os/exit 1)`] :px)
   ([_]
@@ -47,30 +33,18 @@ error if the subprocess' exit code is non-zero.
 
 ### @code`env`
 
-If @code`flags` contains @code`e`, @code`os/execute` should take a
-third argument, @code`env`, a dictionary (i.e. table or struct),
-mapping environment variable names to values.  The subprocess will be
-started using an environment constructed from @code`env`.  If
-@code`flags` does not contain @code`e`, the current environment is
-inherited.
+如果 @code`flags` 包含 @code`e`，@code`os/execute` 应接受第三个参数 @code`env`，它是一个字典（即表或结构体），将环境变量名映射到值。子进程将使用从 @code`env` 构建的环境启动。如果 @code`flags` 不包含 @code`e`，则继承当前环境。
 
 @codeblock[janet]```
-# prints "SITTING"
-# also returns 0
+# 打印 "SITTING"
+# 也返回 0
 (os/execute ["janet" "-e" `(pp (os/getenv "POSE"))`]
             :pe {"POSE" "SITTING"}) # => 0
 ```
 
-The @code`env` dictionary can also contain the keys @code`:in`,
-@code`:out`, and @code`:err`, which allow redirecting standard IO in
-the subprocess.  The associated values for these keys should be
-@code`core/file` values and these should be closed explicitly (e.g. by
-calling @code`file/close`) after the subprocess has completed.
+@code`env` 字典还可以包含键 @code`:in`、@code`:out` 和 @code`:err`，它们允许重定向子进程中的标准 IO。这些键对应的值应为 @code`core/file` 值，并且应在子进程完成后显式关闭（例如通过调用 @code`file/close`）。
 
-Note that the @code`flags` keyword argument only needs to contain
-@code`e` if making use of environment variables.  That is, for use of
-any combination of just @code`:in`, @code`:out`, and @code`:err`, the
-@code`flags` keyword does not need to contain @code`e`.
+请注意，只有在使用环境变量时，@code`flags` 关键字参数才需要包含 @code`e`。也就是说，如果只使用 @code`:in`、@code`:out` 和 @code`:err` 的任意组合，@code`flags` 关键字不需要包含 @code`e`。
 
 @codeblock[janet]```
 (def of (file/temp))
@@ -85,13 +59,6 @@ any combination of just @code`:in`, @code`:out`, and @code`:err`, the
 (file/close of) # => nil
 ```
 
-### Caveat
+### 注意事项
 
-Although it may appear to be possible to successfully use
-@code`core/stream` values with @code`os/execute` in some cases, it may
-not work in certain situations (e.g. with another operating system,
-different programs, varied arguments, phase of the moon, etc.).  It is
-not a reliable choice and is thus not recommended.  The
-@code`os/spawn` function is better suited for use with
-@code`core/stream` values.
-
+尽管在某些情况下似乎可以成功地将 @code`core/stream` 值与 @code`os/execute` 一起使用，但在某些情况下（例如在其他操作系统、不同的程序、不同的参数、月相等）可能无法正常工作。这不是一个可靠的选择，因此不推荐。@code`os/spawn` 函数更适合与 @code`core/stream` 值一起使用。

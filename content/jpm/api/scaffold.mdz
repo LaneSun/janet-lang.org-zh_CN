@@ -3,11 +3,11 @@
 (setdyn :source-linker (partial gen-docs/github-source-linker "janet-lang/jpm" gen-docs/jpm-version))
 (setdyn :no-community-examples true)
 
-{:title "Project Scaffolding"
+{:title "项目脚手架"
  :nav-title "scaffold"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix-current[scaffold/]

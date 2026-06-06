@@ -1,57 +1,31 @@
-{:title "Networking"
+{:title "网络"
  :template "docpage.html"
  :order 21}
 ---
 
-The internet is a huge part of our daily lives in the 21st century, and the
-situation is no different for programmers. Janet has basic
-support for connecting to the internet out of the box with the @code`net/` module.
+互联网是21世纪我们日常生活的重要组成部分，对于程序员来说也不例外。Janet 通过 @code`net/` 模块提供了开箱即用的基本网络连接支持。
 
-The @code`net/` module provides a socket-based networking interface
-that is portable, simple, and general. The net module provides both
-client and server abstractions for TCP sockets (streams), UDP
-(datagrams), IPv4, IPv6, DNS, and unix domain sockets on supported
-platforms.  All operations on sockets are non-blocking, so servers can
-handle multiple clients on a single thread.  For more general
-information on socket programming, see
-@link[https://beej.us/guide/bgnet/html/]{Beej's Guide to Network
-Programming}, which gives a thorough overview in C. There are also
-example programs in the example directory of the Janet source code
-which show how to create simple servers and clients.
+@code`net/` 模块提供了一个基于 socket 的网络接口，具有可移植性、简单性和通用性。该模块在支持的平台上为 TCP 套接字（流）、UDP（数据报）、IPv4、IPv6、DNS 和 Unix 域套接字提供了客户端和服务器抽象。所有 socket 操作都是非阻塞的，因此服务器可以在单个线程上处理多个客户端。关于 socket 编程的更通用信息，请参阅 @link[https://beej.us/guide/bgnet/html/]{Beej 的网络编程指南}，它用 C 语言提供了全面的概述。Janet 源代码的示例目录中也有示例程序，展示了如何创建简单的服务器和客户端。
 
-The @code`net/` module does not provide any protocol abstractions over sockets - this means
-no TLS and no HTTP out of the box. Such protocols need to be provided in third-party libraries.
+@code`net/` 模块不提供任何基于 socket 的协议抽象——这意味着没有 TLS 和 HTTP 的开箱即用支持。这些协议需要由第三方库提供。
 
-## Generic Stream Type
+## 通用流类型
 
-Most functions dealing with non-blocking IO in Janet will either accept or create an abstract type
-of @code`core/stream`. Streams are wrappers around file descriptors on Posix platforms, and HANDLEs
-on Windows. Most streams provide a number of generic methods such as @code`:read`, 
-@code`:write`, and @code`:chunk` for
-reading and writing bytes, much like a file - there are many parallels to the @code`file/` module,
-but streams do not block and do not support buffering.
+在 Janet 中，大多数处理非阻塞 IO 的函数都会接受或创建一个 @code`core/stream` 抽象类型。流是对 Posix 平台上文件描述符和 Windows 上 HANDLE 的封装。大多数流提供了一系列通用方法，如 @code`:read`、@code`:write` 和 @code`:chunk`，用于读写字节，与文件非常相似——与 @code`file/` 模块有许多相似之处，但流不会阻塞且不支持缓冲。
 
-In the @code`net/` module, sockets and servers are both instances of @code`core/stream`. However, they
-have different capabilities - for example, you can only call @code`net/accept` on a server, and
-only call @code`net/read` on a socket.
+在 @code`net/` 模块中，socket 和服务器都是 @code`core/stream` 的实例。然而，它们具有不同的能力——例如，你只能在服务器上调用 @code`net/accept`，只能在 socket 上调用 @code`net/read`。
 
-## Clients and Servers
+## 客户端和服务器
 
-In the following sections, we use "client" to mean a program that initiates communication with another
-program across a network, the "server", which can respond to this communication (or ignore it).
+在接下来的章节中，我们使用"客户端"来表示通过网络与另一个程序（"服务器"）发起通信的程序，服务器可以响应（或忽略）此通信。
 
-## TCP (Stream sockets)
+## TCP（流套接字）
 
-Stream sockets provide an ordered, reliable sequence of bytes across a network. However, in order
-to send messages a connection must be established. These are the most common kind of socket and the default
-if a socket type is not specified in most functions.
+流套接字通过网络提供有序、可靠的字节序列。但是，要发送消息必须先建立连接。这是最常见的 socket 类型，也是在大多数函数中未指定 socket 类型时的默认类型。
 
-### Client
+### 客户端
 
-A TCP client needs to call @code`net/connect` to get a socket, and then can
-read from and write to that socket with @code`net/read` and @code`net/write`.
-The third argument to @code`net/connect` should be @code`:stream`, although it is optional
-as stream sockets are the default - the other option is @code`:datagram`.
+TCP 客户端需要调用 @code`net/connect` 来获取一个 socket，然后可以使用 @code`net/read` 和 @code`net/write` 对该 socket 进行读写。@code`net/connect` 的第三个参数应为 @code`:stream`，不过它是可选的，因为流套接字是默认类型——另一个选项是 @code`:datagram`。
 
 @codeblock[janet]```
 (with [conn (net/connect "127.0.0.1" "8000" :stream)]
@@ -62,44 +36,38 @@ as stream sockets are the default - the other option is @code`:datagram`.
   (pp res))
 ```
 
-Because streams support a @code`:close` method, they can be used as the target of a @code`with` macro
-for scoped resource control.
+由于流支持 @code`:close` 方法，它们可以用作 @code`with` 宏的目标，以实现作用域资源控制。
 
-### Server
+### 服务器
 
-The @code`net/` module provides a few ways to create a TCP server, but
-in all cases a few steps are required.
+@code`net/` 模块提供了几种创建 TCP 服务器的方法，但在所有情况下都需要几个步骤。
 
 @ol{
-    @li{Create a server value with @code`net/listen`.}
-    @li{Repeatedly accept connections to the server with @code`net/accept`.}
-    @li{Handle and eventually close each connection.}
+    @li{使用 @code`net/listen` 创建一个服务器值。}
+    @li{使用 @code`net/accept` 重复接受与服务器的连接。}
+    @li{处理并最终关闭每个连接。}
 }
 
-There are several functions that bundle different steps together - @code`net/accept-loop` combines
-steps 2 and 3 into a single call, while @code`net/server` can combine steps 1, 2 and 3 into one call.
-However, the long form way is still very short and is no less expressive.
+有几个函数将不同的步骤捆绑在一起——@code`net/accept-loop` 将步骤 2 和 3 组合成单个调用，而 @code`net/server` 可以将步骤 1、2 和 3 组合成一个调用。不过，完整展开的形式仍然非常简短，且表达能力丝毫不差。
 
 @codeblock[janet]```
-# Create a server on localhost and listen on port 8000.
+# 在 localhost 上创建服务器并监听 8000 端口。
 (def my-server (net/listen "127.0.0.1" "8000"))
 
-# Handle exactly 10 connections 1-by-1
+# 逐一处理恰好 10 个连接
 (repeat 10
  (def connection (net/accept my-server))
  (defer (:close connection)
   (net/write connection "Hello from server!")))
 
-# Close server
+# 关闭服务器
 (:close my-server)
 ```
 
-In many cases, the programmer wants to handle more than 1 connection at a time. The @code`ev/`
-module can be used to great effect here to handle each new connection in a separate fiber, so
-that the accepting loop can accept the next connection as quickly as possible.
+在许多情况下，程序员希望一次处理多个连接。@code`ev/` 模块在这里可以发挥巨大作用，在每个独立的 fiber 中处理每个新连接，以便接受循环能够尽快接受下一个连接。
 
 @codeblock[janet]```
-# Create a server on localhost and listen on port 8000.
+# 在 localhost 上创建服务器并监听 8000 端口。
 (def my-server (net/listen "127.0.0.1" "8000"))
 
 (defn handler 
@@ -110,27 +78,21 @@ that the accepting loop can accept the next connection as quickly as possible.
     (ev/sleep 10)
     (net/write connection (string "Echo: " msg))))
 
-# Handle connections as soon as they arrive
+# 一旦有连接到达就立即处理
 (forever
  (def connection (net/accept my-server))
  (ev/call handler connection))
 ```
 
-There are many possible variations, but all servers will follow this same basic structure.
+可能有许多不同的变体，但所有服务器都会遵循这个相同的基本结构。
 
-## UDP (Datagram sockets)
+## UDP（数据报套接字）
 
-Datagram sockets provide an out-of-order, fast way to send datagrams across a network.
-Datagram sockets also provide the benefit of not needing a connection - one can send
-packets to an address without checking if that address is listening.
+数据报套接字提供了一种无序、快速的跨网络发送数据报的方式。数据报套接字还具有无需连接的优点——可以向一个地址发送数据包，而无需检查该地址是否在监听。
 
-### Client
+### 客户端
 
-A UDP client will generally create a fake connection to a server with @code`net/connect`, where
-the third argument is @code`:datagram`. The connection is "fake" because datagrams are connection-less, but
-we can use this connection to encapsulate the remote address of the server. The programmer can then use
-@code`net/write` and @code`net/read` to send and receive datagrams from the server (or @code`:write` and 
-@code`:read`).
+UDP 客户端通常会使用 @code`net/connect` 创建一个到服务器的伪连接，其中第三个参数是 @code`:datagram`。这个连接是"伪"的，因为数据报是无连接的，但我们可以使用这个连接来封装服务器的远程地址。然后程序员可以使用 @code`net/write` 和 @code`net/read`（或 @code`:write` 和 @code`:read`）来发送和接收来自服务器的数据报。
 
 @codeblock[janet]```
 (def conn (net/connect "127.0.0.1" "8009" :datagram))
@@ -139,11 +101,9 @@ we can use this connection to encapsulate the remote address of the server. The 
 (pp x)
 ```
 
-### Server
+### 服务器
 
-A Datagram server is a bit simpler than a stream server since there is no need to manage connections.
-Instead, the program listens for packets with @code`net/recv-from` and sends packets with
-@code`net/send-to`.
+数据报服务器比流服务器简单一些，因为无需管理连接。程序使用 @code`net/recv-from` 监听数据包，并使用 @code`net/send-to` 发送数据包。
 
 @codeblock[janet]```
 (def server (net/listen "127.0.0.1" "8009" :datagram))
@@ -156,19 +116,13 @@ Instead, the program listens for packets with @code`net/recv-from` and sends pac
 
 ## DNS
 
-Janet uses the Posix C function @code `getaddrinfo` to look up IP addresses from domain names.
-This is currently a blocking operation which can be bad in highly concurrent applications.
-However, this also affords us access to various features supported by the operating system like
-easy and cross platform IPv4, IPv6, and unix domain socket support.
+Janet 使用 Posix C 函数 @code `getaddrinfo` 从域名查找 IP 地址。这目前是一个阻塞操作，在高并发应用中可能不利。然而，这也使我们能够访问操作系统支持的各种功能，如简单且跨平台的 IPv4、IPv6 和 Unix 域套接字支持。
 
-Functions that do DNS will usually take host and port arguments, where host is a host address and
-port further specifies the address on the same machine. In IPv4 and IPv6, host should be an IP
-address or domain name, and port should be a 16-bit number.
+执行 DNS 查找的函数通常接受主机和端口参数，其中 host 是主机地址，port 进一步指定同一机器上的地址。在 IPv4 和 IPv6 中，host 应为 IP 地址或域名，port 应为 16 位数字。
 
-### Unix domain sockets
+### Unix 域套接字
 
-Supporting platforms allow unix domain sockets by accepting @code`:unix` as the host, and a file name
-as the port. On linux, abstract unix domain sockets are supported if the port argument begins with "\@".
+支持的平台允许通过接受 @code`:unix` 作为主机名和文件名作为端口来使用 Unix 域套接字。在 Linux 上，如果 port 参数以 "\\@" 开头，则支持抽象 Unix 域套接字。
 
 @codeblock[janet]```
 # Connect to a unix domain socket
@@ -178,9 +132,6 @@ as the port. On linux, abstract unix domain sockets are supported if the port ar
 (net/connect :unix "@my.socket")
 ```
 
-## Relationship to the @code`ev/` module.
+## 与 @code`ev/` 模块的关系
 
-All non-blocking operations in the @code`net/` module avoid blocking by yielding to the event loop.
-As such, functions in the @code`ev/` module for manipulating fibers, such as @code`ev/cancel`
-will also work on functions in the @code`net/` module. Similarly, a function that blocks the
-event loop will prevent any networking code from progressing.
+@code`net/` 模块中的所有非阻塞操作都通过让出给事件循环来避免阻塞。因此，@code`ev/` 模块中用于操作 fiber 的函数（如 @code`ev/cancel`）也适用于 @code`net/` 模块中的函数。类似地，阻塞事件循环的函数将阻止任何网络代码继续执行。

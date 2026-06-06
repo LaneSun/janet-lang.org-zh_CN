@@ -1,50 +1,31 @@
-{:title "Data Structures"
+{:title "数据结构"
  :template "docpage.html"
  :order 11}
 ---
 
-Once you have a handle on functions and the primitive value types, you may be
-wondering how to work with collections of things. Janet has a small number of
-core data structure types that are very versatile. Tables, structs, arrays,
-tuples, strings, and buffers, are the 6 main built-in data structure types.
-These data structures can be arranged in a useful table describing their
-relationship to each other.
+一旦掌握了函数和原始值类型，你可能想知道如何处理集合类型。Janet 提供了少量但非常通用的核心数据结构类型。表、结构体、数组、元组、字符串和缓冲区是 6 种主要的内置数据结构类型。这些数据结构可以通过一张有用的表格来描述它们之间的关系。
 
 @tag[table]{
-    @tr{@th{Interface} @th{Mutable} @th{Immutable}}
-    @tr{@td{Indexed} @td{Array} @td{Tuple}}
-    @tr{@td{Dictionary} @td{Table} @td{Struct}}
-    @tr{@td{Bytes} @td{Buffer} @td{String (Symbol, Keyword)}}}
+    @tr{@th{接口} @th{可变} @th{不可变}}
+    @tr{@td{索引型} @td{Array} @td{Tuple}}
+    @tr{@td{字典型} @td{Table} @td{Struct}}
+    @tr{@td{字节型} @td{Buffer} @td{String (Symbol, Keyword)}}}
 
-Indexed types are linear lists of elements than can be accessed in constant time
-with an integer index.  Indexed types are backed by a single chunk of memory for
-fast access, and are indexed from 0 as in C.  Dictionary types associate keys
-with values. The difference between dictionaries and indexed types is that
-dictionaries are not limited to integer keys. They are backed by a hash table
-and also offer constant time lookup (and insertion for the mutable case).
-Finally, the 'bytes' abstraction is any type that contains a sequence of bytes.
-A 'bytes' value or byteseq associates integer keys (the indices) with integer
-values between 0 and 255 (the byte values). In this way, they behave much like
-arrays and tuples. However, one cannot put non-integer values into a byteseq.
+索引类型（Indexed）是按线性顺序排列的元素列表，可以通过整数索引在常数时间内访问。索引类型由单一内存块支持以实现快速访问，并且像 C 语言一样从 0 开始索引。字典类型（Dictionary）将键与值关联起来。字典和索引类型之间的区别在于字典不局限于整数键。它们由哈希表支持，也提供常数时间查找（对于可变类型还提供插入）。最后，'bytes' 抽象是指包含字节序列的任何类型。'bytes' 值或 byteseq 将整数键（索引）与 0 到 255 之间的整数值（字节值）关联起来。在这方面，它们的行为与数组和元组非常相似。但是，不能将非整数值放入 byteseq 中。
 
-The table below summarizes the big-O complexity of various operations and other
-information on the built-in data structures. All primitive operations on data
-structures will run in constant time regardless of the number of items in the
-data structure.
+下表总结了各种操作的大 O 复杂度以及其他关于内置数据结构的信息。所有对数据结构的原始操作都将以常数时间运行，无论数据结构中包含多少元素。
 
 @tag[table]{
-    @tr{@th{Data Structure} @th{Access} @th{Insert/Append} @th{Delete} @th{Space Complexity} @th{Mutable}}
-    @tr{@td{Array *} @td{O(1)} @td{O(1)} @td{O(1)} @td{O(n)} @td{Yes}}
-    @tr{@td{Tuple} @td{O(1)} @td{-} @td{-} @td{O(n)} @td{No}}
-    @tr{@td{Table} @td{O(1)} @td{O(1)} @td{O(1)} @td{O(n)} @td{Yes}}
-    @tr{@td{Struct} @td{O(1)} @td{-} @td{-} @td{O(n)} @td{No}}
-    @tr{@td{Buffer} @td{O(1)} @td{O(1)} @td{O(1)} @td{O(n)} @td{Yes}}
-    @tr{@td{String/Keyword/Symbol} @td{-} @td{-} @td{-} @td{O(n)} @td{No}}}
+    @tr{@th{数据结构} @th{访问} @th{插入/追加} @th{删除} @th{空间复杂度} @th{可变}}
+    @tr{@td{Array *} @td{O(1)} @td{O(1)} @td{O(1)} @td{O(n)} @td{是}}
+    @tr{@td{Tuple} @td{O(1)} @td{-} @td{-} @td{O(n)} @td{否}}
+    @tr{@td{Table} @td{O(1)} @td{O(1)} @td{O(1)} @td{O(n)} @td{是}}
+    @tr{@td{Struct} @td{O(1)} @td{-} @td{-} @td{O(n)} @td{否}}
+    @tr{@td{Buffer} @td{O(1)} @td{O(1)} @td{O(1)} @td{O(n)} @td{是}}
+    @tr{@td{String/Keyword/Symbol} @td{-} @td{-} @td{-} @td{O(n)} @td{否}}}}
 }
 
-*: Append and delete for an array correspond to @code[array/push] and
-@code[array/pop]. Removing or inserting elements at random indices will run in
-@code[O(n)] time where @code[n] is the number of elements in the array.
+*：数组的追加和删除对应于 @code[array/push] 和 @code[array/pop]。在随机索引处移除或插入元素将运行在 @code[O(n)] 时间，其中 @code[n] 是数组中的元素数量。
 
 @codeblock[janet](```
 (def my-tuple (tuple 1 2 3))
@@ -72,11 +53,7 @@ data structure.
 (def my-buffer2 @``This is also mutable``)
 ```)
 
-To read the values in a data structure, use the @code`get` or @code`in` functions.
-The first
-parameter is the data structure itself, and the second parameter is the key. An
-optional third parameter can be used to specify a default if the value is not
-found.
+要读取数据结构中的值，请使用 @code`get` 或 @code`in` 函数。第一个参数是数据结构本身，第二个参数是键。可选的第三个参数可用于指定在未找到值时的默认值。
 
 @codeblock[janet]```
 (get @{:a 1} :a) # -> 1
@@ -93,20 +70,14 @@ found.
 (in  {:a :b} :c :d) # -> :d
 ```
 
-The @code`in` function (added in v1.5.0) for tables and structs behaves
-identically to @code`get`. However, the @code`in` function for arrays, tuples,
-and string-likes will throw errors on bad keys --- so to better detect errors,
-prefer @code`in` for these.
+对于表和结构体，@code`in` 函数（自 v1.5.0 版本起）的行为与 @code`get` 完全相同。然而，对于数组、元组和类似字符串的类型，@code`in` 函数会在键不存在时抛出错误——因此为了更好地检测错误，对于这些类型建议使用 @code`in`。
 
 @codeblock[janet]```
 (get @[:a :b :c] 3) # -> nil
 (in  @[:a :b :c] 3) # -> raises error
 ```
 
-To update a mutable data structure, use the @code[put] function. It
-takes 3 arguments, the data structure, the key, and the value, and
-returns the data structure. The allowed types of keys and values
-depend on the data structure passed in.
+要更新可变数据结构，请使用 @code[put] 函数。它接受 3 个参数：数据结构、键和值，并返回该数据结构。允许的键和值类型取决于传入的数据结构。
 
 @codeblock[janet]```
 (put @[] 100 :a)
@@ -114,10 +85,6 @@ depend on the data structure passed in.
 (put @"" 100 92)
 ```
 
-Note that for arrays and buffers, putting an index that is outside the length of
-the data structure will extend the data structure and fill it with @code`nil`s
-in the case of the array, or @code`0`s in the case of the buffer.
+请注意，对于数组和缓冲区，如果放入的索引超出了数据结构的长度，数据结构将会被扩展，对于数组会用 @code`nil` 填充，对于缓冲区会用 @code`0` 填充。
 
-The last generic function for all data structures is the @code[length] function.
-This returns the number of values in a data structure (the number of keys in a
-dictionary type).
+所有数据结构的最后一个通用函数是 @code[length] 函数。它返回数据结构中值的数量（字典类型中键的数量）。

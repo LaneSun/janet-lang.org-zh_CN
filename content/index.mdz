@@ -1,44 +1,40 @@
-{:title "The Janet Programming Language"
- :nav-title "Home"
+{:title "Janet 编程语言"
+ :nav-title "首页"
  :template "index.html"
  :order 1}
- ---
+---
 
-## Use Cases
+## 使用场景
 
-Janet makes a good system scripting language, or a language to embed in other programs.  Janet also can be used for rapid prototyping, dynamic systems, and other domains
-where dynamic languages shine. Implemented mostly in standard C99, Janet runs on Windows, Linux and macOS.
-The few features that are not standard C (dynamic library loading, compiler specific optimizations),
-are fairly straightforward. Janet can be easily ported to new platforms. While Janet is embeddable, it comes with a bit more out of the box than many other such easily embeddable languages
-such as threading, networking, an event loop, subprocess handling, regex-like library called PEG, and more.
+Janet 是一种优秀的系统脚本语言，也可作为嵌入其他程序的语言。Janet 还可用于快速原型开发、动态系统以及其他动态语言擅长的领域。Janet 主要使用标准 C99 实现，可在 Windows、Linux 和 macOS 上运行。少数非标准 C 的特性（动态库加载、编译器特定优化）也相当直接明了。Janet 可以轻松移植到新平台。虽然 Janet 是可嵌入的，但它开箱即用地提供了比许多其他易嵌入语言更多的功能，例如线程、网络、事件循环、子进程处理、名为 PEG 的类似正则表达式的库，等等。
 
-## Features
+## 特性
 
-@ul{@li{Minimal setup - one binary and you are good to go!}
-    @li{Builtin support for threads, networking, and an event loop}
-    @li{First class closures}
-    @li{Garbage collection}
-    @li{First class green threads (continuations)}
-    @li{Mutable and immutable arrays (array/tuple)}
-    @li{Mutable and immutable hashtables (table/struct)}
-    @li{Mutable and immutable strings (buffer/string)}
-    @li{Macros}
-    @li{Tail call optimization}
-    @li{Direct interop with C via abstract types and C functions}
-    @li{Dynamically load C libraries}
-    @li{Lexical scoping}
-    @li{REPL and interactive debugger}
-    @li{Parsing Expression Grammars built in to the core library}
-    @li{600+ functions and macros in the core library}
-    @li{Erlang-style supervision trees that integrate with the event loop}
-    @li{Export your projects to standalone executables with a companion build tool, jpm}
-    @li{Add to a project with just @code`janet.c` and @code`janet.h`}}
+@ul{@li{最小化设置 — 一个二进制文件即可开始使用！}
+    @li{内置对线程、网络和事件循环的支持}
+    @li{一等闭包}
+    @li{垃圾回收}
+    @li{一等绿色线程（延续）}
+    @li{可变与不可变数组（array/元组）}
+    @li{可变与不可变哈希表（表/结构体）}
+    @li{可变与不可变字符串（缓冲区/字符串）}
+    @li{宏}
+    @li{尾调用优化}
+    @li{通过抽象类型和 C 函数直接与 C 互操作}
+    @li{动态加载 C 库}
+    @li{词法作用域}
+    @li{REPL 和交互式调试器}
+    @li{核心库内置解析表达式文法（PEG）}
+    @li{核心库中 600 多个函数和宏}
+    @li{集成事件循环的 Erlang 风格监督树}
+    @li{使用配套构建工具 jpm 将项目导出为独立可执行文件}
+    @li{仅需 @code`janet.c` 和 @code`janet.h` 即可添加到项目中}}
 
-## Code Example
+## 代码示例
 
 @codeblock[janet]```
 (defn sum3
-  "Solve the 3SUM problem in O(n^2) time."
+  "在 O(n²) 时间内求解 3SUM 问题。"
   [s]
   (def tab @{})
   (def solutions @{})
@@ -57,7 +53,7 @@ such as threading, networking, an event loop, subprocess handling, regex-like li
   (printf "%j" (sum3 arr)))
 ```
 
-## Try It
+## 试试看
 
 @html[
 <div id="replblock">
@@ -70,17 +66,15 @@ such as threading, networking, an event loop, subprocess handling, regex-like li
 </div>
 ]
 
-## Get Started
+## 开始入门
 
-Check out the @link[docs/index.html]{documentation} for an introduction and installation instructions.
+查看 @link[docs/index.html]{文档} 获取介绍和安装说明。
 
-## Usage
+## 使用方式
 
-A REPL is launched when the @code`janet` binary is invoked with no arguments. Pass the @code`-h` flag
-to display the usage information. Individual scripts can be run with @code`janet myscript.janet`
+当不带参数调用 @code`janet` 二进制文件时，会启动一个 REPL。传递 @code`-h` 标志可显示使用信息。可以使用 @code`janet myscript.janet` 运行单个脚本。
 
-If you are looking to explore, you can print a list of all available macros, functions, and constants
-by entering the command @code[(doc)] into the REPL.
+如果你想探索，可以在 REPL 中输入 @code[(doc)] 命令来打印所有可用宏、函数和常量的列表。
 
 @codeblock(```
 $ janet
@@ -123,26 +117,22 @@ Options are:
 
 ```)
 
-## Modules and Libraries
+## 模块与库
 
-See some auxiliary projects on @link[https://github.com/janet-lang]{GitHub}. Here is a short list of libraries
-for Janet to help you get started with some interesting stuff. See @link[https://github.com/janet-lang/pkgs]{the Janet Package Listing}
-for a more complete list. Packages in the listing can be installed via @code`jpm install pkg-name`.
+在 @link[https://github.com/janet-lang]{GitHub} 上可以找到一些辅助项目。以下是一份简短的 Janet 库列表，可帮助你开始一些有趣的开发。查看 @link[https://github.com/janet-lang/pkgs]{Janet 包列表} 获取更完整的列表。列表中的包可以通过 @code`jpm install pkg-name` 安装。
 
-@ul{@li{@link[https://github.com/janet-lang/circlet]{Circlet} - An HTTP server for Janet}
-    @li{@link[https://joy.swlkr.com]{Joy Web Framework} - Framework for web development in Janet}
-    @li{@link[https://github.com/janet-lang/json]{JSON} - A JSON parser and encoder}
-    @li{@link[https://github.com/janet-lang/sqlite3]{SQLite3} - Bindings to SQLite}
-    @li{@link[https://github.com/janet-lang/webview]{WebView} - Spawn a browser window for creating HTML+CSS UIs on any platform}
-    @li{@link[https://github.com/janet-lang/jaylib]{Jaylib} - Bindings to Raylib for 2d and 3d game development}
-    @li{@link[https://github.com/janet-lang/jhydro]{JHydro} - Cryptography for Janet}
-    @li{@link[https://github.com/janet-lang/janetui]{JanetUI} - Bindings to @link[https://github.com/andlabs/libui]{libui}}}
+@ul{@li{@link[https://github.com/janet-lang/circlet]{Circlet} — Janet 的 HTTP 服务器}
+    @li{@link[https://joy.swlkr.com]{Joy Web 框架} — Janet 的 Web 开发框架}
+    @li{@link[https://github.com/janet-lang/json]{JSON} — JSON 解析器和编码器}
+    @li{@link[https://github.com/janet-lang/sqlite3]{SQLite3} — SQLite 绑定}
+    @li{@link[https://github.com/janet-lang/webview]{WebView} — 生成浏览器窗口，在任何平台上创建 HTML+CSS 界面}
+    @li{@link[https://github.com/janet-lang/jaylib]{Jaylib} — 用于 2D 和 3D 游戏开发的 Raylib 绑定}
+    @li{@link[https://github.com/janet-lang/jhydro]{JHydro} — Janet 的加密库}
+    @li{@link[https://github.com/janet-lang/janetui]{JanetUI} — @link[https://github.com/andlabs/libui]{libui} 的绑定}}
 
-## Editor Support
+## 编辑器支持
 
-Janet support exists for a number of editors.  See the links below for
-some editor-specific details.  The Zulip Instance also has an @link[https://janet.zulipchat.com/#narrow/stream/409409-editors-and-tooling]{editors and tooling}
-discussion area.
+Janet 支持多种编辑器。请参阅以下链接了解各编辑器的具体细节。Zulip 实例中也有一个 @link[https://janet.zulipchat.com/#narrow/stream/409409-editors-and-tooling]{编辑器和工具} 讨论区。
 
 @ul{@li{@link[https://github.com/sogaiu/janet-editor-and-tooling-info/blob/master/doc/neovim.md]{Neovim}}
     @li{@link[https://github.com/sogaiu/janet-editor-and-tooling-info/blob/master/doc/vim.md]{Vim}}
@@ -153,20 +143,20 @@ discussion area.
     @li{@link[https://github.com/sogaiu/janet-editor-and-tooling-info/blob/master/doc/tic-80.md]{TIC-80}}
     @li{@link[https://github.com/sogaiu/janet-editor-and-tooling-info/blob/master/doc/helix.md]{Helix}}}
 
-## Community
+## 社区
 
 ### Zulip
 
-View or join the Janet Zulip Instance at @link[https://janet.zulipchat.com] \(@link[https://janet.zulipchat.com/join/3ahdqkn5cvr6233x6ytzlcvq/]{Invite Link})
+在 @link[https://janet.zulipchat.com] 查看或加入 Janet Zulip 实例（@link[https://janet.zulipchat.com/join/3ahdqkn5cvr6233x6ytzlcvq/]{邀请链接}）
 
-### Forum
+### 论坛
 
-We also support @link[https://github.com/janet-lang/janet/discussions]{GitHub Discussions}, but Zulip has richer functionality.
+我们也支持 @link[https://github.com/janet-lang/janet/discussions]{GitHub Discussions}，但 Zulip 具有更丰富的功能。
 
-### Janet Guide
+### Janet 指南
 
-The @link[https://janet.guide/]{Janet Guide} is a beginner-friendly on-ramp to the language that provides a more opinionated tutorial than the official documentation.
+@link[https://janet.guide/]{Janet 指南} 是一份对初学者友好的语言入门资料，提供了比官方文档更具指导性的教程。
 
 ### Janet Docs
 
-For help, you can also check out @link[https://janetdocs.org]{Janet Docs} for Janet documentation with user-provided examples. Feel free to contribute your own examples here to help fellow programmers.
+如需帮助，你还可以查看 @link[https://janetdocs.org]{Janet Docs}，它提供了带有用户贡献示例的 Janet 文档。欢迎在此贡献你自己的示例，以帮助其他程序员。

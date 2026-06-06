@@ -7,26 +7,26 @@
  :template "docpage.html"}
  ---
 
-NOTE: Beta-quality - apis may change.
+注意：测试版本质量 — API 可能发生变化。
 
-Various simple CPU-based 2d graphics tools suitable for demos, visulizations, and charting. The module generates C code which then is further compiled. It can also be used to generate "shaders" by evaluating this file with `(dyn :shader-compile)` set, which disables a number of functions and allows passing in a pixel shader stub.
+适用于演示、可视化和图表绘制的多种基于 CPU 的简单 2D 图形工具。该模块生成 C 代码，然后进一步编译。通过在设置 `(dyn :shader-compile)` 的情况下求值此文件，还可以用于生成"着色器"，这会禁用一些函数并允许传入像素着色器桩代码。
 
-Leans on the underlying C compiler for optimization - recommended to be used with `JANET_BUILD_TYPE=native janet-pm install` to take advantage of the best available vectorization.
+依赖底层 C 编译器进行优化 — 建议与 `JANET_BUILD_TYPE=native janet-pm install` 一起使用，以利用最佳可用的向量化功能。
 
-This module doesn't presume any color-space, with the exception of when saving images to formats like PNG, which guarantees the sRGB color space. Most operations do not do blending - those that do also specify the color space in the blending modes. Unless otherwise specified, blending is done in a "linear" color space.
+该模块不假定任何色彩空间，除非保存图像为 PNG 等格式时，这些格式保证 sRGB 色彩空间。大多数操作不进行混合 — 那些进行混合的操作也会在混合模式中指定色彩空间。除非另有说明，混合在"线性"色彩空间中进行。
 
-Includes:
-* Saving and loading to and from several common image file formats.
-* Image blitting
-* Blend modes
-* Cropping imges
-* Read/Set individual pixels
-* Built in simple text rendering
-* Image resizing
-* Stroke and Fill paths
-* Bezier curves
-* Pixel shader abstraction with spork/cjanet
+包括：
+* 保存和加载多种常见图像文件格式
+* 图像块传输（blitting）
+* 混合模式
+* 裁剪图像
+* 读取/设置单个像素
+* 内置简单文本渲染
+* 图像缩放
+* 描边和填充路径
+* 贝塞尔曲线
+* 通过 spork/cjanet 实现的像素着色器抽象
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[gfx2d/]

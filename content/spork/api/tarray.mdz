@@ -7,7 +7,7 @@
  :template "docpage.html"}
  ---
 
-Typed array abstract type.
+类型化数组抽象类型。
 
 ## Reference
 

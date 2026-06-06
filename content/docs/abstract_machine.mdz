@@ -1,115 +1,77 @@
 (import ./gen-asm-table :as asm-table)
 
-{:title "The Janet Abstract Machine"
+{:title "Janet 抽象机"
  :template "docpage.html"
  :order 18}
 ---
-The Janet language is implemented on top of an abstract machine (AM). The
-compiler converts Janet data structures to this bytecode, which can then be
-efficiently executed from inside a C program. To understand Janet bytecode, it
-is useful to understand the abstractions used inside the Janet AM, as well as
-the C types used to implement these features.
+Janet 语言基于一台抽象机（AM, abstract machine）实现。编译器将 Janet 数据结构转换为字节码，然后可以在 C 程序内部高效地执行这些字节码。要理解 Janet 字节码，了解 Janet 抽象机内部使用的抽象概念以及实现这些功能的 C 类型是很有帮助的。
 
-## The stack = the fiber
+## 栈 = fiber
 
-A Janet fiber is the type used to represent multiple concurrent processes in
-Janet. It is basically a wrapper around the idea of a stack. The stack is
-divided into a number of stack frames (@code[JanetStackFrame *] in C), each of
-which contains information such as the function that created the stack frame,
-the program counter for the stack frame, a pointer to the previous frame, and
-the size of the frame. Each stack frame also is paired with a number of
-registers.
+Janet fiber 是用来表示 Janet 中多个并发进程的类型。它本质上是对栈概念的封装。栈被划分为多个栈帧（在 C 中为 @code[JanetStackFrame *]），每个栈帧包含诸如创建该帧的函数、该帧的程序计数器、指向前一帧的指针以及帧的大小等信息。每个栈帧还配有一定数量的寄存器。
 
 @codeblock(```
-X: Slot
+X: 槽位
 
 X
-X - Stack Top, for next function call.
+X - 栈顶，用于下一次函数调用。
 -----
-Frame next
------
-X
-X
-X
-X
-X
-X
-X - Stack 0
------
-Frame 0
------
-X
-X
-X - Stack -1
------
-Frame -1
+帧 next
 -----
 X
 X
 X
 X
-X - Stack -2
+X
+X
+X - 栈 0
 -----
-Frame -2
+帧 0
+-----
+X
+X
+X - 栈 -1
+-----
+帧 -1
+-----
+X
+X
+X
+X
+X - 栈 -2
+-----
+帧 -2
 -----
 ...
 ...
 ...
 -----
-Bottom of stack
+栈底
 ```)
 
-Fibers also have an incomplete stack frame for the next function call on top of
-their stacks. Making a function call involves pushing arguments to this
-temporary stack frame, and then invoking either the @code`CALL` or @code`TCALL`
-instructions.  Arguments for the next function call are pushed via the
-@code`PUSH`, @code`PUSH2`, @code`PUSH3`, and @code`PUSHA` instructions. The
-stack of a fiber will grow as large as needed, although by default Janet will
-limit the maximum size of a fiber's stack.  The maximum stack size can be
-modified on a per-fiber basis.
+Fiber 在其栈顶还有一个未完成的栈帧，用于下一次函数调用。进行函数调用需要将参数推送到这个临时栈帧，然后调用 @code`CALL` 或 @code`TCALL` 指令。下一次函数调用的参数通过 @code`PUSH`、@code`PUSH2`、@code`PUSH3` 和 @code`PUSHA` 指令推送。fiber 的栈会根据需要增长，不过默认情况下 Janet 会限制 fiber 栈的最大大小。最大栈大小可以在每个 fiber 的基础上进行修改。
 
-The slots in the stack are exposed as virtual registers to instructions. They
-can hold any Janet value.
+栈中的槽位作为虚拟寄存器暴露给指令。它们可以持有任意 Janet 值。
 
-## Closures
+## 闭包
 
-All functions in Janet are closures; they combine some bytecode instructions
-with 0 or more environments. In the C source, a closure (hereby the same as a
-function) is represented by the type @code[JanetFunction *]. The bytecode
-instruction part of the function is represented by @code[JanetFuncDef *], and a
-function environment is represented with @code[JanetFuncEnv *].
+Janet 中的所有函数都是闭包；它们将一些字节码指令与 0 个或多个环境组合在一起。在 C 源码中，闭包（这里等同于函数）由 @code[JanetFunction *] 类型表示。函数的字节码指令部分由 @code[JanetFuncDef *] 表示，函数环境由 @code[JanetFuncEnv *] 表示。
 
-The function definition part of a function (the 'bytecode' part,
-@code[JanetFuncDef *]), also stores various metadata about the function which is
-useful for debugging, as well as constants referenced by the function.
+函数的函数定义部分（"字节码"部分，@code[JanetFuncDef *]）还存储了关于该函数的各种元数据，这些元数据对调试很有用，以及该函数引用的常量。
 
-## C functions
+## C 函数
 
-Janet uses C functions to bridge to native code. A C function
-(@code[JanetCFunction *] in C) is a C function pointer that can be called like a
-normal Janet closure. From the perspective of the bytecode instruction set,
-there is no difference in invoking a C function and invoking a normal Janet
-function.
+Janet 使用 C 函数来桥接本地代码。C 函数（在 C 中为 @code[JanetCFunction *]）是一个 C 函数指针，可以像普通的 Janet 闭包一样被调用。从字节码指令集的角度来看，调用 C 函数和调用普通的 Janet 函数之间没有区别。
 
-## Bytecode format
+## 字节码格式
 
-Janet bytecode operates on an array of identical registers that can hold any
-Janet value (@code[Janet *] in C). Most instructions have a destination
-register, and 1 or 2 source registers. Registers are simply indices into the
-stack frame, which can be thought of as a constant-sized array.
+Janet 字节码在一个可持有任意 Janet 值（在 C 中为 @code[Janet *]）的相同寄存器数组上运行。大多数指令都有一个目标寄存器和 1 个或 2 个源寄存器。寄存器只是栈帧中的索引，可以将其视为一个固定大小的数组。
 
-Each instruction is a 32-bit integer, meaning that the instruction set is a
-constant-width RISC instruction set like MIPS. The opcode of each instruction is
-the least significant byte of the instruction. The highest bit of this leading
-byte is reserved for debugging purpose, so there are 128 possible opcodes
-encodable with this scheme. Not all of these possible opcodes are defined, and
-undefined opcodes will trap the interpreter and emit a debug signal. Note that
-this means an unknown opcode is still valid bytecode, it will just put the
-interpreter into a debug state when executed.
+每条指令是一个 32 位整数，这意味着该指令集是一个像 MIPS 那样的固定宽度 RISC 指令集。每条指令的操作码是指令的最低有效字节。该首字节的最高位保留用于调试目的，因此这种方案可以编码 128 个可能的操作码。并非所有可能的操作码都已定义，未定义的操作码会触发解释器并发出调试信号。请注意，这意味着未知的操作码仍然是有效的字节码，只是在执行时会将解释器置于调试状态。
 
 @codeblock(```
-X - Payload bits
-O - Opcode bits
+X - 载荷位
+O - 操作码位
 
    4    3    2    1
 +----+----+----+----+
@@ -117,59 +79,28 @@ O - Opcode bits
 +----+----+----+----+
 ```)
 
-Using 8 bits for the opcode leaves 24 bits for the payload, which may or may
-not be utilized.  There are a few instruction variants that divide these
-payload bits.
+使用 8 位作为操作码，剩下 24 位用于载荷，这些载荷位可能被利用也可能不被利用。有几种指令变体来划分这些载荷位。
 
-@ul{@li{0 arg - Used for noops, returning @code`nil`, or other instructions that
-        take no arguments. The payload is essentially ignored.}
-    @li{1 arg - All payload bits correspond to a single value, usually a signed
-        or unsigned integer.  Used for instructions of 1 argument, like
-        returning a value, yielding a value to the parent fiber, or doing a
-        (relative) jump.}
-    @li{2 arg - Payload is split into byte 2 and bytes 3 and 4. The first
-        argument is the 8-bit value from byte 2, and the second argument is the
-        16-bit value from bytes 3 and 4 (@code[instruction >> 16]). Used for
-        instructions of two arguments, like move, normal function calls,
-        conditionals, etc.}
-    @li{3 arg - Bytes 2, 3, and 4 each correspond to an 8-bit argument.
-        Used for arithmetic operations, emitting a signal, etc.}}
+@ul{@li{0 个参数 - 用于无操作（noop）、返回 @code`nil`，或其他不需要参数的指令。载荷被忽略。}
+    @li{1 个参数 - 所有载荷位对应一个单一值，通常是一个有符号或无符号整数。用于单参数指令，如返回值、向父 fiber 产生（yield）值，或进行（相对）跳转。}
+    @li{2 个参数 - 载荷被拆分为字节 2 以及字节 3 和 4。第一个参数是字节 2 中的 8 位值，第二个参数是字节 3 和 4 中的 16 位值（@code[instruction >> 16]）。用于两个参数的指令，如移动、普通函数调用、条件分支等。}
+    @li{3 个参数 - 字节 2、3 和 4 各对应一个 8 位参数。用于算术运算、发出信号等。}}
 
-These instruction variants can be further refined based on the semantics of the
-arguments.  Some instructions may treat an argument as a slot index, while other
-instructions will treat the argument as a signed integer literal, an index for a
-constant, an index for an environment, or an unsigned integer. Keeping the
-bytecode fairly uniform makes verification, compilation, and debugging simpler.
+这些指令变体可以根据参数的语义进一步细化。有些指令会将参数视为槽位索引，而其他指令则会将参数视为有符号整数字面量、常量索引、环境索引或无符号整数。保持字节码相对统一使得验证、编译和调试更加简单。
 
-## Instruction reference
+## 指令参考
 
-A listing of all opcode values can be found in @code`janet.h`. The Janet
-assembly short names can be found in @code`src/core/asm.c`. In this document,
-we will refer to the instructions by their short names as presented to the
-assembler rather than their numerical values.
+所有操作码值的列表可以在 @code`janet.h` 中找到。Janet 汇编短名称可以在 @code`src/core/asm.c` 中找到。在本文档中，我们将使用指令的短名称（即呈现给汇编器的名称）来指代它们，而不是使用其数值。
 
-Each instruction is also listed with a signature, which are the arguments the
-instruction expects. There are a handful of instruction signatures, which
-combine the arity and type of the instruction. The assembler does not do any
-type-checking per closure, but does prevent jumping to invalid instructions and
-failure to return or error.
+每条指令还附带一个签名，即指令期望的参数。有少数几种指令签名，它们结合了指令的参数数量和类型。汇编器不会对每个闭包进行类型检查，但会防止跳转到无效指令以及未能返回或出错。
 
-### Notation
+### 符号说明
 
-@ul{@li{The '$' prefix indicates that an instruction parameter is acting as a
-        virtual register (slot). If a parameter does not have the '$' suffix in
-        the description, it is acting as some kind of literal (usually an
-        unsigned integer for indexes, and a signed integer for literal
-        integers).}
-    @li{Some operators in the description have the suffix 'i' or 'r'. These
-        indicate that these operators correspond to integers or real numbers
-        only, respectively. All bit-wise operators and bit shifts only work with
-        integers.}
-    @li{The @code[>>>] indicates unsigned right shift, as in Java. Because all
-        integers in Janet are signed, we differentiate the two kinds of right
-        bit shift.}
-    @li{The 'im' suffix in the instruction name is short for "immediate".}}
+@ul{@li{'$' 前缀表示指令参数充当虚拟寄存器（槽位）。如果某个参数在描述中没有 '$' 后缀，则它充当某种字面量（通常是无符号整数用于索引，有符号整数用于整数字面量）。}
+    @li{描述中的某些运算符带有后缀 'i' 或 'r'。这些表示这些运算符分别仅用于整数或实数。所有按位运算符和位移位仅适用于整数。}
+    @li{@code[>>>] 表示无符号右移，与 Java 中相同。由于 Janet 中的所有整数都是有符号的，我们区分了两种右移位。}
+    @li{指令名称中的 'im' 后缀是 "immediate"（立即数）的缩写。}}
 
-### Reference table
+### 参考表
 
 @asm-table/gen()

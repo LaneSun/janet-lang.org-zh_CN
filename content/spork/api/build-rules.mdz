@@ -7,10 +7,10 @@
  :template "docpage.html"}
 ---
 
-Run commands that produce files in an incremental manner.
-Use to implement a build system.
+以增量方式运行产生文件的命令。
+用于实现构建系统。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[build-rules/]
 

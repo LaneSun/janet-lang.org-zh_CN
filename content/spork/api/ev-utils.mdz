@@ -7,7 +7,7 @@
  :template "docpage.html"}
  ---
 
-Module for parallel execution utilities with Janet.
+用于 Janet 的并行执行工具模块。
 
 ## Reference
 

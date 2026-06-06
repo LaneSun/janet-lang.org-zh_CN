@@ -1,64 +1,44 @@
-{:title "Introduction"
+{:title "简介"
  :template "docpage.html"
  :order 2
- :nav-title "Documentation"}
+ :nav-title "文档"}
 ---
 
-## Installation
+## 安装
 
-Janet is prebuilt for a few systems, but if you want to develop Janet, run Janet
-on a non-x86 system, or get the latest, you must build Janet from source.
+Janet 为少数系统提供了预构建版本，但如果你想开发 Janet、在非 x86 系统上运行 Janet，或者获取最新版本，你必须从源码构建 Janet。
 
 ### Windows
 
-The recommended way to install on Windows is just to run the installer from the
-releases page.  A Scoop package was maintained previously, but ongoing support
-is being dropped.
+在 Windows 上安装的推荐方式是直接从发布页面运行安装程序。之前曾维护过一个 Scoop 包，但正在停止持续支持。
 
-If you want to use @code`jpm` to install native extensions, you will also need
-to install Visual Studio, ideally a recent release (2019 or 2017 should work
-well). Then, running @code`jpm` from the x64 Native Tools Command Prompt should
-work for a 64-bit build, and from the Developer Command Prompt should work for
-32-bit builds.  Using these specific command prompts for @code`jpm` simply lets
-@code`jpm` use the Microsoft compiler to compile native modules on install.
+如果你想使用 @code`jpm` 安装原生扩展，你还需要安装 Visual Studio，最好是最新的版本（2019 或 2017 应该也能正常工作）。然后，在 x64 原生工具命令提示符下运行 @code`jpm` 可以用于 64 位构建，在开发人员命令提示符下运行可以用于 32 位构建。为 @code`jpm` 使用这些特定的命令提示符，只是让 @code`jpm` 在安装时能够使用 Microsoft 编译器来编译原生模块。
 
 ### Linux
 
 #### Arch Linux
 
-You can install either the latest git version or the latest stable version for
-Arch Linux from the Arch user repositories with
-@link[https://aur.archlinux.org/packages/janet-lang-git/][janet-lang-git] or
-@link[https://aur.archlinux.org/packages/janet-lang][janet-lang].
+你可以通过 @link[https://aur.archlinux.org/packages/janet-lang-git/][janet-lang-git] 或 @link[https://aur.archlinux.org/packages/janet-lang][janet-lang] 从 Arch 用户软件仓库安装最新 git 版本或最新稳定版本。
 
-#### Other Linux
+#### 其他 Linux 发行版
 
-See instructions below for compiling and installing from source.
+请参阅下面的从源码编译和安装的说明。
 
 ### macOS
 
-Janet is available for installation through the
-@link[https://brew.sh/][homebrew] package manager as @code[janet]. The latest
-version from git can be installed by adding the @code[--HEAD] flag.
+Janet 可以通过 @link[https://brew.sh/][homebrew] 包管理器以 @code[janet] 的形式安装。通过添加 @code[--HEAD] 标志可以安装 git 中的最新版本。
 
 @codeblock(```
 brew install janet
 ```)
 
-## Compiling and running from source
+## 从源码编译和运行
 
-If you would like the latest version of Janet, are trying to run Janet on a
-platform that is not macOS or Windows, or would like to help develop Janet, you
-can build Janet from source.  Janet only uses Make and batch files to compile on
-POSIX and Windows respectively. To configure Janet, edit the header file
-@code`src/conf/janetconf.h` before compilation.
+如果你想要最新版本的 Janet，尝试在非 macOS 或 Windows 的平台上运行 Janet，或者想要帮助开发 Janet，你可以从源码构建 Janet。Janet 仅使用 Make 和批处理文件分别在 POSIX 和 Windows 上进行编译。要配置 Janet，请在编译前编辑头文件 @code`src/conf/janetconf.h`。
 
-### Non-root install (macOS and Unix-like)
+### 非 root 安装（macOS 和类 Unix）
 
-To build and install Janet (and jpm) to a local or temporary directory tree instead of the default
-prefix of @code`/usr/local`, set the @code`PREFIX` environment variable while building and installing.
-You will like likely also want to update your path to point to @code`PREFIX/bin` to use
-@code`janet`, @code`jpm`, and any scripts installed via @code`jpm`.
+要构建并安装 Janet（和 jpm）到本地或临时目录树中，而不是默认的 @code`/usr/local` 前缀，请在构建和安装时设置 @code`PREFIX` 环境变量。你可能还需要更新你的路径，使其指向 @code`PREFIX/bin`，以便使用 @code`janet`、@code`jpm` 以及通过 @code`jpm` 安装的任何脚本。
 
 @codeblock```
 export PREFIX="$HOME"/.local
@@ -68,10 +48,9 @@ make install-jpm-git # you can also do this manually by reading the janet-lang/j
 export PATH="$PREFIX"/bin:"$PATH"
 ```
 
-### macOS and Unix-like
+### macOS 和类 Unix
 
-On most platforms, use Make to build Janet. The resulting files (including the
-@code`janet` binary) will be in the @code[build/] directory.
+在大多数平台上，使用 Make 来构建 Janet。生成的文件（包括 @code`janet` 二进制文件）将位于 @code[build/] 目录中。
 
 @codeblock(```
 cd somewhere/my/projects/janet
@@ -79,13 +58,9 @@ make
 make test
 ```)
 
-After building, run @code[make install] to install the @code`janet` binary and
-libraries.  This will install in @code[/usr/local] by default, see the Makefile
-to customize.
+构建完成后，运行 @code[make install] 来安装 @code`janet` 二进制文件和库。默认情况下，这会安装到 @code[/usr/local] 目录，请参阅 Makefile 进行自定义。
 
-Next, to install the Janet Project Manager tool (@code`jpm`), clone the
-@link[https://github.com/janet-lang/jpm][jpm repository], and from within that
-directory, run:
+接下来，要安装 Janet 项目管理工具（@code`jpm`），请克隆 @link[https://github.com/janet-lang/jpm][jpm 仓库]，然后在该目录中运行：
 
 @codeblock(```
 [sudo] janet bootstrap.janet
@@ -93,8 +68,7 @@ directory, run:
 
 ### FreeBSD
 
-FreeBSD build instructions are the same as the Unix-like build instructions, but
-you need @code[gmake] and @code[gcc] to compile.
+FreeBSD 的构建说明与类 Unix 构建说明相同，但你需要 @code[gmake] 和 @code[gcc] 来编译。
 
 @codeblock(```
 cd somewhere/my/projects/janet
@@ -104,37 +78,31 @@ gmake test CC=gcc
 
 ### Windows
 
-@ol{@li{Install @link[https://visualstudio.microsoft.com/downloads/#visual-studio-community-2022][Visual Studio]
-        or @link[https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022][Visual Studio Build Tools]
-        \(you will need the latest MSVC build tools and the Windows SDK components)}
-    @li{Run a Visual Studio Command Prompt (@code`cl.exe` and @code`link.exe`
-        need to be on the PATH)}
-    @li{@code[cd] to the directory with Janet}
-    @li{Run @code[build_win] to compile Janet.}
-    @li{Run @code[build_win test] to make sure everything is working.}}
+@ol{@li{安装 @link[https://visualstudio.microsoft.com/downloads/#visual-studio-community-2022][Visual Studio]
+        或 @link[https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022][Visual Studio 构建工具]
+        \（你需要最新的 MSVC 构建工具和 Windows SDK 组件）}
+    @li{运行 Visual Studio 命令提示符（@code`cl.exe` 和 @code`link.exe`
+        需要在 PATH 中）}
+    @li{@code[cd] 到 Janet 所在的目录}
+    @li{运行 @code[build_win] 来编译 Janet。}
+    @li{运行 @code[build_win test] 以确保一切正常工作。}}
 
-To install from source, first follow the steps above, then you will need to
+要从源码安装，首先完成上述步骤，然后你需要：
 
-@ol{@li{Install, or otherwise add to your PATH, the
-        @link[https://github.com/wixtoolset/wix3/releases]{WiX 3.11 Toolset}}
-    @li{Run a Visual Studio Command Prompt (@code`cl.exe` and @code`link.exe`
-        need to be on the PATH)}
-    @li{@code[cd] to the directory with Janet}
-    @li{Run @code[build_win dist]}
-    @li{Then, lastly, execute the resulting @code[.msi] executable}}
+@ol{@li{安装 @link[https://github.com/wixtoolset/wix3/releases]{WiX 3.11 工具集}，或将其添加到 PATH 中}
+    @li{运行 Visual Studio 命令提示符（@code`cl.exe` 和 @code`link.exe`
+        需要在 PATH 中）}
+    @li{@code[cd] 到 Janet 所在的目录}
+    @li{运行 @code[build_win dist]}
+    @li{最后，执行生成的 @code[.msi] 可执行文件}}
 
 ### Meson
 
-Janet also has a build file for @link[https://mesonbuild.com/][Meson], a
-cross-platform build system. This is not currently the main supported build
-system, but should work on any system that supports Meson. Meson also provides
-much better IDE integration than Make or batch files.
+Janet 也有一个针对 @link[https://mesonbuild.com/][Meson] 的构建文件，Meson 是一个跨平台构建系统。这目前不是主要支持的构建系统，但应该可以在任何支持 Meson 的系统上工作。Meson 还提供了比 Make 或批处理文件好得多的 IDE 集成。
 
-### Small builds
+### 小型构建
 
-If you want to cut down on the size of the final Janet binary or library, you
-need to omit features and build with @code`-Os`. With Meson, this can look
-something like below:
+如果你想减小最终 Janet 二进制文件或库的大小，你需要省略一些功能并使用 @code`-Os` 进行构建。使用 Meson，这看起来如下所示：
 
 @codeblock```
 git clone https://github.com/janet-lang/janet.git
@@ -145,51 +113,30 @@ meson configure -Dsingle_threaded=true -Dassembler=false -Ddocstrings=false \
     -Dreduced_os=true -Dsourcemaps=false -Dpeg=false \
     -Dint_types=false --optimization=s -Ddebug=false
 ninja
-# ./janet should be about 40% smaller than the default build as of 2019-10-13
+# 截至 2019-10-13，./janet 应该比默认构建小约 40%
 ```
 
-You can also do this with the Makefile by editing @code`CFLAGS`, and
-uncommenting some lines in @code`src/conf/janetconf.h`.
+你也可以通过编辑 @code`CFLAGS` 并取消注释 @code`src/conf/janetconf.h` 中的一些行来使用 Makefile 实现这一点。
 
-## First program
+## 第一个程序
 
-Following tradition, a simple Janet program will print "Hello, World!".
+按照传统，一个简单的 Janet 程序将打印 "Hello, World!"。
 
-Put the following code in a file named @code[hello.janet], and run @code[janet
-hello.janet]:
+将以下代码放入名为 @code[hello.janet] 的文件中，然后运行 @code[janet hello.janet]：
 
 @codeblock[janet](```(print "Hello, World!")```)
 
-The words "Hello, World!" should be printed to the console, and then 
-the program should immediately exit. You now have a working Janet program!
+屏幕上应打印出 "Hello, World!" 字样，然后程序应立即退出。现在你有了一个可以运行的 Janet 程序！
 
-Alternatively, run the program @code[janet] without any arguments to enter a
-REPL, or read-eval-print-loop. This is a mode where Janet works like a
-calculator, reading some input from the user, evaluating it, and printing out
-the result, all in an infinite loop. This is a useful mode for exploring or
-prototyping in Janet.
+或者，不带任何参数运行 @code[janet] 程序以进入 REPL（读取-求值-打印-循环）。在这种模式下，Janet 像计算器一样工作：读取用户输入、求值、然后打印结果，这一切都在一个无限循环中完成。这是在 Janet 中进行探索或原型设计的有用模式。
 
-This hello world program is about the simplest program one can write, and
-consists of only a few pieces of syntax. The first element is the @code[print]
-symbol. This is a function that simply prints its arguments to the console. The
-second argument is the string literal "Hello, World!", which is the one and only
-argument to the print function. Lastly, the @code[print] symbol and the string
-literal are wrapped in parentheses, forming a tuple. In Janet, parentheses and
-also brackets form a tuple; brackets are used mostly when the resulting tuple
-is not a function call. The tuple above indicates that the function @code[print]
-is to be called with one argument, @code["Hello, World"].
+这个 hello world 程序可以说是最简单的一个程序，仅由几个语法元素组成。第一个元素是 @code[print] 符号。这是一个函数，它将其参数打印到控制台。第二个参数是字符串字面量 "Hello, World!"，它是 print 函数的唯一参数。最后，@code[print] 符号和字符串字面量被包裹在括号中，形成一个元组。在 Janet 中，圆括号和方括号都构成元组；方括号主要用于结果元组不是函数调用的情况。上面的元组表示函数 @code[print] 将被调用，并带有一个参数 @code["Hello, World"]。
 
-All operations in Janet are in prefix notation: the name of the operator is the
-first value in the tuple, and the arguments passed to it are in the rest of the
-tuple. While this may be familiar in function calls, in Janet this idea extends
-to arithmetic and all control forms.
+Janet 中的所有操作都采用前缀表示法：操作符名称是元组中的第一个值，传递给它的参数位于元组的其余部分。虽然这在函数调用中可能很常见，但在 Janet 中，这一概念扩展到了算术运算和所有控制形式。
 
-## Second program
+## 第二个程序
 
-If you create a "main" function, @code`janet` will automatically call that
-for you when you run your script. Here's an example that prints out the
-command line args tuple passed to your program, its length, and a greeting
-to the whomever's named first on the command line:
+如果你创建了一个 "main" 函数，@code`janet` 会在你运行脚本时自动调用它。以下是一个示例，它会打印出传递给程序的命令行参数元组、其长度，以及对命令行上第一个指定名字的人的问候语：
 
 @codeblock[janet]```
 #!/usr/bin/env janet
@@ -205,7 +152,7 @@ to the whomever's named first on the command line:
   (print-greeting (get args 1)))
 ```
 
-Output:
+输出：
 
 @codeblock```
 $ ./foo.janet World Famous Fries
@@ -214,22 +161,18 @@ $ ./foo.janet World Famous Fries
 Hello, World!
 ```
 
-## The core library
+## 核心库
 
-Janet has a built in core library of over 300 functions and macros at the time
-of writing.  For efficient programming in Janet, it is good to be able to make
-use of many of these functions.
+截至撰写本文时，Janet 内置了一个包含超过 300 个函数和宏的核心库。为了在 Janet 中进行高效编程，能够使用其中的许多函数是很好的。
 
-If at any time you want to see short documentation on a binding, use the
-@code[doc] macro to view the documentation for it in the REPL.
+如果你在任何时候想查看某个绑定的简短文档，可以在 REPL 中使用 @code[doc] 宏来查看其文档。
 
-@codeblock[janet](```(doc defn) # -> Prints the documentation for "defn"```)
+@codeblock[janet](```(doc defn) # -> 打印 "defn" 的文档```)
 
-To see a list of all global bindings in the REPL, use the @code[doc] macro
-without arguments to print them out.
+要查看 REPL 中所有全局绑定的列表，请使用不带参数的 @code[doc] 宏来打印它们。
 
 @codeblock[janet](```(doc)```)
 
-Note: see the @code[all-bindings] function for related functionality.
+注意：相关功能请参见 @code[all-bindings] 函数。
 
-You can also browse the @link[/doc.html][core library API] on the website.
+你也可以在网站上浏览 @link[/doc.html][核心库 API]。

@@ -7,9 +7,9 @@
  :template "docpage.html"}
  ---
 
-A macro for infix syntax in Janet. Useful for math.
+Janet 中用于中缀语法的宏。适用于数学运算。
 
-## Examples
+## 示例
 
 @codeblock[janet]```
     ($$ a + b ** 2)            --->   (+ a (math/pow b 2))
@@ -18,25 +18,23 @@ A macro for infix syntax in Janet. Useful for math.
     ($$ a > b and ,(good? z))  --->   (and (> a b) (good? z))
 ```
 
-## Syntax
+## 语法
 
-Syntax is as follows:
+语法如下：
 
-  Binary operators <<, >>, >>>, =, !=, <, <=, >, >=, &, ^, bor, band, and, or,
-  +, -, *, /, %, ** are supported. Operator precedence is in the
-  `precedence table below (higher means more tightly binding). All
-  operators are left associative except ** (math/pow), which is right
-  associative.
+  支持二元运算符 <<, >>, >>>, =, !=, <, <=, >, >=, &, ^, bor, band, and, or,
+  +, -, *, /, %, ** 。运算符优先级如下面的优先级表所示（值越大
+  绑定越紧密）。所有运算符都是左结合的，除了 ** (math/pow) 是右结合的。
 
-  Unary prefix operators !, -, bnot, not, ++, -- are supported.
-  No unary postfix operators are supported.
+  支持一元前缀运算符 !, -, bnot, not, ++, -- 。
+  不支持一元后置运算符。
 
-  Square brackets can be used for indexing.
+  方括号可用于索引。
 
-  Normal parentheses are used for making subgroups
+  普通括号用于创建子分组
 
-  You can "escape" infix syntax use a quote or unquote (comma)
+  你可以使用 quote 或 unquote（逗号）来"转义"中缀语法
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[infix/]

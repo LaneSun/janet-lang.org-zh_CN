@@ -7,6 +7,6 @@
  :template "docpage.html"}
  ---
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[pm-config/]

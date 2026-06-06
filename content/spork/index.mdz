@@ -3,26 +3,24 @@
  :order 6}
 ---
 
-Spork is a utility library for Janet. It contains a number of small
-modules that should be useful for general programming in Janet but do
-not "make the cut" for inclusion in the standard library. You can
-think of spork as a sort of extended standard library for Janet.
+Spork 是 Janet 的一个工具库。它包含许多小巧的模块，这些模块对 Janet 通用编程很有用，
+但未达到纳入标准库的要求。你可以将 spork 视为 Janet 的一种扩展标准库。
 
 
-## Source code
+## 源代码
 
 @p{@link[https://github.com/janet-lang/spork]}
 
 
-## Install
+## 安装
 
 @codeblock```
 $ [sudo] jpm install spork
 ```
 
-## Usage
+## 用法
 
-Every binding in the spork library will be imported if you @code`(import spork)` in either a Janet source file or at a Janet REPL:
+如果在 Janet 源文件或 Janet REPL 中使用 @code`(import spork)`，spork 库中的每个绑定都会被导入：
 
 @codeblock```
 Janet 1.35.2-fda0a081 linux/x64/gcc - '(doc)' for help
@@ -31,7 +29,7 @@ repl:1:> (import spork)
 repl:2:>
 ```
 
-However, it's usually more practical to only import the specific module you want using @code`(import spork/[module])`, replacing @code`[module]` as appropriate. For example:
+然而，通常更实用的做法是只导入你需要的特定模块，使用 @code`(import spork/[module])`，并相应地替换 @code`[module]`。例如：
 
 @codeblock```
 Janet 1.35.2-fda0a081 linux/x64/gcc - '(doc)' for help

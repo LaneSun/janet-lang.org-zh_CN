@@ -1,12 +1,12 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Bundle Module"
+{:title "Bundle 模块"
  :order 0
  :nav-title "bundle"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[bundle/]
 

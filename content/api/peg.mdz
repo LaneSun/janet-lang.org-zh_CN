@@ -1,12 +1,11 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "PEG Module"
+{:title "PEG 模块"
  :order 0
  :nav-title "peg"
  :template "docpage.html"}
 ---
-
-See @link[/docs/peg.html][The peg documentation] for more information.
+更多信息请参见 @link[/docs/peg.html][PEG 文档]。
 
 ## Index
 

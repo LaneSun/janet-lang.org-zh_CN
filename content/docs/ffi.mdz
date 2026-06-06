@@ -1,32 +1,18 @@
-{:title "Foreign Function Interface"
+{:title "外部函数接口"
  :template "docpage.html"
  :order 26}
 ---
 
-Starting in version 1.23.0, Janet includes a Foreign Function Interface module on x86-64, non-Windows
-systems. This lets programmers more easily call into native code without needing to write extensive
-native bindings in C, which is often very tedious. While the FFI is convenient and quite general, it
-lacks both the flexibility, safety, and speed of bindings written against the Janet C API.
-Programmers should be aware of this before choosing FFI bindings over a traditional
-native module. It is also possible to use a hybrid approach, where some core functionality is exposed via a
-C extension module, and the majority of an API is bound via FFI.
+从 1.23.0 版本开始，Janet 在 x86-64、非 Windows 系统上包含了一个外部函数接口模块。这让程序员能够更轻松地调用原生代码，而无需编写大量的 C 语言原生绑定，这通常非常繁琐。虽然 FFI 很方便且相当通用，但它缺乏针对 Janet C API 编写的绑定所具备的灵活性、安全性和速度。在选择 FFI 绑定而非传统原生模块之前，程序员应意识到这一点。也可以采用混合方法，通过 C 扩展模块暴露一些核心功能，而通过 FFI 绑定大部分 API。
 
-The FFI Module contains both the low-level primitives to load dynamic
-libraries (as with @code`dlopen` on posix systems), get function
-pointers from those modules, and call those function pointers. On top
-of this, there is a macro-based abstraction that makes it convenient
-to declare bindings and is sufficient in most cases.
+FFI 模块包含加载动态库（如 POSIX 系统上的 @code`dlopen`）、从这些模块获取函数指针以及调用这些函数指针的低级原语。在此基础上，还有一个基于宏的抽象层，使得声明绑定变得方便，并且在大多数情况下已经足够使用。
 
-## Primitive Types
+## 基本类型
 
-Primitive types in the FFI syntax are specified with keywords, and map
-directly to primitive type in C. There are a number of aliases for
-common types, such as the Linux kernel source style aliases for sized
-integer types. More complex types can be built from these primitive
-types. On x86-64, long doubles are unsupported.
+FFI 语法中的基本类型使用关键字指定，并直接映射到 C 中的基本类型。有许多常见类型的别名，例如 Linux 内核源码风格的定长整数类型别名。可以从这些基本类型构建更复杂的类型。在 x86-64 上，不支持 long double 类型。
 
 @tag[table]{
-    @tr{@th{Primitive Type} @th{Corresponding C Type}}
+    @tr{@th{基本类型} @th{对应的 C 类型}}
     @tr{@td{@code`:void`} @td{void}}
     @tr{@td{@code`:bool`} @td{bool}}
     @tr{@td{@code`:ptr`} @td{void *}}
@@ -52,6 +38,7 @@ types. On x86-64, long doubles are unsupported.
     @tr{@td{@code`:s32`} @td{int32_t}}
     @tr{@td{@code`:u32`} @td{uint32_t}}
     @tr{@td{@code`:s64`} @td{int64_t}}
+    @tr{@td{@code`:u64`} @td{uint64_t}}
     @tr{@td{@code`:char`} @td{char}}
     @tr{@td{@code`:short`} @td{short}}
     @tr{@td{@code`:int`} @td{int}}
@@ -63,31 +50,19 @@ types. On x86-64, long doubles are unsupported.
     @tr{@td{@code`:ulong`} @td{unsigned long}}
 }
 
-All primitive types with the exception of @code`:void`, @code`:bool`, @code`:ptr`, and @code`:string` are numeric
-types. 64 bit integer types can also be mapped to Janet's 64 bit integers if the @code`int/` module is enabled.
-The void type can only be used as a return value, and bool maps to either Janet @code`true` or Janet @code`false`.
-The @code`:string` type will map a Janet string to a @code`const char *` and vice-versa.
+除了 @code`:void`、@code`:bool`、@code`:ptr` 和 @code`:string` 之外，所有基本类型都是数值类型。如果启用了 @code`int/` 模块，64 位整数类型也可以映射到 Janet 的 64 位整数。void 类型只能用作返回值，bool 类型映射到 Janet 的 @code`true` 或 @code`false`。@code`:string` 类型会将 Janet 字符串映射为 @code`const char *`，反之亦然。
 
-The @code`:ptr` type is the most flexible, catch-all type. All bytes sequence types, raw pointers, nil and abstract types
-can be converted to raw pointers (NULL is mapped to nil). If the native function will mutate data in the pointer, be sure not to pass in strings, symbols
-and keywords, as these are expected to be immutable. Buffers can be mutated freely. Functions returning pointers
-(either directly or in a struct) will return raw, opaque pointers. Data in the pointer can be inspected with @code`ffi/read`
-if needed.
+@code`:ptr` 类型是最灵活、通用的类型。所有字节序列类型、原始指针、nil 和抽象类型都可以转换为原始指针（NULL 映射为 nil）。如果原生函数会修改指针中的数据，请确保不要传入字符串、符号和关键字，因为它们被视为不可变的。缓冲区可以自由修改。返回指针的函数（无论是直接返回还是通过结构体返回）将返回原始的、不透明的指针。如果需要，可以使用 @code`ffi/read` 检查指针中的数据。
 
-## Structs
+## 结构体
 
-FFI struct types (not to be confused with Janet structs) can be created with the @code`ffi/struct` function. All @code`ffi/` functions that take type arguments
-will implicitly create structs if passed tuples for convenience, but if you are going to reuse a struct definition, it
-is recommended to create the struct explicitly. Otherwise, multiple copies of identical struct definitions will be
-allocated.
+可以使用 @code`ffi/struct` 函数创建 FFI 结构体类型（不要与 Janet 结构体混淆）。所有接受类型参数的 @code`ffi/` 函数在传入元组时会隐式创建结构体以方便使用，但如果要重用结构体定义，建议显式创建结构体。否则，会分配多个相同的结构体定义副本。
 
-Struct creation simply takes all of the types inside the struct in layout order; elements are not
-named. However, this is sufficient for interfacing with libraries and reduces overhead when mapping
-to Janet values.
+创建结构体只需按照布局顺序传入结构体内部的所有类型；元素没有名称。不过，这对于与库交互已经足够，并且在映射到 Janet 值时减少了开销。
 
 @codeblock[janet]```
 (def my-struct (ffi/struct :int :int :ptr))
-# Maps to the following in C:
+# 映射到以下 C 代码：
 # struct my_struct {
 #   int a;
 #   int b;
@@ -95,29 +70,20 @@ to Janet values.
 # }
 ```
 
-Packed structs are also supported, either for all struct members or for individual members.
-To specify a single member as packed, precede the member type with the keyword @code`:pack`.
-To indicate that all members of the struct should be packed, include @code`:pack-all`
-somewhere in the struct definition.
+也支持紧凑结构体，可以是所有结构体成员或单个成员。要为单个成员指定紧凑布局，请在该成员类型前加上关键字 @code`:pack`。要指示结构体的所有成员都应紧凑排列，请在结构体定义中的某处包含 @code`:pack-all`。
 
 @codeblock[janet]```
 (ffi/size (ffi/struct :char :int)) # -> 8
 (ffi/size (ffi/struct :char :pack :int)) # -> 5
 ```
 
-C structs map to Janet tuples - that is, to pass a struct to an FFI function, pass in a tuple, and
-struct-returning functions will return tuples. To
-map C structs to other types (such as a Janet struct), you must do the conversion manually.
+C 结构体映射为 Janet 元组——也就是说，要向 FFI 函数传入结构体，请传入一个元组，而返回结构体的函数将返回元组。要将 C 结构体映射到其他类型（例如 Janet 结构体），必须手动进行转换。
 
-## Array Types
+## 数组类型
 
-Array types are defined with a Janet array of one or two elements - the first element is the
-type of array elements, and the optional second
-element is the number of elements in the array. If there is no second element, the type is a 0 element array
-which can be used to implement flexible array members as defined in C99.
+数组类型使用包含一个或两个元素的 Janet 数组定义——第一个元素是数组元素的类型，可选的第二个元素是数组中的元素个数。如果没有第二个元素，则该类型是一个 0 元素数组，可用于实现 C99 中定义的灵活数组成员。
 
-(Although a zero-length has a size of zero, it has a required alignment so needs to be included
- in struct definitions.)
+（虽然零长度数组的大小为零，但它具有必需的对齐方式，因此需要包含在结构体定义中。）
 
 @codeblock[janet]```
 (ffi/size @[:int 10]) # -> 40
@@ -126,14 +92,9 @@ which can be used to implement flexible array members as defined in C99.
 (ffi/size [:char @[:int]]) # -> 4
 ```
 
-## Using Buffers - @code`ffi/write` and @code`ffi/read`
+## 使用缓冲区 - @code`ffi/write` 和 @code`ffi/read`
 
-While primitive types and nested struct types will be converted to and from Janet values automatically, the FFI
-will not dereference pointers for you as a general rule, with the exception of returning string types. You also
-cannot use the common C idiom of converting between arrays and pointers as needed since Janet values are not laid
-out in memory as any C ABI specifies. To pass a pointer to a struct or array of values to a native FFI
-function, one must use @code`ffi/write` to write Janet values to a buffer. That buffer can then be passed as
-a @code`:ptr` type to a function.
+虽然基本类型和嵌套结构体类型会自动与 Janet 值之间进行转换，但 FFI 通常不会为你解引用指针（返回字符串类型的情况除外）。此外，由于 Janet 值在内存中的布局不符合任何 C ABI 规范，因此不能使用常见的 C 习惯用法——根据需要将数组和指针相互转换。要将指向结构体或值数组的指针传递给原生 FFI 函数，必须使用 @code`ffi/write` 将 Janet 值写入缓冲区。然后可以将该缓冲区作为 @code`:ptr` 类型传递给函数。
 
 @codeblock[janet]```
 (ffi/context "./mylib.so")
@@ -143,12 +104,9 @@ a @code`:ptr` type to a function.
 (takes_a_pointer buf)
 ```
 
-When using buffers in this manner, keep in mind that pointers written to the buffer cannot be followed by the garbage collector. Is up
-to the programmer to ensure such pointers do not become invalid by either keeping explicit references to these values or (temporarily) turning off the garbage collector.
+以这种方式使用缓冲区时，请记住写入缓冲区的指针不能被垃圾回收器跟踪。程序员有责任通过保持对这些值的显式引用或（临时）关闭垃圾回收器来确保这些指针不会失效。
 
-The inverse of this process is dereferencing a returned pointer. @code`ffi/read` takes
-either a byte sequence, an abstract type, or a raw pointer and extracts the data at that
-address into Janet values.
+此过程的逆操作是解引用返回的指针。@code`ffi/read` 接受一个字节序列、一个抽象类型或一个原始指针，并将该地址处的数据提取为 Janet 值。
 
 @codeblock[janet]```
 (ffi/context "./mylib.so")
@@ -158,31 +116,15 @@ address into Janet values.
 (pp (ffi/read my-type pointer))
 ```
 
-## Getting Function Pointers and Calling Them
+## 获取函数指针并调用它们
 
-The FFI module can use any opaque pointer as a function pointer, and while usually you
-will be loading functions from native modules loaded with @code`ffi/native`, you
-can use pointer values obtained from anywhere in your program. Of course, if these
-pointers are not actually C function pointers, your program will likely crash.
+FFI 模块可以将任何不透明指针用作函数指针，虽然通常你会从使用 @code`ffi/native` 加载的原生模块中获取函数，但也可以使用从程序中任何地方获得的指针值。当然，如果这些指针实际上不是 C 函数指针，你的程序很可能会崩溃。
 
-To load a dynamic library (.so) file, use @code`(ffi/native path-to-lib)`. This
-will return an abstract type that can be used to look up symbols. You can pass @code`nil`
-as the path to return the current binary's symbols. The function
-@code`(ffi/lookup native-module symbol-name)` is then used to get pointers from the shared object.
+要加载动态库（.so）文件，请使用 @code`(ffi/native path-to-lib)`。这将返回一个可用于查找符号的抽象类型。你可以传入 @code`nil` 作为路径来返回当前二进制文件的符号。然后使用 @code`(ffi/lookup native-module symbol-name)` 函数从共享对象中获取指针。
 
-Once you have a function pointer, you will still need a function signature to call
-the function. Function signatures are created with
-@code`ffi/signature calling-convention return-type & args)`.
-Since certain functions may use calling conventions besides the default, you may specify
-the convention, such as @code`:sysv64`, or use @code`:default` to use the default
-calling convention on your system. As of version 1.23.0, @code`:sysv64` is the only
-supported calling convention. Not all systems and operating systems will support all
-calling conventions. Varargs are not supported.
+一旦有了函数指针，仍然需要函数签名才能调用该函数。函数签名使用 @code`ffi/signature calling-convention return-type & args` 创建。由于某些函数可能使用除默认调用约定之外的约定，你可以指定约定，例如 @code`:sysv64`，或使用 @code`:default` 来使用系统上的默认调用约定。截至 1.23.0 版本，@code`:sysv64` 是唯一支持的调用约定。并非所有系统和操作系统都支持所有调用约定。不支持可变参数。
 
-Once you have both a function pointer and a function signature, you can finally
-make a call to your function with @code`(ffi/call function-pointer function-signature & arguments)`
-You will probably want to save the function pointer and signature rather than recalculate them
-on each use.
+一旦同时拥有函数指针和函数签名，就可以使用 @code`(ffi/call function-pointer function-signature & arguments)` 调用函数。你可能希望保存函数指针和签名，而不是每次使用时都重新计算。
 
 @codeblock[janet]```
 (def self-symbols (ffi/native))
@@ -196,12 +138,9 @@ on each use.
 (print buffer1) # prints bbbb
 ```
 
-## High-Level API - @code`ffi/context` and @code`ffi/defbind`.
+## 高级 API - @code`ffi/context` 和 @code`ffi/defbind`
 
-Using the low-level api to manually load dynamic libraries can get rather tedious, so the FFI module has a few
-macros and functions to make it easier. The function @code`ffi/context` is used to select a native module that
-subsequent bindings will refer to. @code`ffi/defbind` will then lookup function pointers, create signature values, and
-create Janet wrappers around ffi/call for you. The memcpy example from above would look like so with the high level api:
+手动使用低级 API 加载动态库可能会变得相当繁琐，因此 FFI 模块提供了一些宏和函数来简化此过程。函数 @code`ffi/context` 用于选择一个后续绑定将引用的原生模块。@code`ffi/defbind` 将查找函数指针、创建签名值，并为你创建围绕 ffi/call 的 Janet 包装。上面的 memcpy 示例使用高级 API 看起来是这样的：
 
 @codeblock[janet]```
 (ffi/context nil)
@@ -214,27 +153,15 @@ create Janet wrappers around ffi/call for you. The memcpy example from above wou
 (print buffer1) # prints bbbb
 ```
 
-This code uses @code`ffi/native`, @code`ffi/lookup`, @code`ffi/signature`, @code`ffi/call` behind the scenes, and you can mix
-and match the @code`ffi/defbind` macro with explicit bindings.
+这段代码在幕后使用了 @code`ffi/native`、@code`ffi/lookup`、@code`ffi/signature`、@code`ffi/call`，你可以将 @code`ffi/defbind` 宏与显式绑定混合使用。
 
-## Callbacks
+## 回调
 
-One limitation of Janet's FFI module is passing function pointers to C functions, such as in @code`qsort`.
-This is unsupported in the general case, as it requires runtime generation of machine code.
-Instead, callback functions must be written in C. Often, a C library will allow setting some kind
-of user data, which will then be passed back when the callback is invoked by the library. One could put a
-@code`JanetFunction *` into that user data slot and have a common "trampoline" native function
-that can be a sort of universal callback that would call that userdata parameter it received as a JanetFunction.
-While this is far from general, it is effective in many cases, and so the @code`ffi/module` provides
-one such function pointer out of the box with @code`ffi/trampoline`.
+Janet FFI 模块的一个局限性在于向 C 函数传递函数指针，例如在 @code`qsort` 中。一般情况下不支持此操作，因为它需要在运行时生成机器码。相反，回调函数必须用 C 编写。通常，C 库允许设置某种用户数据，当库调用回调时，该数据会被传回。你可以将 @code`JanetFunction *` 放入该用户数据槽中，并有一个通用的"跳板"原生函数，它可以作为一种通用回调，将接收到的 userdata 参数作为 JanetFunction 来调用。虽然这远非通用解决方案，但在许多情况下是有效的，因此 @code`ffi/module` 通过 @code`ffi/trampoline` 直接提供了一个这样的函数指针。
 
-## GTK Example
+## GTK 示例
 
-One good use for FFI bindings are interfacing with GUI libraries.
-For example, one could be building a standalone binary
-that could detect available GUI libraries on the host system, and use FFI bindings to interact with the host
-GUI framework that was detected. Below is an example of what FFI with GTK might look
-like using the high-level, macro based abstraction with @code`ffi/context` and @code`ffi/defbind`.
+FFI 绑定的一个良好用途是与 GUI 库进行交互。例如，可以构建一个独立的二进制文件，检测主机系统上可用的 GUI 库，并使用 FFI 绑定与检测到的主机 GUI 框架进行交互。以下是一个使用 @code`ffi/context` 和 @code`ffi/defbind` 的基于宏的高级抽象与 GTK 进行 FFI 的示例。
 
 @codeblock[janet]```
 (ffi/context "/usr/lib/libgtk-3.so" :lazy true)
@@ -290,4 +217,3 @@ like using the high-level, macro based abstraction with @code`ffi/context` and @
   # manually build an array with ffi/write
   (g-application-run app 0 nil))
 ```
-

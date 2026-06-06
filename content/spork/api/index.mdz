@@ -8,6 +8,6 @@
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix-current[]

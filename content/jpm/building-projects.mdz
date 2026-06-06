@@ -1,14 +1,13 @@
-{:title "Building Projects"
+{:title "构建项目"
  :template "docpage.html"
  :order 1}
 ---
 
-## Building projects with @code`jpm`
+## 使用 @code`jpm` 构建项目
 
-Once you have the project on your machine, building the various artifacts should
-be pretty simple.
+一旦你在机器上获得了项目，构建各种构件就相当简单了。
 
-#### Global install
+#### 全局安装
 
 @codeblock```
 sudo jpm deps
@@ -17,15 +16,11 @@ jpm test
 sudo jpm install
 ```
 
-\(On Windows, @code`sudo` is not required. Use of @code`sudo` on POSIX systems
-depends on whether you installed @code`janet` to a directory owned by the root
-user.)
+\(在 Windows 上，不需要 @code`sudo`。在 POSIX 系统上是否使用 @code`sudo` 取决于你是否已将 @code`janet` 安装到 root 用户拥有的目录中。)
 
-#### User local install
+#### 用户本地安装
 
-The JANET_TREE environment variable can be used to set the tree the jpm installs things to.
-By default, running @code`janet` from the command line separately will not use modules in
-the custom tree, so you will likely want to modify JANET_PATH as well.
+JANET_TREE 环境变量可用于设置 jpm 安装内容的树路径。默认情况下，单独从命令行运行 @code`janet` 不会使用自定义树中的模块，因此你可能还需要修改 JANET_PATH。
 
 @codeblock```
 export JANET_TREE=$HOME/.local/jpm_tree
@@ -33,69 +28,43 @@ jpm deps
 jpm build
 jpm test
 jpm install
-# alternative: jpm --tree=$HOME/.local/jpm_tree deps
+# 或者：jpm --tree=$HOME/.local/jpm_tree deps
 ```
 
-#### Project local install
+#### 项目本地安装
 
-JPM also has some flags to install dependencies to a tree local to a project. Dependencies will
-be installed to ./jpm_tree/lib (and binaries installed to ./jpm_tree/bin) when passing the @code`-l`
-flag to jpm.
+JPM 还有一些标志可以将依赖安装到项目本地的树中。当向 jpm 传递 @code`-l` 标志时，依赖将被安装到 ./jpm_tree/lib（二进制文件安装到 ./jpm_tree/bin）。
 
 @codeblock```
 jpm -l deps
 jpm -l build
 jpm -l test
-# Run a janet interpreter in the local environment with access to all dependencies installed.
+# 在本地环境中运行 janet 解释器，可访问所有已安装的依赖。
 jpm -l janet
 ```
 
-### Dependencies
+### 依赖
 
-@p{@code`jpm deps` is a command that installs Janet libraries that the project
-    depends on recursively.  It will automatically fetch, build, and install all
-    required dependencies for you.  As of August 2019, this only works with git,
-    which you need to have installed on your machine to install dependencies. If
-    you don't have git you are free to manually obtain the requisite
-    dependencies and install them manually with @code`sudo jpm install`.
+@p{@code`jpm deps` 是一个命令，可以递归地安装项目所依赖的 Janet 库。
+    它会自动为你获取、构建和安装所有所需的依赖。截至 2019 年 8 月，这仅适用于 git，
+    你需要在机器上安装 git 才能安装依赖。如果你没有 git，
+    可以手动获取所需的依赖并使用 @code`sudo jpm install` 手动安装。
 }
 
-### Building
+### 构建
 
-Next, we use the @code`jpm build` command to build artifacts. All built
-artifacts will be created in the @code`build` subdirectory of the current
-project. Therefore, it is probably a good idea to exclude the @code`build`
-directory from source control. For building executables and native modules, you
-will need to have a C compiler on your PATH where you run @code`jpm build`. For
-POSIX systems, the compiler is @code`cc`.
+接下来，我们使用 @code`jpm build` 命令来构建构件。所有构建的构件都会创建在当前项目的 @code`build` 子目录中。因此，最好将 @code`build` 目录排除在版本控制之外。要构建可执行文件和原生模块，你需要在运行 @code`jpm build` 的 PATH 中有 C 编译器。在 POSIX 系统上，编译器是 @code`cc`。
 
-If you make changes to the source code after building once, @code`jpm` will try
-to only rebuild what is needed on a rebuild. If this fails for any reason, you
-can delete the entire build directory with @code`jpm clean` to reset things.
+如果你在构建一次后修改了源代码，@code`jpm` 会尝试在重新构建时仅重新构建需要的内容。如果由于任何原因失败，你可以使用 @code`jpm clean` 删除整个构建目录来重置状态。
 
 #### Windows
 
-For Windows, the C compiler used by @code`jpm` is @code`cl.exe`, which is part
-of MSVC. You can get it with Visual Studio, or standalone with the C and C++
-Build Tools from Microsoft. You will then need to run @code`jpm build` in a
-Developer Command Prompt, or source @code`vcvars64.bat` in your shell to add
-@code`cl.exe` to the PATH.
+对于 Windows，@code`jpm` 使用的 C 编译器是 @code`cl.exe`，它是 MSVC 的一部分。你可以通过 Visual Studio 获取它，或者通过 Microsoft 的 C 和 C++ 构建工具单独获取。然后你需要在开发者命令提示符中运行 @code`jpm build`，或者在 shell 中引用 @code`vcvars64.bat` 以将 @code`cl.exe` 添加到 PATH。
 
-### Testing
+### 测试
 
-Once we have built our software, it is a good idea to test it to verify that it
-works on the current machine. @code`jpm test` will run all Janet scripts in the
-@code`test` directory of the project and return a non-zero exit code if any
-fail.
+构建完软件后，最好进行测试以验证它在当前机器上是否能正常工作。@code`jpm test` 会运行项目 @code`test` 目录中的所有 Janet 脚本，如果有任何失败，则返回非零退出码。
 
-### Installing
+### 安装
 
-Finally, once we have built our software and tested that it works, we can
-install it on our system. For an executable, this means copying it to the
-@code`bin` directory, and for libraries it means copying them to the global
-syspath. You can optionally install into any directory if you don't want to
-pollute your system or you don't have permission to write to the directory where
-@code`janet` itself was installed.  You can specify the path to install modules
-to via the @code`--modpath` option, and the path to install binaries to with the
-@code`--binpath` option. These need to be given before the subcommand
-@code`install`.
+最后，一旦我们构建了软件并测试其正常工作，就可以将其安装到系统上。对于可执行文件，这意味着将其复制到 @code`bin` 目录；对于库，则意味着将它们复制到全局系统路径。如果你不想污染系统，或者没有权限写入 @code`janet` 本身安装的目录，你可以选择安装到任何目录。你可以通过 @code`--modpath` 选项指定安装模块的路径，通过 @code`--binpath` 选项指定安装二进制文件的路径。这些需要在子命令 @code`install` 之前给出。

@@ -9,9 +9,8 @@
  :template "docpage.html"}
 ---
 
-This module contains PGP utils. For now only PGP words and hexs.
+本模块包含 PGP 工具。目前仅支持 PGP 单词和十六进制。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[pgp/]
-

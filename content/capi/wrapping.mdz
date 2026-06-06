@@ -1,23 +1,16 @@
-{:title "Wrapping Types"
- :nav-title "Wrapping Types"
+{:title "包装类型"
+ :nav-title "包装类型"
  :template "docpage.html"
  :order 1}
 ---
 
-Janet has several built-in fundamental data types. These data types are the
-bread and butter of the Janet C API, and most functions and macros in the
-API expect at least some of their arguments to be of these types. However, as Janet is
-a dynamically typed language, Janet internally uses a boxed representation of these
-types, simply called @code`Janet`.
+Janet 拥有多个内置的基本数据类型。这些数据类型是 Janet C API 的基石，API 中的大多数函数和宏都期望其至少部分参数属于这些类型。然而，由于 Janet 是一种动态类型语言，Janet 在内部使用这些类型的盒装表示，简称为 @code`Janet`。
 
-Functions that are specific to a particular type expect the unboxed or
-unwrapped type, while operations that are generic to Janet values will
-typically expect a @code`Janet`. It is important to be able to convert between
-these two representations in order to interact with Janet from C.
+特定于某个类型的函数期望的是非盒装或未包装的类型，而对 Janet 值进行通用操作时通常期望一个 @code`Janet`。为了从 C 与 Janet 交互，能够在两种表示之间进行转换非常重要。
 
-## Wrapping Functions
+## 包装函数
 
-These functions convert a C type into a generic Janet value.
+这些函数将 C 类型转换为通用的 Janet 值。
 
 @codeblock[c]```
 Janet janet_wrap_nil(void);
@@ -41,11 +34,9 @@ Janet janet_wrap_pointer(void *x);
 Janet janet_wrap_integer(int32_t x);
 ```
 
-## Unwrapping Functions
+## 解包函数
 
-These function convert from a @code`Janet` to a
-more specific C type. If the Janet being unwrapped is
-not actually the returned type, the behavior is undefined.
+这些函数将 @code`Janet` 转换为更具体的 C 类型。如果正在解包的 Janet 实际上不是返回的类型，则行为是未定义的。
 
 @codeblock[c]```
 const JanetKV *janet_unwrap_struct(Janet x);
@@ -66,16 +57,11 @@ double janet_unwrap_number(Janet x);
 int32_t janet_unwrap_integer(Janet x);
 ```
 
-## Janet Types
+## Janet 类型
 
-Before unwrapping a Janet value, one should check the value is of the
-correct Janet type. Janet provides two macros for checking this, @code`janet_checktype`
-and @code`janet_checktypes`. These macros may be more efficient than the more
-obvious way of checking types via @code`janet_type(x) == JANET_ARRAY`, and so
-are preferred.
+在解包一个 Janet 值之前，应该检查该值是否是正确的 Janet 类型。Janet 提供了两个用于检查的宏，@code`janet_checktype` 和 @code`janet_checktypes`。这些宏可能比通过 @code`janet_type(x) == JANET_ARRAY` 检查类型的更直观方式更高效，因此是首选。
 
-The enum @code`JanetType` represents the base type of a Janet value. There are
-are exactly 16 basic types.
+枚举 @code`JanetType` 表示 Janet 值的基本类型。共有 16 种基本类型。
 
 @codeblock[c]```
 typedef enum JanetType {
@@ -101,30 +87,26 @@ typedef enum JanetType {
 @hr
 
 @codeblock[c]```
-/* macro */
+/* 宏 */
 int janet_checktype(Janet x, JanetType type);
 ```
 
-Checks the type x, and returns a non zero value if x is the correct type, and
-0 otherwise. Usually, you will want to use this function before unwrapping a value.
+检查类型 x，如果 x 是正确的类型则返回非零值，否则返回 0。通常，你会在解包一个值之前使用此函数。
 
 @hr
 
 @codeblock[c]```
-/* macro */
+/* 宏 */
 int janet_checktypes(Janet x, int typeflags);
 ```
 
-Similar to @code`janet_checktype`, but allows the programmer to check multiple types
-at once, in an efficient manner. @code`typeflags` should be a bit set of all of the types
-to check membership for. For example, to check if @code`x` is one of nil or a number, you
-would call
+类似于 @code`janet_checktype`，但允许程序员以高效的方式一次性检查多个类型。@code`typeflags` 应该是所有要检查成员资格的类型的位集合。例如，要检查 @code`x` 是否为 nil 或数字之一，可以调用
 
 @codeblock[c]```
 janet_checktypes(x, (1 << JANET_NIL) | (1 << JANET_NUMBER))
 ```
 
-There are also several aliases so you don't need to do the shift yourself.
+还有一些别名，这样你就不需要自己进行移位操作了。
 
 @codeblock```
 #define JANET_TFLAG_NIL (1 << JANET_NIL)
@@ -144,7 +126,7 @@ There are also several aliases so you don't need to do the shift yourself.
 #define JANET_TFLAG_ABSTRACT (1 << JANET_ABSTRACT)
 #define JANET_TFLAG_POINTER (1 << JANET_POINTER)
 
-/* Some abstractions */
+/* 一些抽象 */
 #define JANET_TFLAG_BYTES (JANET_TFLAG_STRING | JANET_TFLAG_SYMBOL | JANET_TFLAG_BUFFER | JANET_TFLAG_KEYWORD)
 #define JANET_TFLAG_INDEXED (JANET_TFLAG_ARRAY | JANET_TFLAG_TUPLE)
 #define JANET_TFLAG_DICTIONARY (JANET_TFLAG_TABLE | JANET_TFLAG_STRUCT)
@@ -153,7 +135,7 @@ There are also several aliases so you don't need to do the shift yourself.
         JANET_TFLAG_LENGTHABLE | JANET_TFLAG_ABSTRACT)
 ```
 
-The resulting call would look like:
+得到的调用如下所示：
 
 @codeblock[c]```
 janet_checktypes(x, JANET_TFLAG_NIL | JANET_TFLAG_NUMBER)
@@ -165,31 +147,26 @@ janet_checktypes(x, JANET_TFLAG_NIL | JANET_TFLAG_NUMBER)
 JANET_API JanetType janet_type(Janet x);
 ```
 
-Returns the type of Janet value.
+返回 Janet 值的类型。
 
-## Strings
+## 字符串
 
-Janet provides several utilities for dealing with C-style, NULL terminated strings. It can be tempting
-to use the janet_wrap_* functions for passing C-style strings as Janet strings, keywords, and symbols, but this is incorrect and
-will cause segfaults and other problems.
+Janet 提供了几个用于处理 C 风格的以 NULL 结尾的字符串的工具。可能会有人想使用 janet_wrap_* 函数将 C 风格字符串作为 Janet 字符串、关键字和符号传递，但这样做是不正确的，会导致段错误和其他问题。
 
-Instead, use @code`janet_cstring` to convert any NULL terminated string to a Janet string. This may allocated memory
-and do an extra copy, but will always result in a string that can be safely used by Janet. There are similar utilities
-for creating symbols and keywords.
+相反，应使用 @code`janet_cstring` 将任何以 NULL 结尾的字符串转换为 Janet 字符串。这可能会分配内存并进行额外的拷贝，但总会得到一个可被 Janet 安全使用的字符串。还有用于创建符号和关键字的类似工具。
 
-Some of these interfaces are defined as macros, but this may change in future versions. From @code`janet.h`, the following 6 functions
-and macros are commonly used for converting string-like types.
+其中一些接口被定义为宏，但这在未来的版本中可能会改变。来自 @code`janet.h` 的以下 6 个函数和宏常用于转换类似字符串的类型。
 
 @codeblock[c]```
 
-/* Wrapping C-Style strings */
+/* 包装 C 风格字符串 */
 
-/* Convert const char * ---->>>> JanetString, JanetKeyword, JanetSymbol */
+/* 将 const char * ---->>>> 转换为 JanetString、JanetKeyword、JanetSymbol */
 JANET_API JanetString janet_cstring(const char *cstring);
 JANET_API JanetSymbol janet_csymbol(const char *str);
 #define janet_ckeyword janet_csymbol
 
-/* Convert const char * ---->>>> Janet */
+/* 将 const char * ---->>>> 转换为 Janet */
 #define janet_cstringv(cstr) janet_wrap_string(janet_cstring(cstr))
 #define janet_csymbolv(cstr) janet_wrap_symbol(janet_csymbol(cstr))
 #define janet_ckeywordv(cstr) janet_wrap_keyword(janet_ckeyword(cstr))

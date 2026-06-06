@@ -7,7 +7,7 @@
  :template "docpage.html"}
  ---
 
-Re-implementation of mendoza markup. Designed to work with htmlgen.
+mendoza 标记的重新实现。设计用于与 htmlgen 配合使用。
 
 ## Reference
 

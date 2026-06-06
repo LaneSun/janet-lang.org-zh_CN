@@ -1,12 +1,12 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Debug Module"
+{:title "调试模块"
  :order 0
  :nav-title "debug"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[debug/]
 

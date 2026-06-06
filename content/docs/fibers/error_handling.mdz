@@ -1,16 +1,16 @@
-{:title "Error Handling"
- :nav-title "Errors"
+{:title "错误处理"
+ :nav-title "错误"
  :template "docpage.html"}
 ---
 
-One of the main uses of fibers is to encapsulate and handle errors.
-Janet offers no direct try/catch mechanism like some languages, and
-instead builds error handling on top of fibers.  When a function
-throws an error, Janet creates a signal and throws that signal in the
-current fiber.  The signal will be propagated up the chain of active
-fibers until it hits a fiber that is ready to handle the error signal.
-This fiber will trap the signal and return the error from the last
-call to @code`resume`.
+fiber 的主要用途之一是封装和处理错误。
+Janet 不提供像某些语言那样的直接 try/catch 机制，而是
+将错误处理构建在 fiber 之上。当一个函数
+抛出错误时，Janet 会创建一个信号并在当前 fiber 中抛出该信号。
+该信号会沿活动 fiber 链向上传播，
+直到遇到一个准备好处理该错误信号的 fiber。
+这个 fiber 会捕获该信号，并将错误从上一次对
+@code`resume` 的调用中返回。
 
 @codeblock[janet]```
 (defn block
@@ -18,14 +18,14 @@ call to @code`resume`.
   (print "inside block...")
   (error "oops"))
 
-# Pass the :e flag to trap errors (and only errors).
-# All other signals will be propagated up the fiber stack.
+# 传入 :e 标志以捕获错误（仅捕获错误）。
+# 所有其他信号将沿 fiber 堆栈向上传播。
 (def f (fiber/new block :e))
 
-# Get result of resuming the fiber in res.
-# Because the fiber f traps only errors, we know
-# that after resume returns, f either exited normally
-# (has status :dead), or threw an error (has status :error)
+# 将恢复 fiber 的结果存入 res。
+# 因为 fiber f 仅捕获错误，我们知道
+# resume 返回后，f 要么正常退出
+#（状态为 :dead），要么抛出了错误（状态为 :error）
 (def res (resume f))
 
 (if (= (fiber/status f) :error)
@@ -33,15 +33,14 @@ call to @code`resume`.
   (print "value returned: " res))
 ```
 
-## Two error-handling forms built on fibers
+## 两种基于 fiber 构建的错误处理形式
 
 ### @code`try`
 
-Janet provides a simple macro @code`try` to make error-handling a bit
-easier in the common case.  @code`try` performs the function of a
-traditional try/catch block; it will execute its body and, if any
-error is raised, optionally bind the error and the raising fiber in
-its second clause.
+Janet 提供了一个简单的宏 @code`try`，让常见的错误处理更简单一些。
+@code`try` 执行传统 try/catch 块的功能；它会执行其主体，如果
+抛出任何错误，则在第二个子句中可选地绑定该错误和抛出错误的
+fiber。
 
 @codeblock[janet]```
 (try
@@ -50,21 +49,20 @@ its second clause.
     (error "oops")
     (print "will never get here"))
   ([err fib]
-    # err and (fiber/last-value fib) are the same here
+    # 这里的 err 和 (fiber/last-value fib) 是相同的
     (print "caught error: " err)
     (print "fib's last-value: " (fiber/last-value fib))
-    # returns the status of fib, in this case, :error
+    # 返回 fib 的状态，此处为 :error
     (fiber/status fib)))
 ```
 
-Note that in the above example, the caught @code`err` and `fib`'s
-last-value are the same, i.e. "oops".
+注意在上面的例子中，捕获到的 @code`err` 与 `fib` 的 last-value
+是相同的，即 "oops"。
 
 ### @code`protect`
 
-Janet also provides the @code`protect` macro for a slightly different
-flavor of error-handling, converting caught errors into further
-expressions.
+Janet 还提供了 @code`protect` 宏，用于略有不同的错误处理风格，
+将捕获的错误转换为进一步的表达式。
 
 @codeblock[janet]```
 (protect

@@ -1,12 +1,11 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Buffer Module"
+{:title "缓冲区模块"
  :order 0
  :nav-title "buffer"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[buffer/]
-

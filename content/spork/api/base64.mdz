@@ -9,13 +9,13 @@
  :template "docpage.html"}
 ---
 
-This module contains Base64 utilities.
+本模块提供 base64 工具。
 
-## Examples
+## 示例
 
 ### base64/encode
 
-Converts a string of any format (UTF-8, binary, ..) to base64 encoding.
+将任意格式（UTF-8、二进制等）的字符串转换为 base64 编码。
 
 @codeblock[janet]```
 (misc/base64/encode "this is a test")
@@ -24,14 +24,13 @@ Converts a string of any format (UTF-8, binary, ..) to base64 encoding.
 
 ### base64/decode
 
-Converts a base64 encoded string to its binary representation of any format 
-(UTF-8, binary, ...).
+将 base64 编码的字符串转换为其任意格式（UTF-8、二进制等）的二进制表示。
 
 @codeblock[janet]```
 (misc/base64/decode "dGhpcyBpcyBhIHRlc3Q=")
 # => "this is a test"
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[base64/]

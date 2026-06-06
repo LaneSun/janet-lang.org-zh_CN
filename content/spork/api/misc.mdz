@@ -9,11 +9,11 @@
  :template "docpage.html"}
 ---
 
-Miscellaneous utilities for Janet.
+Janet 的杂项工具。
 
 ## Dedent
 
-Remove indentation after concatenating the arguments.
+在连接参数后移除缩进。
 
 @codeblock[janet]```
 (misc/dedent ``
@@ -25,17 +25,16 @@ Remove indentation after concatenating the arguments.
 
 ## set*
 
-Allow parallel mutation of multiple mutable variables.  (All right
-hand sides are computed before setting the left hand sides.)
+允许并行修改多个可变变量。（所有右侧表达式在赋值给左侧之前计算。）
 
 @codeblock[janet]```
-# you can use it with vars
+# 可以与 vars 一起使用
 (var a 2)
 (var b 3)
 (misc/set* [a b] [b (+ a b)])
 [a b] => [3 5]
 
-# or you can use it with arrays, for example:
+# 或者可以与数组一起使用，例如：
 (def x @[2 3])
 (misc/set* [[x 0] [x 1]] [(in x 1) (+ (in x 0) (in x 1))])
 x => @[3 5]
@@ -43,9 +42,7 @@ x => @[3 5]
 
 ## print-table
 
-Given a list of tables containing column keys with corresponding row
-values, print its content to stdout in a human-readable tabular
-layout. For example:
+给定一个包含列键和对应行值的表列表，以可读的表格布局将其内容打印到标准输出。例如：
 
 @codeblock[janet]```
 (misc/print-table [
@@ -56,7 +53,7 @@ layout. For example:
   
 ```
 
-produces:
+输出为：
 
 @codeblock```
 x       y       
@@ -69,7 +66,7 @@ x       y
 
 ## map-keys
 
-Returns new table with function applied to table's keys recursively.
+返回将函数递归应用于表键的新表。
 
 @codeblock[janet]```
 (misc/map-keys string {1 2 3 4}) 
@@ -78,7 +75,7 @@ Returns new table with function applied to table's keys recursively.
 
 ## map-vals
 
-Returns new table with function applied to table's values.
+返回将函数应用于表值的新表。
 
 @codeblock[janet]```
 (misc/map-vals string {1 2 3 4}) 
@@ -87,7 +84,7 @@ Returns new table with function applied to table's values.
 
 ## select-keys
 
-Returns new table with selected keys from dictionary.
+返回从字典中选择指定键的新表。
 
 @codeblock[janet]```
 (misc/select-keys {1 2 3 4 5 6} [1 5]) 
@@ -96,11 +93,7 @@ Returns new table with selected keys from dictionary.
 
 ## cond->
 
-Threading conditional macro. It takes value to mutate, and clauses pairs with a
-condition and a operation to which the value is put as the first argument. All
-conditions are tried and for truthy conditions the operation is performed.
-
-Returns the value mutated if any condition is truthy.
+线程条件宏。它接受一个要修改的值，以及条件对子句，每个子句由条件和操作组成，值作为操作的第一个参数。所有条件都会被尝试，对于真值条件，执行对应操作。如果有任何条件为真，返回修改后的值。
 
 @codeblock[janet]```
 (misc/cond-> @{:a :b}
@@ -111,11 +104,7 @@ Returns the value mutated if any condition is truthy.
 
 ## cond->>
 
-Threading conditional macro. It takes value to mutate, and clauses pairs of a
-condition and a operation to which the value, is put as the last argument. All
-conditions are tried and for truthy the operation is performed.
-
-Returns mutated value if any condition is truthy.
+线程条件宏。它接受一个要修改的值，以及条件对子句，每个子句由条件和操作组成，值作为操作的最后一个参数。所有条件都会被尝试，对于真值条件，执行对应操作。如果有任何条件为真，返回修改后的值。
 
 @codeblock[janet]```
 (misc/cond->> @{:a :b}
@@ -126,10 +115,9 @@ Returns mutated value if any condition is truthy.
 
 ## make
 
-Convenience macro for creating new table from even number of kvs pairs in a variadic 
-pairs arguments and setting its prototype to prototype.
+便捷宏，用于从可变参数中的偶数个键值对创建新表，并将其原型设置为指定的原型。
 
-Factory function for creating new objects from prototypes.
+用于从原型创建新对象的工厂函数。
 
 @codeblock[janet]```
 (def Proto @{:greet (fn [self] (string "Hello " (self :name)))})
@@ -140,8 +128,7 @@ Factory function for creating new objects from prototypes.
 
 ## do-var
 
-Convenience macro for defining varible with value before body and returning
-it after evaluating body, that presumably modifies variable.
+便捷宏，用于在函数体之前定义带初始值的变量，并在执行函数体后返回该变量，假定函数体会修改该变量。
 
 @codeblock[janet]```
 (misc/do-var res 0 (set res 100) (++ res))
@@ -150,9 +137,7 @@ it after evaluating body, that presumably modifies variable.
 
 ## do-def
 
-Convenience macro for defining constant with value before body and returning it
-after evaluating body, that presumably modifies the const refered content. For
-example buffer, table or array.
+便捷宏，用于在函数体之前定义带初始值的常量，并在执行函数体后返回该常量，假定函数体会修改常量引用的内容，例如缓冲区、表或数组。
 
 @codeblock[janet]```
 (misc/do-def res @"" (buffer/push res "a")) 
@@ -161,7 +146,7 @@ example buffer, table or array.
 
 ## capout
 
-Captures the standart output of the variadic body and returns it as a buffer.
+捕获可变参数函数体的标准输出，并将其作为缓冲区返回。
 
 @codeblock[janet]```
 (misc/capout 
@@ -172,8 +157,7 @@ Captures the standart output of the variadic body and returns it as a buffer.
 
 ## caperr
 
-Captures the standart error output of the variadic body and returns it as
-a buffer.
+捕获可变参数函数体的标准错误输出，并将其作为缓冲区返回。
 
 @codeblock[janet]```
 (misc/caperr
@@ -184,7 +168,7 @@ a buffer.
 
 ## vars
 
-Defines many variables as in let bindings, but without creating new scope.
+定义多个变量（类似于 let 绑定），但不创建新的作用域。
 
 @codeblock[janet]```
 (do (misc/vars a 2 b 1) a) 
@@ -193,7 +177,7 @@ Defines many variables as in let bindings, but without creating new scope.
 
 ## always
 
-Return a function that discards any arguments and always returns its argument.
+返回一个忽略所有参数并始终返回其参数本身的函数。
 
 @codeblock[janet]```
 (def always-true (misc/always true))
@@ -207,7 +191,7 @@ Return a function that discards any arguments and always returns its argument.
 
 ## second
 
-Get the second element from an indexed data structure.
+从索引数据结构中获取第二个元素。
 
 @codeblock[janet]```
 (misc/second [1 2 3]) 
@@ -216,7 +200,7 @@ Get the second element from an indexed data structure.
 
 ## third
 
-Get the third element from an indexed data structure.
+从索引数据结构中获取第三个元素。
 
 @codeblock[janet]```
 (misc/third [1 2 3]) 
@@ -225,7 +209,7 @@ Get the third element from an indexed data structure.
 
 ## penultimate
 
-Get the second-to-last element from an indexed data structure.
+从索引数据结构中获取倒数第二个元素。
 
 @codeblock[janet]```
 (misc/penultimate [1 2 3 4 5]) 
@@ -234,7 +218,7 @@ Get the second-to-last element from an indexed data structure.
 
 ## antepenultimate
 
-Get the third-to-last element from an indexed data structure.
+从索引数据结构中获取倒数第三个元素。
 
 @codeblock[janet]```
 (misc/antepenultimate [1 2 3 4 5]) 
@@ -243,7 +227,7 @@ Get the third-to-last element from an indexed data structure.
 
 ## int/
 
-Perform an integer division.
+执行整数除法。
 
 @codeblock[janet]```
 (misc/int/ 11 3) 3
@@ -251,7 +235,7 @@ Perform an integer division.
 
 ## gett
 
-Recursive macro get. Similar to get-in, but keys are variadic argument.
+递归宏 get。类似于 get-in，但键是可变参数。
 
 @codeblock[janet]```
 (misc/gett {:a {:b {:c :c}}} :a :b :c) 
@@ -259,9 +243,10 @@ Recursive macro get. Similar to get-in, but keys are variadic argument.
 ```
 
 ## until
-Repeat the body while the condition is false.
 
-Equivalent to `(while (not cnd) ;body)`.
+在条件为假时重复执行函数体。
+
+等价于 `(while (not cnd) ;body)`。
 
 @codeblock[janet]```
 (misc/do-var res 0 (misc/until (> res 3) (++ res)))
@@ -270,10 +255,9 @@ Equivalent to `(while (not cnd) ;body)`.
 
 ## table-filter
 
-Filter a key-value structure info a table. Semantics are the same as for
-built-in filter, except that predicate takes two arguments (key and value.)
+将键值结构过滤为表。语义与内置 filter 相同，但谓词接受两个参数（键和值）。
 
-Does not consider prototypes.
+不考虑原型。
 
 @codeblock[janet]```
 (misc/table-filter |(even? $1) @{:zero 0 :one 1 :two 2 :three 3})
@@ -282,7 +266,7 @@ Does not consider prototypes.
 
 ## buffer/reverse
 
-Reverse a buffer in-place.
+原地反转缓冲区。
 
 @codeblock[janet]```
 (misc/buffer/reverse @"abcd") 
@@ -291,8 +275,7 @@ Reverse a buffer in-place.
 
 ## string->int
 
-Parses an integer in the given base. Defaults to decimal (base 10). Differs
-from scan-number in that this does not recognize floating point notation.
+以给定进制解析整数。默认为十进制（base 10）。与 scan-number 的不同之处在于它不识别浮点数表示法。
 
 @codeblock[janet]```
 (misc/string->int "101" 2) 
@@ -301,7 +284,7 @@ from scan-number in that this does not recognize floating point notation.
 
 ## int->string
 
-Stringify an integer in a particular base. Defaults to decimal (base 10).
+以特定进制将整数转换为字符串。默认为十进制（base 10）。
 
 @codeblock[janet]```
 (misc/int->string 2r11011011 2) 
@@ -310,8 +293,7 @@ Stringify an integer in a particular base. Defaults to decimal (base 10).
 
 ## insert-sorted
 
-Insert elements in array such that it remains sorted by the comparator. If
-array is not sorted beforehand, the results are undefined. Returns array.
+在数组中插入元素，使其按比较器保持排序。如果数组事先未排序，则结果未定义。返回数组。
 
 @codeblock[janet]```
 (misc/insert-sorted @[1 2 3 5] < 4)
@@ -320,9 +302,7 @@ array is not sorted beforehand, the results are undefined. Returns array.
 
 ## insert-sorted-by
 
-Insert elements in array such that it remains sorted by the value returned
-when function is called with the element, comparing the values with <. If the
-array is not sorted beforehand, the results are undefined. Returns the array.
+在数组中插入元素，使其根据函数作用于元素后返回的值保持排序（使用 < 比较值）。如果数组事先未排序，则结果未定义。返回数组。
 
 @codeblock[janet]```
 (misc/insert-sorted-by @[1 2 3 5] identity 4)

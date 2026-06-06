@@ -1,12 +1,11 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "File Module"
+{:title "文件模块"
  :order 0
  :nav-title "file"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[file/]
-

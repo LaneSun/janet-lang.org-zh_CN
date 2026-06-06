@@ -1,14 +1,11 @@
-{:title "Functions"
+{:title "函数"
  :template "docpage.html"
  :order 7}
 ---
 
-Janet is a functional language - that means that one of the basic building
-blocks of your program will be defining functions (the other is using data
-structures). Because Janet is a Lisp-like language, functions are values just
-like numbers or strings - they can be passed around and created as needed.
+Janet 是一种函数式语言——这意味着程序的基本构建块之一是定义函数（另一个是使用数据结构）。由于 Janet 是一种类似 Lisp 的语言，函数和数字或字符串一样都是值——它们可以按需传递和创建。
 
-Functions can be defined with the @code[defn] macro, like so:
+函数可以使用 @code[defn] 宏来定义，如下所示：
 
 @codeblock[janet](```
 (defn triangle-area
@@ -18,115 +15,91 @@ Functions can be defined with the @code[defn] macro, like so:
  (* base height 0.5))
 ```)
 
-A function defined with @code[defn] consists of a name, a number of optional
-flags for @code`def`, and finally a function body. The example above is named
-triangle-area and takes two parameters named base and height. The body of the
-function will print a message and then evaluate to the area of the triangle.
+使用 @code[defn] 定义的函数包含一个名称、一些可选的 @code`def` 标志，最后是一个函数体。上面的示例名为 triangle-area，接受两个参数：base 和 height。该函数体将打印一条消息，然后求值为三角形的面积。
 
-Once a function like the above one is defined, the programmer can use the
-@code[triangle-area] function just like any other, say @code[print] or @code[+].
+一旦像上面这样的函数被定义，程序员就可以像使用其他函数（比如 @code[print] 或 @code[+]）一样使用 @code[triangle-area] 函数。
 
 @codeblock[janet](```
-# Prints "calculating area of a triangle..." and then "25"
+# 打印 "calculating area of a triangle..."，然后打印 "25"
 (print (triangle-area 5 10))
 ```)
 
-Note that when nesting function calls in other function calls like above (a call
-to @code`triangle-area` is nested inside a call to @code`print`), the inner
-function calls are evaluated first. Additionally, arguments to a function call
-are evaluated in order, from first argument to last argument).
+请注意，当像上面那样在函数调用中嵌套其他函数调用时（@code`triangle-area` 调用嵌套在 @code`print` 调用中），内部的函数调用会先被求值。此外，函数调用的参数会按顺序求值，从第一个参数到最后一个参数。
 
-Because functions are first-class values like numbers or strings, they can be
-passed as arguments to other functions as well.
+由于函数与数字或字符串一样是一等值，它们也可以作为参数传递给其他函数。
 
 @codeblock[janet](```
 (print triangle-area)
 ```)
 
-This prints the location in memory of the function @code`triangle-area`.
+这会打印函数 @code`triangle-area` 在内存中的位置。
 
-Functions don't need to have names. The @code[fn] keyword can be used to
-introduce function literals without binding them to a symbol.
+函数不一定需要有名称。可以使用 @code[fn] 关键字来引入函数字面量，而不必将它们绑定到某个符号。
 
 @codeblock[janet](```
-# Evaluates to 40
+# 求值为 40
 ((fn [x y] (+ x x y)) 10 20)
-# Also evaluates to 40
+# 也求值为 40
 ((fn [x y &] (+ x x y)) 10 20)
 
-# Will throw an error about the wrong arity
+# 会抛出参数数量错误的异常
 ((fn [x] x) 1 2)
-# Will not throw an error about the wrong arity
+# 不会抛出参数数量错误的异常
 ((fn [x &] x) 1 2)
 ```)
 
-The first expression creates an anonymous function that adds twice the first
-argument to the second, and then calls that function with arguments 10 and 20.
-This will return (10 + 10 + 20) = 40.
+第一个表达式创建了一个匿名函数，该函数将第一个参数的两倍与第二个参数相加，然后用参数 10 和 20 调用该函数。这将返回 (10 + 10 + 20) = 40。
 
-Another way an anonymous function can be created is via the @code`|`
-reader macro (or the equivalent @code`short-fn` macro):
+另一种创建匿名函数的方式是通过 @code`|` 读取器宏（或等价的 @code`short-fn` 宏）：
 
 @codeblock[janet](```
-# These are functionally equivalent
+# 这些在功能上是等价的
 ((fn [x] (+ x x)) 1) # -> 2
 (|(+ $ $) 1) # -> 2
 
-# Multiple arguments may be referenced
+# 可以引用多个参数
 (|(+ $0 $1 $2) 1 2 3) # -> 6
 
-# All arguments can be accessed as a tuple
+# 所有参数可以作为一个元组访问
 (|(map inc $&) -1 0 1 2) # -> @[0 1 2 3]
 
-# | is shorthand for (short-fn ...)
+# | 是 (short-fn ...) 的简写
 ((short-fn (+ $ $)) 1) # -> 2
 
-# Other constructs can be used after |
+# 其他结构可以在 | 后使用
 (|[:x $] :y) # -> [:x :y]
 (|{:a $0 :b $1} 1 2) # -> {:a 1 :b 2}
 
-# Will throw an error about the wrong arity
+# 会抛出参数数量错误的异常
 (|(inc $) 1 2)
-# Will not throw an error about the wrong arity
+# 不会抛出参数数量错误的异常
 (|(get $& 0) 1 2)
 ```)
 
-Within the above sorts of contexts the symbol @code`$` refers to the
-first (or zero-th) argument.  Similarly, @code`$0`, @code`$1`,
-etc. refer to the arguments at index 0, 1, etc. and @code`$&` refers
-to all remaining arguments as a tuple.
+在上述各种上下文中，符号 @code`$` 指的是第一个（或第零个）参数。类似地，@code`$0`、@code`$1` 等指的是索引为 0、1 等的参数，而 @code`$&` 指的是所有剩余参数（作为一个元组）。
 
-There is a common macro @code[defn] that can be used for creating functions and
-immediately binding them to a name. @code[defn] works as expected at both the
-top level and inside another form. There is also the corresponding macro
-@code`defmacro` that does the same kind of wrapping for macros.
+有一个常用的宏 @code[defn] 可用于创建函数并立即将其绑定到一个名称。@code[defn] 在顶层和其他形式内部都能按预期工作。还有一个对应的宏 @code`defmacro`，它可以对宏做同样的封装。
 
 @codeblock[janet]```
 (defn myfun [x y]
  (+ x x y))
 
-# You can think of defn as a shorthand for def and fn together
+# 你可以将 defn 看作是 def 和 fn 组合的简写
 (def myfun-same (fn [x y]
             (+ x x y)))
 
 (myfun 3 4) # -> 10
 ```
 
-Janet has many macros provided for you (and you can write your own).  Macros are
-just functions that take your source code and transform it into some other
-source code, usually automating some repetitive pattern for you.
+Janet 提供了许多宏供你使用（你也可以编写自己的宏）。宏只是接受你的源代码并将其转换为其他源代码的函数，通常用于自动化一些重复的模式。
 
-## Optional arguments
+## 可选参数
 
-Most Janet functions will raise an error at runtime if not passed exactly the
-right number of arguments.  Sometimes, you want to define a function with
-optional arguments, where the arguments take a default value if not supplied by
-the caller. Janet has support for this via the @code`&opt` symbol in parameter
-lists, where all parameters after @code`&opt` are @code`nil` if not supplied.
+大多数 Janet 函数在未传入恰好正确数量的参数时，会在运行时引发错误。有时，你可能想定义一个带有可选参数的函数，当调用者未提供这些参数时，它们会取默认值。Janet 通过参数列表中的 @code`&opt` 符号支持这一点，@code`&opt` 之后的所有参数如果未提供则为 @code`nil`。
 
 @codeblock[janet]```
 (defn my-opt-function
- "A dumb function with optional arguments."
+ "一个带有可选参数的愚蠢函数。"
  [a b c &opt d e f]
  (default d 10)
  (default e 11)
@@ -134,21 +107,15 @@ lists, where all parameters after @code`&opt` are @code`nil` if not supplied.
  (+ a b c d e f))
 ```
 
-The @code`default` macro is a useful macro for setting default values for
-parameters. If a parameter is @code`nil`, @code`default` will redefine it to a
-default value.
+@code`default` 宏是一个有用的宏，用于为参数设置默认值。如果某个参数是 @code`nil`，@code`default` 会将其重新定义为默认值。
 
-## Variadic functions
+## 可变参数函数
 
-Janet also provides first-class support for variadic functions. Variadic
-functions can take any number of parameters, and gather them up into a tuple. To
-define a variadic function, use the @code`&` symbol as the second to last item
-of the parameter list. Parameters defined before the last variadic argument are
-not optional, unless specified as so with the @code`&opt` symbol.
+Janet 也为可变参数函数提供了一等支持。可变参数函数可以接受任意数量的参数，并将它们收集到一个元组中。要定义可变参数函数，请使用 @code`&` 符号作为参数列表的倒数第二个元素。在最后一个可变参数之前定义的参数不是可选的，除非使用 @code`&opt` 符号特别指定。
 
 @codeblock[janet]```
 (defn my-adder
- "Adds numbers in a dubious way."
+ "以一种可疑的方式对数字求和。"
  [& xs]
  (var accum 0)
  (each x xs
@@ -158,13 +125,9 @@ not optional, unless specified as so with the @code`&opt` symbol.
 (my-adder 1 2 3) # -> 6
 ```
 
-## Ignoring extra arguments
+## 忽略额外参数
 
-Sometimes you may want to have a function that can take a number of extra
-arguments but not use them. This happens because a function may be part of an
-interface, but the function itself doesn't need those arguments. You can write a
-function that will simply drop extra parameters by adding @code`&` as the last
-parameter in the function.
+有时你可能希望函数可以接受一些额外参数但不使用它们。这种情况可能发生在函数作为某个接口的一部分时，但函数本身并不需要这些参数。你可以通过将 @code`&` 作为函数的最后一个参数来编写一个简单地丢弃额外参数的函数。
 
 @codeblock[janet]```
 (defn ignore-extra
@@ -174,23 +137,19 @@ parameter in the function.
 (ignore-extra 1 2 3 4 5) # -> 2
 ```
 
-## Keyword-style arguments
+## 关键字风格的参数
 
-Sometimes, you want a function to have many arguments, and calling such a
-function can get confusing without naming the arguments in the call.  One
-solution to this problem is passing a table or struct with all of the arguments
-you want to use. This is in general a good approach, as now your original
-arguments can be identified by the keys in the struct.
+有时，你希望函数拥有许多参数，而在调用时不指明参数名称可能会让人困惑。解决这个问题的一种方法是传递一个包含所有你想要使用的参数的表或结构体。这通常是一种不错的方法，因为现在你的原始参数可以通过结构体中的键来识别。
 
 @codeblock[janet]```
 (defn make-recipe
-  "Create some kind of cake recipe..."
-  [args]
-  (def dry [(args :flour) (args :sugar) (args :baking-soda)])
-  (def wet [(args :water) (args :eggs) (args :vanilla-extract)])
-  {:name "underspecified-cake" :wet wet :dry dry})
+ "创建某种蛋糕配方..."
+ [args]
+ (def dry [(args :flour) (args :sugar) (args :baking-soda)])
+ (def wet [(args :water) (args :eggs) (args :vanilla-extract)])
+ {:name "underspecified-cake" :wet wet :dry dry})
 
-# Call with an argument struct
+# 使用参数结构体调用
 (make-recipe
  {:flour 1
   :sugar 1
@@ -200,18 +159,13 @@ arguments can be identified by the keys in the struct.
   :vanilla-extract 0.5})
 ```
 
-This is often good enough, but there are a couple downsides. The first is that
-our semantic arguments are not documented, the docstring will just have a single
-argument "args" which is not helpful. The docstring should have some indication
-of the keys that we expect in the struct.  We also need to write out an extra
-pair of brackets for the struct - this isn't a huge deal, but it would be nice
-if we didn't need to write this explicitly.
+这通常已经足够好了，但有几个缺点。首先，我们的语义参数没有文档说明，文档字符串只会有一个参数 "args"，这没有什么帮助。文档字符串应该包含一些关于我们在结构体中期望的键的指示。其次，我们需要为结构体额外写一对花括号——这不算大问题，但如果我们不需要显式写出这些花括号就更好了。
 
-We can solve this first problem by using destructuring in the argument.
+我们可以通过在参数中使用解构来解决第一个问题。
 
 @codeblock[janet]```
 (defn make-recipe-2
-  "Create some kind of cake recipe with destructuring..."
+ "使用解构创建某种蛋糕配方..."
  [{:flour flour
    :sugar sugar
    :baking-soda soda
@@ -222,7 +176,7 @@ We can solve this first problem by using destructuring in the argument.
  (def wet [water eggs vanilla])
  {:name "underspecified-cake" :wet wet :dry dry})
 
-# We can call the function in the same manner as before.
+# 我们可以和之前一样的方式调用这个函数。
 (make-recipe-2
  {:flour 1
   :sugar 1
@@ -232,47 +186,34 @@ We can solve this first problem by using destructuring in the argument.
   :vanilla-extract 0.5})
 ```
 
-The docstring of the improved function will contain a list of arguments that our
-function takes.  To fix the second issue, we can use the &keys symbol in a
-function parameter list to automatically create our big argument struct for use
-on invocation.
+改进后的函数的文档字符串将包含函数所接受的参数列表。为了解决第二个问题，我们可以在函数参数列表中使用 &keys 符号，在调用时自动为我们创建大的参数结构体。
 
 @codeblock[janet]```
 (defn make-recipe-3
-  "Create some kind of recipe using &keys..."
-  [&keys {:flour flour
-          :sugar sugar
-          :baking-soda soda
-          :water water
-          :eggs eggs
-          :vanilla-extract vanilla}]
-  (def dry [flour sugar soda])
-  (def wet [water eggs vanilla])
-  {:name "underspecified-cake" :wet wet :dry dry})
+ "使用 &keys 创建某种配方..."
+ [&keys {:flour flour
+         :sugar sugar
+         :baking-soda soda
+         :water water
+         :eggs eggs
+         :vanilla-extract vanilla}]
+ (def dry [flour sugar soda])
+ (def wet [water eggs vanilla])
+ {:name "underspecified-cake" :wet wet :dry dry})
 
-# Calling this function is a bit different now - no struct
+# 调用这个函数的方式有点不同了——不需要结构体
 (make-recipe-3
-  :flour 1
-  :sugar 1
-  :baking-soda 0.5
-  :water 2
-  :eggs 2
-  :vanilla-extract 0.5)
+ :flour 1
+ :sugar 1
+ :baking-soda 0.5
+ :water 2
+ :eggs 2
+ :vanilla-extract 0.5)
 ```
 
-Usage of this last variant looks cleaner than the previous two recipe-making
-functions, but there is a caveat. Having all of the arguments packaged as a
-struct is often useful, as the struct can be passed around and threaded through
-an application efficiently. Functions that require many arguments often pass
-those arguments to subroutines, so in practice this issue is quite common. The
-@code`&keys` syntax is therefore most useful where terseness and visual clarity
-is more important.
+最后这种变体的用法看起来比前两个配方法函数更简洁，但有一个注意事项。将所有参数打包成一个结构体通常很有用，因为结构体可以高效地传递和在应用程序中串联。需要多个参数的函数通常会将那些参数传递给子程序，所以实际上这个问题相当常见。因此，@code`&keys` 语法在简洁性和视觉清晰度更重要的情况下最为有用。
 
-It is not difficult to convert between the two calling styles, if need be. To
-pass a struct to a function that expects @code`&keys`-style arguments, the
-@code`kvs` function works well. To convert arguments in the other direction,
-from @code`&keys`-style to a single struct argument, is trivial - just wrap your
-arguments in curly brackets!
+如果需要，在这两种调用风格之间进行转换并不困难。要将结构体传递给期望 @code`&keys` 风格参数的函数，使用 @code`kvs` 函数效果很好。要将参数反向转换，从 @code`&keys` 风格转换为单个结构体参数，也很简单——只需将参数用花括号括起来即可！
 
 @codeblock[janet]```
 (def args
@@ -283,14 +224,11 @@ arguments in curly brackets!
    :eggs 2
    :vanilla-extract 0.5})
 
-# Turn struct into an array key, value, key, value, ... and splice into a call
+# 将结构体转换为以键、值、键、值...的数组，并拼接到调用中
 (make-recipe-3 ;(kvs args))
 ```
 
-Note that what follows @code`&keys` does not have to be a struct and
-can instead be a single symbol.  The symbol can then be used as a name
-within the function body for a struct containing the passed keys and
-values:
+注意，@code`&keys` 后面不一定非要是结构体，也可以是一个单独的符号。该符号随后可以在函数体内用作一个名称，指向包含传递的键和值的结构体：
 
 @codeblock[janet]```
 (defn feline-counter
@@ -302,49 +240,44 @@ values:
 (feline-counter :ant 1 :bee 2 :cat 3)
 ```
 
-## Optional Flags
+## 可选标志
 
-As a matter of style, some Janet functions allow you to optionally
-pass in multiple flags from a given set, as a single argument. (A
-"set" in the generic sense --- Janet doesn't have a @code`set` type.)
+作为一种风格惯例，一些 Janet 函数允许你在给定集合中可选地将多个标志作为单个参数传入。（这里说的"集合"是通用意义上的——Janet 没有 @code`set` 类型。）
 
-For example, if your @code`foo` function takes a string argument, and may
-also be passed zero or more flags from the set @code`:a`, @code`:b`,
-and @code`:c`, you could call @code`foo` like so:
+例如，如果你的 @code`foo` 函数接受一个字符串参数，并且还可以接受来自集合 @code`:a`、@code`:b` 和 @code`:c` 的零个或多个标志，你可以像这样调用 @code`foo`：
 
 @codeblock[janet](```
-(foo "hi")       # No flags passed.
-(foo "hi" :a)    # Just the `:a` flag.
-(foo "hi" :ab)   # The `:a` and `:b` flags.
-(foo "hi" :ba)   # Same.
-(foo "hi" :cab)  # All three flags specified.
+(foo "hi")       # 未传递标志。
+(foo "hi" :a)    # 仅传递 :a 标志。
+(foo "hi" :ab)   # 传递 :a 和 :b 标志。
+(foo "hi" :ba)   # 同上。
+(foo "hi" :cab)  # 指定了全部三个标志。
 ```)
 
-The pattern is similar to passing multiple flags to a command in
-the shell:
+这种模式类似于在 shell 中向命令传递多个标志：
 
 @codeblock(```
-$ my-command -abc      # is like
+$ my-command -abc      # 类似于
 $ my-command -a -b -c
 ```)
 
-but with Janet we're using @code`:` instead of @code`-`.
+但在 Janet 中，我们使用 @code`:` 而不是 @code`-`。
 
-An example of using optional flags in your own functions:
+下面是一个在自定义函数中使用可选标志的示例：
 
 @codeblock[janet](```
 #!/usr/bin/env janet
 
 (defn my-cool-string
-  ``Decorates `some-str` with stars around it.
+  ``用星号装饰 `some-str`。
 
-  `flags` is set of flags; it is a keyword where each
-  character indicates a flag from this set:
+  `flags` 是一组标志；它是一个关键字，其中每个
+  字符表示该集合中的一个标志：
 
-    * `:u` --- uppercase the string too.
-    * `:b` --- put braces around it as well.
+    * `:u` —— 也将字符串转为大写。
+    * `:b` —— 也为其加上花括号。
 
-  Returns the decorated string.
+  返回装饰后的字符串。
   ``
   [some-str &opt flags]
   (var u-flag-set false)
@@ -363,16 +296,11 @@ An example of using optional flags in your own functions:
 (print (my-cool-string "I ♥ Janet" :ub))  # {*I ♥ JANET*}
 ```)
 
-Built-in Janet functions that utilize this style include @code`file/open`,
-@code`fiber/new`, and @code`os/execute`.
+采用这种风格的内置 Janet 函数包括 @code`file/open`、@code`fiber/new` 和 @code`os/execute`。
 
-## Named arguments
+## 命名参数
 
-Starting in version 1.23.0, functions support named arguments. This is a more
-convenient syntax for keyword arguments. Functions with named arguments are
-implicitly variadic and will not reject badly named arguments. All symbols after
-the @code`&named` symbol in the parameter list need to be passed to the function as arguments
-preceded by a keyword of the same name.
+从版本 1.23.0 开始，函数支持命名参数。这是关键字参数的一种更方便的语法。带有命名参数的函数隐式地是可变参数的，并且不会拒绝名称不正确的参数。参数列表中 @code`&named` 符号之后的所有符号都需要作为参数传递给函数，且前面要加上同名的关键字。
 
 @codeblock[janet]```
 (defn named-fn

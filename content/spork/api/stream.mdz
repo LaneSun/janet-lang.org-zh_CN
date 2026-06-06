@@ -7,8 +7,8 @@
  :template "docpage.html"}
  ---
 
-Stream utilities for Janet.
+Janet 的流工具。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[stream/]

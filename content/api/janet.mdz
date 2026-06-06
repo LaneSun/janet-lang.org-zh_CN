@@ -1,12 +1,11 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Janet Module"
+{:title "Janet 模块"
  :order 0
  :nav-title "janet"
  :template "docpage.html"}
 ---
-
-## Index
+## 索引
 
 @gen-docs/gen-prefix[janet/]
 

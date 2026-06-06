@@ -7,81 +7,75 @@
  :template "docpage.html"}
  ---
 
-A Domain specific language for creating shell commands and pipelines. This module complements
-the @code`spork/sh` module with a terser tool for common operations. The general syntax is based
-around the @code`$` macro, which can be used to run commands and collect results in a manner that
-very much looks like POSIX shell, but will also work on windows.
+用于创建 shell 命令和管道的领域特定语言。该模块通过更简洁的工具补充了 @code`spork/sh` 模块，用于常见操作。通用语法基于 @code`$` 宏，可用于运行命令并以非常类似 POSIX shell 的方式收集结果，同时也适用于 Windows。
 
 @codeblock[janet]```
 (use spork/sh-dsl)
 
-# On posix systems, will use /bin/echo or similar to print "hello world!" and return 0, the exit code.
+# 在 posix 系统上，将使用 /bin/echo 或类似程序打印 "hello world!" 并返回 0（退出码）
 ($ echo hello world!)
 
-# To collect the stdout as a buffer result, use $<
+# 要将 stdout 作为缓冲区结果收集，请使用 $<
 ($< echo hello world!)
 
-# Same as $< but trims the last trailing newline
+# 与 $< 相同但会去除末尾的换行符
 ($<_ echo hello world!)
 ```
 
-Several basic shell features are supported with nice syntax:
+支持多个基本 shell 功能，语法简洁：
 @ul{
-    @li{Basic commands}
-    @li{Environment variables}
-    @li{Redirecting stdio to/from files}
-    @li{Janet expressions via unquote}
-    @li{Pipes}
-    @li{Windows Support}
+    @li{基本命令}
+    @li{环境变量}
+    @li{重定向标准输入/输出到文件}
+    @li{通过 unquote 使用 Janet 表达式}
+    @li{管道}
+    @li{Windows 支持}
 }
 
-### Environment Variables
+### 环境变量
 
-Environment variables can be set for commands with the usual shell syntax of ENVVAR=VALUE preceding the program name. Environment
-variables from the calling process can also be passed in by passing in symbols that begin with a "$" character
+可以使用常见的 shell 语法 ENVVAR=VALUE 在程序名称前为命令设置环境变量。也可以通过传入以 "$" 字符开头的符号来传入调用进程的环境变量。
 
 @codeblock[janet]```
 (use spork/sh-dsl)
 
-# Set the JANET_PATH and invoke the janet shell
+# 设置 JANET_PATH 并调用 janet shell
 ($ JANET_PATH=/home/janet-user janet -e '(print (dyn *syspath*)))
 
-# Also works
+# 也可以这样使用
 ($ JANET_PATH=$HOME janet -e '(print (dyn *syspath*)))
 ($ echo $HOME)
-($ echo ,(os/getenv "HOME")) # same thing
+($ echo ,(os/getenv "HOME")) # 同上
 ```
 
-Keep in mind that this syntax is not the same as Posix shell - environment variable expansion will not work everywhere and
-can always be substituted with inline Janet code instead.
+请记住，此语法与 POSIX shell 不同——环境变量展开并非在所有地方都有效，并且始终可以用内联 Janet 代码替代。
 
-### Janet Expression Substitution
+### Janet 表达式替换
 
-Users may want to mix Janet expressions with literals when invoking subprograms, and this library makes it easy
-using the familiar @code`unquote` special.
+用户在调用子程序时可能希望将 Janet 表达式与字面量混合使用，该库通过熟悉的 @code`unquote` 特殊形式使其变得简单。
 
 @codeblock[janet]```
 (use spork/sh-dsl)
 
 (def x 1)
 
-# This will print "x"
+# 这将打印 "x"
 ($ echo x)
 
-# This will print "1"
+# 这将打印 "1"
 ($ echo ,x)
 
-# Both of these will print 6
+# 这两个都将打印 6
 ($ echo ,(+ 1 2 3))
 ($ echo (+ 1 2 3))
 
-# This will print "(+ 1 2 3)"
+# 这将打印 "(+ 1 2 3)"
 ($ echo '(+ 1 2 3))
 ```
 
-### Pipes
+### 管道
 
-The input of one command can be piped into another as in shell scripts.
+一个命令的输入可以通过管道传递给另一个命令，就像在 shell 脚本中一样。
 
 @codeblock[janet]```
 (use spork/sh-dsl)
@@ -90,21 +84,21 @@ The input of one command can be piped into another as in shell scripts.
 (json/decode ($<_ curl -s https://www.githubstatus.com/api/v2/status.json | jq .))
 ```
 
-## File Redirection
+## 文件重定向
 
-Standard IO (stdin, stdout, and stderr) can also be redirect to files much like the usual shell syntax.
+标准 IO（stdin、stdout 和 stderr）也可以重定向到文件，与常见的 shell 语法非常相似。
 
 @codeblock[janet]```
 (use spork/sh-dsl)
 
-($ echo hi > out.txt) # Returns 0 and outputs nothing to the console - output has been redirected.
-($ cat out.txt) # prints hi
-($ janet -e '(error :oops) :err-to-out > out.txt) # redirect stderr to stdout
-($ janet -e '(error :oops) :err-to-out >> out.txt) # redirect stderr to stdout and append to out.txt instead of overwriting
+($ echo hi > out.txt) # 返回 0 且不向控制台输出任何内容 - 输出已被重定向
+($ cat out.txt) # 打印 hi
+($ janet -e '(error :oops) :err-to-out > out.txt) # 将 stderr 重定向到 stdout
+($ janet -e '(error :oops) :err-to-out >> out.txt) # 将 stderr 重定向到 stdout 并追加到 out.txt 而不是覆盖
 
-($ janet -e '(prin (:read stdin :all)) < out.txt) # reprint out.txt
+($ janet -e '(prin (:read stdin :all)) < out.txt) # 重新打印 out.txt
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[sh-dsl/]

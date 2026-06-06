@@ -1,38 +1,30 @@
-{:title "Buffers"
+{:title "缓冲区"
  :template "docpage.html"
  :order 2}
 ---
 
-Buffers in Janet are the mutable version of strings. Since strings in Janet can
-hold any sequence of bytes, including zeros, buffers share this same property
-and can be used to hold any arbitrary memory, which makes them very simple but
-versatile data structures. They can be used to accumulate small strings into a
-large string, to implement a bitset, or to represent sound or images in a
-program.
+Janet 中的缓冲区是字符串的可变版本。由于 Janet 中的字符串可以包含任意字节序列（包括零字节），缓冲区也拥有同样的特性，可以用来保存任意内存数据，这使得它们成为非常简单但通用的数据结构。缓冲区可以用于将小字符串累积成大字符串、实现位集合，或在程序中表示声音和图像。
 
-## Creating buffers
+## 创建缓冲区
 
-A buffer literal looks like a string literal, but prefixed with an at symbol
-@code[@].
+缓冲区字面量类似于字符串字面量，但前面加上 @ 符号 @code[@]。
 
 @codeblock[janet](```
 (def my-buf @"This is a buffer.")
 
 (defn make-buffer
- "Creates a buffer"
- []
- @"a new buffer")
+  "Creates a buffer"
+  []
+  @"a new buffer")
 
 (make-buffer) # -> @"a new buffer"
 (= (make-buffer) (make-buffer)) # -> false
-# All buffers are unique - buffers are equal only to themselves.
+# 所有缓冲区都是唯一的——缓冲区仅与自身相等。
 ```)
 
-## Getting bytes from a buffer
+## 从缓冲区获取字节
 
-To get bytes from a buffer, use the @code[get] function that works on all
-built-in data structures. Bytes in a buffer are indexed from 0, and each byte is
-considered an integer from 0 to 255.
+要从缓冲区获取字节，请使用适用于所有内置数据结构的 @code[get] 函数。缓冲区中的字节从 0 开始索引，每个字节被视为 0 到 255 之间的整数。
 
 @codeblock[janet](```
 (def buf @"abcd")
@@ -40,17 +32,15 @@ considered an integer from 0 to 255.
 (get buf 0) # -> 97
 (0 buf) # -> 97
 
-# Use destructuring to print 4
-# bytes of a buffer.
+# 使用解构来打印缓冲区的 4 个字节。
 (let [[b1 b2 b3 b4] buf]
- (print b1)
- (print b2)
- (print b3)
- (print b4))
+  (print b1)
+  (print b2)
+  (print b3)
+  (print b4))
 ```)
 
-One can also use the @code`string/slice` or @code`buffer/slice` functions to get
-sub strings (or sub buffers) from inside any sequence of bytes.
+还可以使用 @code`string/slice` 或 @code`buffer/slice` 函数从任意字节序列中获取子字符串（或子缓冲区）。
 
 @codeblock[janet](```
 (def buf @"abcdefg")
@@ -58,15 +48,12 @@ sub strings (or sub buffers) from inside any sequence of bytes.
 (def buf2 (buffer/slice buf 2)) # -> @"cdefg"
 (def buf3 (buffer/slice buf 2 -2)) # -> @"cdef"
 
-# string/slice works the same way, but returns strings.
+# string/slice 的工作方式相同，但返回字符串。
 ```)
 
-## Setting bytes in a buffer
+## 设置缓冲区中的字节
 
-Buffers are mutable, meaning we can add bytes or change bytes in an already
-created buffer. Use the @code`put` function to set individual bytes in a buffer
-at a given byte index. Buffers will be expanded as needed if an index out of the
-range provided.
+缓冲区是可变的，这意味着我们可以向已创建的缓冲区中添加字节或更改其中的字节。使用 @code`put` 函数在缓冲区中设置指定字节索引处的单个字节。如果提供的索引超出范围，缓冲区将根据需要自动扩展。
 
 @codeblock[janet](```
 (def b @"")
@@ -74,7 +61,7 @@ range provided.
 (put b 10 97) #-> @"a\0\0\0\0\0\0\0\0\0a"
 ```)
 
-The @code[set] special form also works for setting bytes in a buffer.
+特殊形式 @code[set] 也可用于设置缓冲区中的字节。
 
 @codeblock[janet](```
 (def b @"")
@@ -82,14 +69,11 @@ The @code[set] special form also works for setting bytes in a buffer.
 (set (b 10) 97) #-> 97
 ```)
 
-The main difference between @code[set] and @code[put] is that @code[set] will
-return the byte value, whereas @code[put] will return the buffer value.
+@code[set] 和 @code[put] 的主要区别在于 @code[set] 返回字节值，而 @code[put] 返回缓冲区值。
 
-## Pushing bytes to a buffer
+## 向缓冲区推送字节
 
-There are also many functions to push data into a buffer. Since buffers are
-commonly used to accumulate data, there are a variety of functions for pushing
-data into a buffer.
+还有许多用于向缓冲区推送数据的函数。由于缓冲区通常用于累积数据，因此有多种函数可以将数据推送到缓冲区中。
 
 @ul{@li{@code[buffer/push]}
     @li{@code[buffer/push-at]}
@@ -97,4 +81,4 @@ data into a buffer.
     @li{@code[buffer/push-word]}
     @li{@code[buffer/push-string]}}
 
-See the documentation for these functions in the @link[/api/buffer.html][Buffer API].
+有关这些函数的文档，请参见 @link[/api/buffer.html][缓冲区 API]。

@@ -1,47 +1,29 @@
-{:title "Spawning a Process"
- :nav-title "Spawning"
+{:title "衍生进程"
+ :nav-title "衍生"
  :template "docpage.html"}
 ---
 
-Unlike @code`os/execute`, which returns an exit code (or errors) after
-the started subprocess completes, @code`os/spawn` returns a
-@code`core/process` value.  This value represents a subprocess which
-may or may not have completed its execution.  In contrast to
-@code`os/execute`, which "waits" for the subprocess, @code`os/spawn`
-does not and it is recommended to explicitly arrange for this
-"waiting" for resource management and other purposes ("waiting" will
-be covered in more detail below).
+与 @code`os/execute` 不同（它在启动的子进程完成后返回退出码或错误），@code`os/spawn` 返回一个 @code`core/process` 值。这个值代表一个子进程，它可能已完成执行，也可能尚未完成。与 @code`os/execute` 会"等待"子进程不同，@code`os/spawn` 不会等待，建议显式安排这种"等待"，以便进行资源管理等（"等待"将在下文更详细地介绍）。
 
-The arguments for @code`os/spawn` are the same as those of
-@code`os/execute`.  Again, the required argument, @code`args`, is a
-tuple or array representing an invocation of a program with its
-arguments.
+@code`os/spawn` 的参数与 @code`os/execute` 相同。必需的参数 @code`args` 是一个元组或数组，表示对程序及其参数的调用。
 
 @codeblock[janet]```
-# prints: :salutations
-# the returned value, proc, is a core/process value
+# 输出：:salutations
+# 返回值 proc 是一个 core/process 值
 (let [proc (os/spawn ["janet" "-e" "(pp :salutations)"] :p)]
   (type proc)) # => :core/process
 ```
 
-## @code`core/process` and @code`os/proc-wait`
+## @code`core/process` 和 @code`os/proc-wait`
 
-Passing the @code`core/process` value to the @code`os/proc-wait`
-function causes Janet to "wait" for the subprocess to complete
-execution.  This is sometimes referred to as "rejoining" the
-subprocess.
+将 @code`core/process` 值传递给 @code`os/proc-wait` 函数会导致 Janet "等待"子进程完成执行。这有时被称为"重新加入"子进程。
 
-The main reason for "waiting" is so that the operating system can
-release resources.  Not "waiting" appropriately can lead to resources
-remaining unreclaimed and this can become a problem for a running
-system because it may run out of usable resources.
+"等待"的主要原因是让操作系统能够释放资源。不恰当地"等待"会导致资源未被回收，这可能给运行中的系统带来问题，因为系统可能会耗尽可用资源。
 
-Once "waiting" has completed, the exit code for the subprocess can be
-obtained via the @code`:return-code` key.  Accessing this key before
-"waiting" will result in a @code`nil` value.
+"等待"完成后，可以通过 @code`:return-code` 键获取子进程的退出码。在"等待"之前访问此键将返回 @code`nil` 值。
 
 @codeblock[janet]```
-# prints: :relax
+# 输出：:relax
 (def proc (os/spawn ["janet" "-e" "(pp :relax)"] :p))
 
 (get proc :return-code) # => nil
@@ -51,49 +33,30 @@ obtained via the @code`:return-code` key.  Accessing this key before
 (get proc :return-code) # => 0
 ```
 
-The @code`os/proc-wait` function takes a single argument, @code`proc`,
-which should be a @code`core/process` value.  The return value is the
-exit code of the subprocess.  If @code`os/proc-wait` is called more
-than once for the same @code`core/process` value it will error.
+@code`os/proc-wait` 函数接受一个参数 @code`proc`，它应该是一个 @code`core/process` 值。返回值是子进程的退出码。如果对同一个 @code`core/process` 值多次调用 @code`os/proc-wait`，将会出错。
 
 @codeblock[janet]```
-# prints: :sit-up
+# 输出：:sit-up
 (def proc (os/spawn ["janet" "-e" "(pp :sit-up)"] :p))
 
 (os/proc-wait proc) # => 0
 
-# prints: cannot wait twice on a process
+# 输出：cannot wait twice on a process
 (try
   (os/proc-wait proc)
   ([e]
     (eprint e))) # => nil
 ```
 
-Note that the first call to @code`os/proc-wait` will cause the current
-fiber to pause execution until the subprocess completes.
+请注意，第一次调用 @code`os/proc-wait` 会导致当前 fiber 暂停执行，直到子进程完成。
 
-## @code`core/process` keys and the @code`env` argument
+## @code`core/process` 的键和 @code`env` 参数
 
-As seen above, once "waiting" for a subprocess has completed, the exit
-code of a subprocess becomes available via the @code`:return-code`
-key.  Other information about a subprocess can also be accessed via
-the keys of an associated @code`core/process` value such as
-@code`:in`, @code`:out`, and @code`:err`.  On UNIX-like platforms,
-there is an additional @code`:pid` key.
+如上所述，一旦对子进程的"等待"完成，就可以通过 @code`:return-code` 键获取子进程的退出码。关于子进程的其他信息也可以通过关联的 @code`core/process` 值的键来访问，例如 @code`:in`、@code`:out` 和 @code`:err`。在类 UNIX 平台上，还有一个额外的 @code`:pid` 键。
 
-The @code`:in`, @code`:out`, and @code`:err` keys for a
-@code`core/process` value provide access to the standard input, output,
-and error of the associated subprocess provided that corresponding
-choices were made via the @code`env` dictionary (i.e. table or struct)
-argument to @code`os/spawn`.  This means that, for example, if there
-is no key-value pair specified via @code`:in` in the @code`env`
-dictionary, then the standard input of the subprocess will not be
-programmatically accessible via the associated @code`core/process`'s
-@code`:in` key.
+@code`core/process` 值的 @code`:in`、@code`:out` 和 @code`:err` 键提供对关联子进程的标准输入、输出和错误的访问，前提是通过 @code`os/spawn` 的 @code`env` 字典（即表或结构体）参数做出了相应的选择。这意味着，例如，如果在 @code`env` 字典中没有通过 @code`:in` 指定键值对，那么子进程的标准输入将无法通过关联的 @code`core/process` 的 @code`:in` 键以编程方式访问。
 
-The values associated with the @code`:in`, @code`:out`, and
-@code`:err` keys of the @code`env` argument can be @code`core/file` or
-@code`core/stream` values.
+与 @code`env` 参数的 @code`:in`、@code`:out` 和 @code`:err` 键关联的值可以是 @code`core/file` 或 @code`core/stream` 值。
 
 @codeblock[janet]```
 (def out-file (file/temp))
@@ -104,7 +67,7 @@ The values associated with the @code`:in`, @code`:out`, and
   (os/spawn ["janet" "-e" `(print "again") (flush)`]
             :p {:out out-file}))
 
-# only standard output of the subprocess is accessible
+# 子进程的标准输出是唯一可访问的
 (proc :in) # => nil
 (type (proc :out)) # => :core/stream
 (proc :err) # => nil
@@ -113,41 +76,21 @@ The values associated with the @code`:in`, @code`:out`, and
 
 (file/seek out-file :set 0)
 
-# prints: again
+# 输出：again
 (print (file/read out-file :all))
 
 (file/close out-file)
 ```
 
-Note that in the example above, the standard input and error of the
-subprocess were not accessible -- attempts to access them resulted in
-@code`nil` values -- because corresponding keys for the @code`env`
-argument were not specified.  In contrast, because a key-value pair
-for @code`:out` and @code`out-file` were included in the @code`env`
-struct, the standard output of the subprocess could be accessed
-programmatically.
+请注意，在上面的示例中，子进程的标准输入和错误无法访问——尝试访问它们会导致 @code`nil` 值——因为没有为 @code`env` 参数指定相应的键。相比之下，由于 @code`env` 结构体中包含了 @code`:out` 和 @code`out-file` 的键值对，因此可以通过编程方式访问子进程的标准输出。
 
-## @code`:pipe` and @code`ev/gather`
+## @code`:pipe` 和 @code`ev/gather`
 
-For each of the @code`:in`, @code`:out`, and @code`:err` keys of the
-@code`env` argument to @code`os/spawn`, the associated value can be
-the keyword @code`:pipe`.  This causes @code`core/stream` values to be
-used that can be read from and written to for appropriate standard IO
-of the subprocess.
+对于 @code`os/spawn` 的 @code`env` 参数中的 @code`:in`、@code`:out` 和 @code`:err` 键，其关联值可以是关键字 @code`:pipe`。这将导致使用 @code`core/stream` 值，以便对子进程的适当标准 IO 进行读写。
 
-In order to avoid deadlocks (aka hanging), it's important for data to
-be transferred between processes in a timely manner.  One example of
-how this can fail is if output redirected to pipes is not read from
-(sufficiently).  In such a situation, pipe buffers might become full
-and this can prevent a process from completing its writing.  That in
-turn can result in the writing process being unable to finish
-executing.  To keep data flowing appropriately, apply the
-@code`ev/gather` macro.
+为了避免死锁（即挂起），及时在进程之间传输数据非常重要。可能出问题的一个例子是，重定向到管道的输出没有被（充分地）读取。在这种情况下，管道缓冲区可能会变满，从而阻止进程完成写入。这进而可能导致写入进程无法完成执行。为了保持数据流畅流动，请使用 @code`ev/gather` 宏。
 
-In the following example, @code`ev/write` and @code`os/proc-wait` are
-both run in parallel via @code`ev/gather`.  The @code`ev/gather` macro
-runs a number of fibers in parallel (in this case, two) on the event
-loop and returns the gathered results in an array.
+在下面的示例中，@code`ev/write` 和 @code`os/proc-wait` 都通过 @code`ev/gather` 并行运行。@code`ev/gather` 宏在事件循环上并行运行多个 fiber（本例中是两个），并以数组形式返回收集到的结果。
 
 @codeblock[janet]```
 (def proc
@@ -156,7 +99,7 @@ loop and returns the gathered results in an array.
 
 (ev/gather
   (do
-    # leads to printing via subprocess: know thyself
+    # 通过子进程输出：know thyself
     (ev/write (proc :in) "know thyself")
     (ev/close (proc :in))
     :done)
@@ -165,9 +108,7 @@ loop and returns the gathered results in an array.
 
 ## @code`os/proc-close`
 
-The next example is a slightly modified version of the previous one.
-It involves adding a third fiber (to @code`ev/gather`) for reading
-standard output from the subprocess via @code`ev/read`.
+下一个示例是前一个示例的略微修改版本。它涉及添加第三个 fiber（到 @code`ev/gather`），用于通过 @code`ev/read` 读取子进程的标准输出。
 
 @codeblock[janet]```
 (def proc
@@ -181,7 +122,7 @@ standard output from the subprocess via @code`ev/read`.
     (ev/write (proc :in) "know thyself")
     (ev/close (proc :in))
     :write-done)
-  # hi! i'm new here :)
+  # 嘿！我是新来的 :)
   (do
     (ev/read (proc :out) :all buf)
     :read-done)
@@ -192,31 +133,15 @@ standard output from the subprocess via @code`ev/read`.
 buf # => @"know thyself\n"
 ```
 
-Beware that if pipe streams are not closed soon enough, the process
-that created them (e.g. the @code`janet` executable) may run out of
-file descriptors or handles due to process limits enforced by an
-operating system.
+请注意，如果管道流没有及时关闭，创建它们的进程（例如 @code`janet` 可执行文件）可能会因操作系统强制执行的进程限制而耗尽文件描述符或句柄。
 
-Note the use of the function @code`os/proc-close` in the code above.
-This function takes a @code`core/process` value and closes all of the
-unclosed pipes that were created for it via @code`os/spawn`.  In the
-example above, @code`(proc :in)` had already been closed explicitly,
-but @code`(proc :out)` had not and is thus closed by
-@code`os/proc-close`.
+请注意上面代码中 @code`os/proc-close` 函数的使用。该函数接受一个 @code`core/process` 值，并关闭通过 @code`os/spawn` 为其创建的所有未关闭的管道。在上面的示例中，@code`(proc :in)` 已经显式关闭，但 @code`(proc :out)` 尚未关闭，因此由 @code`os/proc-close` 关闭。
 
-The @code`os/proc-close` function will also attempt to wait on the
-subprocess associated with the passed @code`core/process` value if it
-has not been waited on already.  The function's return value is
-@code`nil` if waiting was not attempted and otherwise it is the exit
-code of the subprocess corresponding to the @code`core/process` value.
+@code`os/proc-close` 函数还会尝试等待传入的 @code`core/process` 值关联的子进程（如果尚未等待）。如果未尝试等待，函数返回值为 @code`nil`；否则，返回与 @code`core/process` 值对应的子进程的退出码。
 
-## Effects of @code`:x`
+## @code`:x` 的效果
 
-If the @code`flag` keyword argument contains @code`x` for an
-invocation of @code`os/spawn` and the exit code of the subprocess is
-non-zero, calling a function such as @code`os/proc-wait`,
-@code`os/proc-close`, and @code`os/proc-kill` \(if invoked to wait)
-with the subprocess' @code`core/process` value results in an error.
+如果在调用 @code`os/spawn` 时 @code`flag` 关键字参数包含 @code`x`，且子进程的退出码非零，则使用子进程的 @code`core/process` 值调用 @code`os/proc-wait`、@code`os/proc-close` 和 @code`os/proc-kill`（如果调用是为了等待）等函数将导致错误。
 
 @codeblock[janet]```
 (def proc
@@ -228,16 +153,15 @@ with the subprocess' @code`core/process` value results in an error.
     (-> (os/cryptorand 8)
         math/rng
         (math/rng-int 3)))
-  # any of the following should raise an error
+  # 以下任一操作都应引发错误
   (case zero-one-or-two
     0 (os/proc-wait proc)
     1 (os/proc-close proc)
     2 (os/proc-kill proc true)))
 
-# prints: error
+# 输出：error
 (try
   (invoke-an-error-raiser proc)
   ([_]
     (eprint "error")))
 ```
-

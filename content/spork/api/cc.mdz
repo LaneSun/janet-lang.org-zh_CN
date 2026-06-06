@@ -7,15 +7,13 @@
  :template "docpage.html"}
  ---
 
-Improved version of the C Compiler abstraction from JPM that should be more correct, composable, and
-have less configuration.
+来自 JPM 的 C 编译器抽象层的改进版本，应该更正确、更可组合，且配置更少。
 
-Wrapper around the system C compiler for compiling Janet native modules and executables.
-Opinionated and optimized for use with Janet, and does not actually run
-commands unless specified with (dyn *visit*). Also included is package config integration.
-Headers, static libraries, and dynamic libraries can all be used from `(dyn *syspath*)`.
+围绕系统 C 编译器的封装，用于编译 Janet 原生模块和可执行文件。
+专为 Janet 使用而设计并优化，除非通过 `(dyn *visit*)` 指定，否则不会实际运行命令。同时包含包配置集成。
+头文件、静态库和动态库都可以从 `(dyn *syspath*)` 中使用。
 
-## Example usage
+## 使用示例
 
 @codeblock[janet]```
 (use spork/cc)
@@ -28,6 +26,6 @@ Headers, static libraries, and dynamic libraries can all be used from `(dyn *sys
   (compile-and-link-executable "game" "main.c" "sound.c" "graphics.c"))
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[cc/]

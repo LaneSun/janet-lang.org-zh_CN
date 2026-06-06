@@ -1,17 +1,15 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "OS Module"
+{:title "OS 模块"
  :order 0
  :nav-title "os"
  :template "docpage.html"}
 ---
 
-The @code`os` module contains most Operating System specific functionality as well as routines
-for interacting with the host OS. There is also some functionality for interacting with the
-file system. The functionality in this module can be much reduced by setting the @code`JANET_REDUCED_OS`
-define in @code`janetconf.h`.
+@code`os` 模块包含大多数操作系统相关的功能，以及用于与宿主操作系统交互的例程。
+此外还包含一些与文件系统交互的功能。通过设置 @code`janetconf.h` 中的 @code`JANET_REDUCED_OS`
+宏定义，可以大幅缩减本模块的功能。
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[os/]
-

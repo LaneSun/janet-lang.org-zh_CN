@@ -7,8 +7,8 @@
  :template "docpage.html"}
  ---
 
-Wrapper around miniz for compression functionality.
+用于压缩功能的 miniz 封装。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[zip/]

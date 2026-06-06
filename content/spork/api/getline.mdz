@@ -7,8 +7,8 @@
  :template "docpage.html"}
  ---
 
-Module for fiber-based sequence combinators rather than array-based combinators, as are in the core library.
+用于基于 fiber 的序列组合器的模块，而非核心库中基于数组的组合器。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[getline/]

@@ -1,12 +1,12 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Tuple Module"
+{:title "元组模块"
  :order 0
  :nav-title "tuple"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[tuple/]
 

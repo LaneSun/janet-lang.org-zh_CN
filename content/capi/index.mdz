@@ -1,55 +1,34 @@
-{:title "The Janet C API"
+{:title "Janet C API"
  :nav-title "C API"
  :template "docpage.html"
  :order 4}
 ---
 
-One of the fundamental design goals of Janet is to extend it via the C programming
-language, as well as embed the interpreter in a larger program. To this end, Janet
-exposes most of its low level functionality in well defined C API. Unlike Janet, the
-Janet C API is not safe @html[&mdash;] it's possible to write programs in C that will
-crash, use memory after freeing it, or simply cause undefined behavior. However, using the
-C API will let you use high performance libraries on almost any system and access native
-functionality that is not possible in pure Janet.
+Janet 的基本设计目标之一是通过 C 编程语言扩展它，以及将解释器嵌入到更大的程序中。为此，Janet 通过定义良好的 C API 暴露了其大部分底层功能。与 Janet 不同，Janet C API 并不安全——用 C 编写的程序可能会崩溃、使用已释放的内存，或导致未定义行为。然而，使用 C API 可以让您在几乎任何系统上使用高性能库，并访问纯 Janet 无法实现的原生功能。
 
-Janet's C API assumes that you will have one Janet interpreter per OS thread
-(if the system you are on has threads). The means
-that Janet must have some global, thread local state. This is a problem for some
-host languages, like Go, that expect all code to be fully re-entrant on any thread.
-This design choice, however, makes the Janet APIs more pleasant to use in languages
-like C and C++, as there is no need to pass around a context object to all api functions.
+Janet 的 C API 假定每个操作系统线程（如果您的系统支持线程）将有一个 Janet 解释器。这意味着 Janet 必须有一些全局的、线程局部的状态。这对某些宿主语言（如 Go）来说是个问题，它们期望所有代码在任何线程上都是完全可重入的。然而，这种设计选择使得 Janet API 在 C 和 C++ 等语言中使用起来更加愉快，因为无需将上下文对象传递给所有 API 函数。
 
-## What defines the C API?
+## 什么是 C API？
 
-The C API is defined by the header @code`janet.h`, which should be included
-by programs to both embed Janet in a larger program, or to write a Janet module.
+C API 由头文件 @code`janet.h` 定义，程序应包含该文件，以便将 Janet 嵌入到更大的程序中，或编写 Janet 模块。
 
-## Using The Amalgamation
+## 使用合并源文件
 
-When integrating Janet into a host project (usually some larger application, but it could be
-a small wrapper around Janet), it is convenient to be able to add only a few source files
-to your project rather than a large dependency. The amalgamated source, @code`janet.c`, contains
-all of the source code for Janet concatenated into one file. This file can be added to the host project, along
-with @code`janet.h` and @code`janetconf.h`. There is also the option of including @code`shell.c`, which is
-used in the standalone interpreter, but not usually needed for host programs.
+将 Janet 集成到宿主项目（通常是一个较大的应用程序，但也可能是围绕 Janet 的小型包装器）中时，能够只向项目添加少量源文件而不是一个庞大的依赖会更加方便。合并后的源文件 @code`janet.c` 包含了 Janet 的所有源代码，它们被连接到一个文件中。此文件可以与 @code`janet.h` 和 @code`janetconf.h` 一起添加到宿主项目中。还可以选择包含 @code`shell.c`，它用于独立解释器，但通常宿主程序不需要它。
 
-On a POSIX system, building the amalgamated source is straightforward. With @code`janet.c`, @code`janet.h`, @code`janetconf.h`, and
-@code`shell.c` in the current directory, building is as follows:
+在 POSIX 系统上，构建合并源文件非常简单。在当前目录中有 @code`janet.c`、@code`janet.h`、@code`janetconf.h` 和 @code`shell.c` 的情况下，构建方式如下：
 
 @codeblock```
 cc -std=c99 -Wall -Werror -O2 -fPIC -shared janet.c shell.c -o janet -lm -ldl -lrt -lpthread
 ```
 
-The exact flags required will depend on the system and on the configuration of the amalgamation.
-For example, linking to pthreads is not needed if JANET_SINGLE_THREADED is defined in @code`janetconf.h`.
+所需的具体标志取决于系统和合并配置的配置。例如，如果在 @code`janetconf.h` 中定义了 `JANET_SINGLE_THREADED`，则不需要链接到 pthreads。
 
-## Writing a Module
+## 编写模块
 
-The easiest way to get started with the Janet C API is to write a Janet native
-module. A native module is native code that can be loaded dynamically at runtime
-in the interpreter.
+开始使用 Janet C API 的最简单方法是编写一个 Janet 原生模块。原生模块是可以在解释器中运行时动态加载的原生代码。
 
-A basic skeleton for a native module in C is below.
+下面是一个 C 语言原生模块的基本骨架。
 
 @codeblock[c]```
 #include <janet.h>
@@ -70,31 +49,24 @@ JANET_MODULE_ENTRY(JanetTable *env) {
 }
 ```
 
-This module is a very simple module that exposes one
-native function called @code`myfun`. The module is called @code`mymod`, although
-when importing the module, the user can rename it to whatever he or she likes.
+这个模块非常简洁，只暴露了一个名为 @code`myfun` 的原生函数。模块名称为 @code`mymod`，不过在导入模块时，用户可以将其重命名为任意名称。
 
-### Compiling the Module
+### 编译模块
 
-Once you have written you native code a file @code`mymod.c`, you will need to
-compile it with your system's C compiler. The easiest way to do this is to use @code`jpm` and write a @code`project.janet` file.
-@code`jpm` will handle all of the linking and flags for you so that you can write portable modules. Since @code`project.janet`
-is just a Janet script, you can detect what platform you are running on and do conditional compilation there if needed.
+一旦将原生代码写入文件 @code`mymod.c`，就需要使用系统的 C 编译器来编译它。最简单的方法是使用 @code`jpm` 并编写一个 @code`project.janet` 文件。@code`jpm` 将为您处理所有链接和标志，以便您编写可移植的模块。由于 @code`project.janet` 只是一个 Janet 脚本，您可以检测正在运行的平台，并在需要时进行条件编译。
 
-Inside @code`project.janet`:
+在 @code`project.janet` 中：
 
 @codeblock[janet]```
 (declare-project :name "mymod")
 (declare-native :name "mymod" :source @["mymod.c"])
 ```
 
-Once you have @code`project.janet` written, run @code`jpm build` to build the module.
-If all goes well, @code`jpm` should have built a file @code`build/mymod.so`. In your repl, you can now
-import your module and use it.
+编写好 @code`project.janet` 后，运行 @code`jpm build` 来构建模块。如果一切顺利，@code`jpm` 应该会构建出一个 @code`build/mymod.so` 文件。现在，在您的 REPL 中，您可以导入模块并使用它。
 
 @codeblock[janet]```
 (import /build/mymod :as mymod)
 (mymod/myfun) # Prints the hello message
 ```
 
-Congratulations, you have a native module.
+恭喜，您已经有了一个原生模块。

@@ -3,10 +3,10 @@
  :order 7}
 ---
 
-## Definition
+## 定义
 
 @codeblock[c]```
-/* Fiber statuses - mostly corresponds to signals. */
+/* Fiber 状态 - 主要对应信号量。 */
 typedef enum {
     JANET_STATUS_DEAD,
     JANET_STATUS_ERROR,
@@ -26,24 +26,23 @@ typedef enum {
     JANET_STATUS_ALIVE
 } JanetFiberStatus;
 
-/* A lightweight green thread in janet. Does not correspond to
- * operating system threads. */
+/* Janet 中的轻量级协程（green thread）。不对应操作系统线程。 */
 struct JanetFiber {
-    JanetGCObject gc; /* GC Object stuff */
-    int32_t flags; /* More flags */
-    int32_t frame; /* Index of the stack frame */
-    int32_t stackstart; /* Beginning of next args */
-    int32_t stacktop; /* Top of stack. Where values are pushed and popped from. */
+    JanetGCObject gc; /* GC 对象相关 */
+    int32_t flags; /* 更多标志 */
+    int32_t frame; /* 栈帧索引 */
+    int32_t stackstart; /* 下一个参数的起始位置 */
+    int32_t stacktop; /* 栈顶。值从此处压入和弹出。 */
     int32_t capacity;
-    int32_t maxstack; /* Arbitrary defined limit for stack overflow */
-    JanetTable *env; /* Dynamic bindings table (usually current environment). */
+    int32_t maxstack; /* 任意定义的栈溢出限制 */
+    JanetTable *env; /* 动态绑定表（通常是当前环境）。 */
     Janet *data;
-    JanetFiber *child; /* Keep linked list of fibers for restarting pending fibers */
+    JanetFiber *child; /* 维护 fiber 链表，用于重启挂起的 fiber */
 };
 typedef struct JanetFiber JanetFiber;
 ```
 
-## Functions
+## 函数
 
 @codeblock[c]```
 JANET_API JanetFiber *janet_fiber(JanetFunction *callee, int32_t capacity, int32_t argc, const Janet *argv);

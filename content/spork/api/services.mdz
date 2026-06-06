@@ -7,11 +7,11 @@
  :template "docpage.html"}
  ---
 
-Module for running a number of background processes in a controlled manner.
-  Similar to @link[ev-utils.html][ev-utils], but more involved with defaults for IO and naming fibers for debugging purposes. 
+用于以受控方式运行多个后台进程的模块。
+  与 @link[ev-utils.html][ev-utils] 类似，但更复杂，为 IO 提供了默认值，并为调试目的对 fiber 进行了命名。
 
-Services can also implicitly launch sibling or child services if needed.
+services 还可以根据需要隐式启动同级或子级服务。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[services/]

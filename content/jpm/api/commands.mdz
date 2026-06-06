@@ -3,7 +3,7 @@
 (setdyn :source-linker (partial gen-docs/github-source-linker "janet-lang/jpm" gen-docs/jpm-version))
 (setdyn :no-community-examples true)
 
-{:title "Commands"
+{:title "命令"
  :nav-title "commands"
  :template "docpage.html"}
 ---

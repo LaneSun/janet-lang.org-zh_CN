@@ -7,8 +7,8 @@
  :template "docpage.html"}
  ---
 
-UTF-8 utilities for Janet.
+Janet 的 UTF-8 工具。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[utf8/]

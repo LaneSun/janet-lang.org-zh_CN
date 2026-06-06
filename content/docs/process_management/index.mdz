@@ -1,14 +1,8 @@
-{:title "Process Management"
+{:title "进程管理"
  :template "docpage.html"
  :order 22}
 ---
 
-Janet has support for starting, communicating with, and otherwise
-managing processes primarily via two approaches.  One is a simpler
-synchronous method provided by @code`os/execute`.  Another is a more
-complex way that gives finer-grained control via @code`os/spawn` and
-some other @code`os/` functions.
+Janet 支持启动、通信以及管理进程，主要通过两种方式。一种是通过 @code`os/execute` 提供的较简单的同步方法。另一种则是通过 @code`os/spawn` 和其他一些 @code`os/` 函数提供更细粒度控制的更复杂的方式。
 
-The @code`os/execute` function will be covered first as it is simpler
-but also because @code`os/spawn` may be easier to understand once one
-has a sense of @code`os/execute`.
+先介绍 @code`os/execute` 函数，因为它更简单，同时也因为一旦理解了 @code`os/execute`，@code`os/spawn` 可能会更容易理解。

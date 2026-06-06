@@ -1,65 +1,45 @@
-{:title "Writing C Functions"
+{:title "编写 C 函数"
  :template "docpage.html"
  :order 9}
 ---
 
-The most common task in creating native extensions for Janet is writing functions
-in C that can be called from Janet. These functions, called C Functions, often follow
-a template to ensure consistent and safe behavior.
+在 Janet 中创建原生扩展时，最常见的任务是用 C 语言编写可从 Janet 调用的函数。这些函数称为 C 函数，通常遵循一个模板以确保一致且安全的行为。
 
-@ol{@li{Assert the arity. This prevents callers from calling the function with the wrong arity}
-    @li{Extract arguments. This does type checking on arguments and unwraps Janet values into C values for processing.}
-    @li{Function logic.}
-    @li{Return value or panic}}
+@ol{@li{断言参数数量。这可以防止调用者以错误的参数数量调用函数。}
+    @li{提取参数。这会对参数进行类型检查，并将 Janet 值解包为 C 值以供处理。}
+    @li{函数逻辑。}
+    @li{返回值或抛出错误。}}
 
-While not all C functions need to follow this pattern exactly, many functions can be written in this manner, and
-the C API was designed with this use in mind. Most of the core's C functions were written in this style.
-Functions written like this will also give consistent
-error messages when called improperly, creating a better experience for users.
+虽然并非所有 C 函数都需要严格遵循此模式，但许多函数可以按此方式编写，并且 C API 正是为此使用场景设计的。核心库中的大多数 C 函数也都是按此风格编写的。按此方式编写的函数在被错误调用时也会提供一致性的错误消息，从而为用户创造更好的体验。
 
-## C Function Signature
+## C 函数签名
 
-All C Functions must conform to the @code`JanetCFunction` type defined in @code`janet.h`. @code`argc`
-is the number of arguments the function was called with, and @code`argv` is an array of arguments with
-length @code`argc`. Any API call that may re-size the stack can invalidate @code`argv`, so calls to
-@code`janet_pcall`, @code`janet_call`, @code`janet_continue`, and @code`janet_fiber_*` should happen
-after all arguments have been extracted from @code`argv`.
+所有 C 函数必须符合在 @code`janet.h` 中定义的 @code`JanetCFunction` 类型。@code`argc` 是调用该函数时的参数数量，@code`argv` 是一个参数数组，长度为 @code`argc`。任何可能调整栈大小的 API 调用都可能使 @code`argv` 失效，因此对 @code`janet_pcall`、@code`janet_call`、@code`janet_continue` 和 @code`janet_fiber_*` 的调用应在所有参数从 @code`argv` 中提取完成之后进行。
 
 @codeblock[c]```
 static Janet cfun_myfunc(int32_t argc, Janet *argv);
 ```
 
-## Asserting Arity
+## 断言参数数量
 
-Janet comes with 2 arity-asserting API functions. These functions simply
-check the value of argc and provide helpful error messages if it is invalid.
+Janet 提供了 2 个用于断言参数数量的 API 函数。这些函数仅检查 @code`argc` 的值，并在参数数量无效时提供有用的错误消息。
 
 @codeblock[c]```
 void janet_arity(int32_t argc, int32_t min, int32_t max);
 void janet_fixarity(int32_t argc, int32_t arity);
 ```
 
-Use @code`janet_arity` to ensure that the arity is in a range between @code`min` and
-@code`max`, inclusive. A value of @code`-1` for max will disable the maximum, allowing
-variadic arguments.
+使用 @code`janet_arity` 确保参数数量在 @code`min` 和 @code`max` 之间（包含边界）。将 @code`max` 设为 @code`-1` 将禁用最大值上限，从而允许可变参数。
 
-Functions that are single arity should use @code`janet_fixarity`, which is equivalent
-to @code`janet_arity(argc, arity, arity)`, but provides a slightly nicer error message.
+固定参数数量的函数应使用 @code`janet_fixarity`，它等价于 @code`janet_arity(argc, arity, arity)`，但提供稍好的错误消息。
 
-## Extracting Arguments
+## 提取参数
 
-For many wrappers, the most laborious task is safely converting Janet values into C types in a safe
-and flexible manner. We would like to verify that all arguments are of the correct type, and only then
-unwrap them and assign them to C variables. The C API provides a number of utility functions that both typecheck
-and unwrap values in one operation, making this boilerplate a bit more natural.
+对于许多包装函数而言，最繁琐的任务是以安全且灵活的方式将 Janet 值转换为 C 类型。我们需要验证所有参数的类型是否正确，然后才能解包它们并赋值给 C 变量。C API 提供了一些实用函数，可在一次操作中同时完成类型检查和解包值，使这些样板代码更自然。
 
-These utility functions will have the signature @code`type janet_get##type(const Janet *argv, int32_t n)`, and
-extract the nth argument passed to @code`argv` while asserting the argument is a compatible type and converting
-it for you. If the argument is the wrong type, a descriptive error will be raised, indicating a type error in
-the @code`nth` argument. These functions will not bounds check the @code`argv` array, so be sure to check your
-arity before calling these functions.
+这些实用函数的签名为 @code`type janet_get##type(const Janet *argv, int32_t n)`，它们提取传入 @code`argv` 的第 n 个参数，同时断言该参数是兼容类型并为您进行转换。如果参数类型错误，将引发一个描述性的错误，指示第 @code`n` 个参数的类型错误。这些函数不会对 @code`argv` 数组进行边界检查，因此在调用这些函数之前，请确保已检查参数数量。
 
-### Getter functions
+### Getter 函数
 
 @codeblock[c]```
 double janet_getnumber(const Janet *argv, int32_t n);
@@ -93,11 +73,7 @@ int32_t janet_getargindex(const Janet *argv, int32_t n, int32_t length, const ch
 uint64_t janet_getflags(const Janet *argv, int32_t n, const char *flags);
 ```
 
-Another common pattern is to allow nil for some arguments, and use a default value if nil or no value is provided.
-C Functions should try to be consistent with the idea that not providing an optional argument is the same as
-setting it to nil. API functions in the family @code`type janet_opt##type(const Janet *argv, int32_t argc, int32_t n, type dflt)`
-work similar to the normal argument getter functions. Note that the signature is different as they take in the value of @code`argc`.
-These functions perform bounds checks on the argument array (assuming @code`n >= 0`), which is why they take in @code`argc` as a parameter.
+另一种常见模式是允许某些参数为 nil，并在未提供 nil 或未提供值时使用默认值。C 函数应尽量保持一致：不提供可选参数与将其设置为 nil 是相同的。属于 @code`type janet_opt##type(const Janet *argv, int32_t argc, int32_t n, type dflt)` 系列的 API 函数的工作方式与普通的参数 getter 函数类似。请注意，它们的签名不同，因为需要传入 @code`argc` 的值。这些函数会对参数数组进行边界检查（假设 @code`n >= 0`），这就是它们将 @code`argc` 作为参数的原因。
 
 @codeblock[c]```
 double janet_optnumber(const Janet *argv, int32_t argc, int32_t n, double dflt);
@@ -119,19 +95,16 @@ int64_t janet_optinteger64(const Janet *argv, int32_t argc, int32_t n, int64_t d
 size_t janet_optsize(const Janet *argv, int32_t argc, int32_t n, size_t dflt);
 void *janet_optabstract(const Janet *argv, int32_t argc, int32_t n, const JanetAbstractType *at, void *dflt);
 
-/* Mutable optional types specify a size default, and
- * construct a new value if none is provided */
+/* 可变类型可选参数指定一个大小默认值，
+ * 如果未提供则构造一个新值 */
 JanetBuffer *janet_optbuffer(const Janet *argv, int32_t argc, int32_t n, int32_t dflt_len);
 JanetTable *janet_opttable(const Janet *argv, int32_t argc, int32_t n, int32_t dflt_len);
 JanetArray *janet_optarray(const Janet *argv, int32_t argc, int32_t n, int32_t dflt_len);
 ```
 
-## Panicking
+## 错误抛出
 
-If at any point during execution of the C function an error is hit, you may want to abort execution
-and raise an error. Errors should not be expected to be frequent, but they should not segfault
-the program, leak memory, or invoke undefined behavior. The C API provides a few @code`janet_panic`
-functions that will abort execution and jump back to a specified error point (the last call to @code`janet_continue`).
+如果在 C 函数执行过程中遇到错误，您可能希望中止执行并引发错误。错误不应频繁发生，但它们不应导致程序段错误、内存泄漏或引发未定义行为。C API 提供了一些 @code`janet_panic` 函数，这些函数将中止执行并跳回到指定的错误点（上一次对 @code`janet_continue` 的调用）。
 
 @codeblock[c]```
 void janet_panicv(Janet message);
@@ -140,48 +113,41 @@ void janet_panics(const uint8_t *message);
 void janet_panicf(const char *format, ...);
 ```
 
-Use @code`janet_panicf` to create descriptive, formatted error messages for functions. The format string
-is much like that of printf, but is specialized for working with Janet values.
-The pretty printing formatters can take a precision argument
-to specify the maximum nesting depth to print.
+使用 @code`janet_panicf` 为函数创建描述性的、格式化错误消息。格式字符串与 printf 非常相似，但专门针对 Janet 值进行了优化。美化打印格式化器可以接受精度参数来指定要打印的最大嵌套深度。
 
-@tag`table`{@tr{@th{Formatter}@th{Description}@th{Type}}
-    @tr{@td{%c} @td{print a character} @td{@code`long`}}
-    @tr{@td{%o} @td{print an octal integer} @td{@code`long`}}
-    @tr{@td{%x} @td{print a hexadecimal integer (lowercase)} @td{@code`long`}}
-    @tr{@td{%X} @td{print a hexadecimal integer (uppercase)} @td{@code`long`}}
-    @tr{@td{%d} @td{print an integer} @td{@code`long`}}
-    @tr{@td{%i} @td{print an integer (same as d)} @td{@code`long`}}
-    @tr{@td{%s} @td{print a NULL-terminated C string} @td{@code`const char *`}}
-    @tr{@td{%f} @td{print a floating point number} @td{@code`double`}}
-    @tr{@td{%A} @td{print a hexadecimal floating point number (uppercase)} @td{@code`double`}}
-    @tr{@td{%a} @td{print a hexadecimal floating point number (lowercase)} @td{@code`double`}}
-    @tr{@td{%E} @td{print a number in scientifc notation} @td{@code`double`}}
-    @tr{@td{%g} @td{print a number in its shortest form} @td{@code`double`}}
-    @tr{@td{%G} @td{print a number in its shortest form (uppercase)} @td{@code`double`}}
+@tag`table`{@tr{@th{格式化器}@th{描述}@th{类型}}
+    @tr{@td{%c} @td{打印一个字符} @td{@code`long`}}
+    @tr{@td{%o} @td{打印一个八进制整数} @td{@code`long`}}
+    @tr{@td{%x} @td{打印一个十六进制整数（小写）} @td{@code`long`}}
+    @tr{@td{%X} @td{打印一个十六进制整数（大写）} @td{@code`long`}}
+    @tr{@td{%d} @td{打印一个整数} @td{@code`long`}}
+    @tr{@td{%i} @td{打印一个整数（同 d）} @td{@code`long`}}
+    @tr{@td{%s} @td{打印一个 NULL 结尾的 C 字符串} @td{@code`const char *`}}
+    @tr{@td{%f} @td{打印一个浮点数} @td{@code`double`}}
+    @tr{@td{%A} @td{打印一个十六进制浮点数（大写）} @td{@code`double`}}
+    @tr{@td{%a} @td{打印一个十六进制浮点数（小写）} @td{@code`double`}}
+    @tr{@td{%E} @td{以科学记数法打印一个数字} @td{@code`double`}}
+    @tr{@td{%g} @td{以最短形式打印一个数字} @td{@code`double`}}
+    @tr{@td{%G} @td{以最短形式打印一个数字（大写）} @td{@code`double`}}
 
-    @tr{@td{%S} @td{print a Janet string-like} @td{@code`const uint8_t *`}}
-    @tr{@td{%t} @td{print the type of a Janet value} @td{@code`Janet`}}
-    @tr{@td{%T} @td{print a Janet type} @td{@code`JanetType`}}
-    @tr{@td{%v} @td{print a Janet value with (describe x)} @td{@code`Janet`}}
-    @tr{@td{%V} @td{print a Janet value with (tostring x)} @td{@code`Janet`}}
-    @tr{@td{%j} @td{print a Janet value in jdn format. Will fail on cyclic structures and special types} @td{@code`Janet`}}
-    @tr{@td{%p} @td{pretty print a Janet value} @td{@code`Janet`}}
-    @tr{@td{%P} @td{pretty print a Janet value with color} @td{@code`Janet`}}
-    @tr{@td{%q} @td{pretty print a Janet value on one line} @td{@code`Janet`}}
-    @tr{@td{%Q} @td{pretty print a Janet value on one line with color} @td{@code`Janet`}}
-    @tr{@td{%m} @td{pretty print a Janet value (no truncation)} @td{@code`Janet`}}
-    @tr{@td{%M} @td{pretty print a Janet value (no truncation) with color} @td{@code`Janet`}}
-    @tr{@td{%n} @td{pretty print a Janet value (no truncation) on one line} @td{@code`Janet`}}
-    @tr{@td{%N} @td{pretty print a Janet value (no truncation) on one line with color} @td{@code`Janet`}}}
+    @tr{@td{%S} @td{打印一个类似 Janet 字符串的值} @td{@code`const uint8_t *`}}
+    @tr{@td{%t} @td{打印一个 Janet 值的类型} @td{@code`Janet`}}
+    @tr{@td{%T} @td{打印一个 Janet 类型} @td{@code`JanetType`}}
+    @tr{@td{%v} @td{使用 (describe x) 打印一个 Janet 值} @td{@code`Janet`}}
+    @tr{@td{%V} @td{使用 (tostring x) 打印一个 Janet 值} @td{@code`Janet`}}
+    @tr{@td{%j} @td{以 jdn 格式打印一个 Janet 值。对于循环结构和特殊类型将失败} @td{@code`Janet`}}
+    @tr{@td{%p} @td{美化打印一个 Janet 值} @td{@code`Janet`}}
+    @tr{@td{%P} @td{美化打印一个 Janet 值（带颜色）} @td{@code`Janet`}}
+    @tr{@td{%q} @td{在一行中美化打印一个 Janet 值} @td{@code`Janet`}}
+    @tr{@td{%Q} @td{在一行中美化打印一个 Janet 值（带颜色）} @td{@code`Janet`}}
+    @tr{@td{%m} @td{美化打印一个 Janet 值（不截断）} @td{@code`Janet`}}
+    @tr{@td{%M} @td{美化打印一个 Janet 值（不截断，带颜色）} @td{@code`Janet`}}
+    @tr{@td{%n} @td{在一行中美化打印一个 Janet 值（不截断）} @td{@code`Janet`}}
+    @tr{@td{%N} @td{在一行中美化打印一个 Janet 值（不截断，带颜色）} @td{@code`Janet`}}}
 
-## Scratch Memory
+## 临时内存
 
-Panicking is implemented with C's @code`setjmp` and @code`longjmp`, which means that resources are not
-cleaned up when a panic happens. To avoid leaking memory, stick to using Janet's data structures, which
-are garbage collected, or
-use Janet's scratch memory API to allocate memory. The scratch memory API exposes functions similar to @code`malloc` and
-@code`free`, but the memory will be automatically freed on the next garbage collection cycle if @code`janet_sfree` is not called.
+错误抛出是通过 C 的 @code`setjmp` 和 @code`longjmp` 实现的，这意味着发生错误抛出时资源不会被清理。为避免内存泄漏，请坚持使用 Janet 的数据结构（这些结构是垃圾回收的），或使用 Janet 的临时内存 API 来分配内存。临时内存 API 公开了类似于 @code`malloc` 和 @code`free` 的函数，但如果未调用 @code`janet_sfree`，这些内存在下一个垃圾回收周期中会被自动释放。
 
 @codeblock[c]```
 void *janet_smalloc(size_t size);
@@ -189,16 +155,16 @@ void *janet_srealloc(void *mem, size_t size);
 void janet_sfree(void *mem);
 ```
 
-## Example
+## 示例
 
 @codeblock[c]```
-/* Set a value in an array with an index that wraps around */
+/* 在数组中设置一个值，索引会循环回绕 */
 static Janet cfun_array_ringset(int32_t argc, Janet *argv) {
 
-    /* Ensure 3 arguments */
+    /* 确保有 3 个参数 */
     janet_fixarity(argc, 3);
 
-    /* Extract arguments */
+    /* 提取参数 */
     JanetArray *array = janet_getarray(argv, 0);
     int64_t index = janet_getinteger64(argv, 1);
     if (index < 0) {
@@ -206,12 +172,12 @@ static Janet cfun_array_ringset(int32_t argc, Janet *argv) {
             argv[1]);
     }
 
-    /* Set array[index % count] = argv[2] */
+    /* 设置 array[index % count] = argv[2] */
     int64_t count64 = (int64_t) array->count;
     int64_t mod_index = index % count64;
     array->data[mod_index] = argv[2];
 
-    /* Return the original array */
+    /* 返回原数组 */
     return janet_wrap_array(array);
 }
 ```

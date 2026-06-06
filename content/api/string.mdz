@@ -1,12 +1,11 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "String Module"
+{:title "字符串模块"
  :order 0
  :nav-title "string"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[string/]
-

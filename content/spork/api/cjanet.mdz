@@ -7,13 +7,12 @@
  :template "docpage.html"}
  ---
 
-A DSL that compiles to C. 
-  Improved version of jpm/cgen that is more amenable to Janet integration, macros, and meta-programming.
+一个编译为 C 的 DSL。
+  jpm/cgen 的改进版本，更易于与 Janet 集成，更适合宏和元编程。
 
-The semantics of the language are basically the
-same as C so a higher level language (or type system) should be built on top of this. 
-  This IR emits a very useful subset of valid C 99.
+该语言的语义与 C 基本相同，因此应在其上构建更高级的语言（或类型系统）。
+  此 IR 生成一个非常有用的有效 C99 子集。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[cjanet/]

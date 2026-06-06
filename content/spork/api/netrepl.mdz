@@ -7,73 +7,72 @@
  :template "docpage.html"}
  ---
 
-A simple async networked repl (both client and server) with a remote debugger
-and the ability to repl into existing environments.
+一个简单的异步网络 REPL（同时支持客户端和服务器），带有远程调试器，并且可以连接到现有环境。
 
 
-## Specifying the Environment
+## 指定环境
 
-Provide various ways to produce the environment to repl into.
+提供多种方式来生成要连接的环境。
 @ol{
-  @li{an environment factory function, called for each connection.}
-  @li{an env (table value) - this means every connection will share the same environment}
-  @li{default env, made via make-env with nice printing for each new connection.}
+  @li{一个环境工厂函数，每个连接都会调用它。}
+  @li{一个 env（表值）——这意味着每个连接将共享同一个环境。}
+  @li{默认环境，通过 make-env 创建，并为每个新连接提供友好的打印输出。}
 }
 
-## NETREPL Protocol
+## NETREPL 协议
 
-Clients don't need to support steps 4. and 5. if they never send messages prefixed with 0xFF or 0xFE bytes. These bytes should not occur in normal Janet source code and are not even valid utf8.
+如果客户端从不发送以 0xFF 或 0xFE 字节为前缀的消息，则不需要支持步骤 4 和 5。这些字节不应出现在普通的 Janet 源代码中，甚至不是有效的 UTF-8。
 
-Any message received by the client that begins with 0xFF should result in printing the message to a console, but not otherwise interrupt the flow of the protocol. 
-  This easily allows for partial results. A server should not send messages leading with 0xFF to the client unless the client is created with the :auto-flush connection setting.
+客户端收到的任何以 0xFF 开头的消息都应打印到控制台，但不会中断协议的正常流程。
+  这样可以轻松地获得部分结果。服务器不应向客户端发送以 0xFF 开头的消息，除非客户端是使用 :auto-flush 连接设置创建的。
 
-Any message received by the client that begins with 0xFE will discard this first byte and continue processing as usual.
+客户端收到的任何以 0xFE 开头的消息都会丢弃第一个字节，然后继续正常处理。
 
 @ol{
-  @li{server <- {connection settings, including client name@code[}] <- client
-      @ol{@li{If msg starts with 0xFF, parse message as (-> msg (slice 1) parse) and extract the :name key as the name. Other connection settings can be stored here.}
-          @li{If msg does not start with 0xFF, the message is treated as the client name. Other options are considered nil.}}}
-  @li{server -> {repl prompt (no newline)@code[}] -> client}
-  @li{server <- {one chunk of input (msg)@code[}] <- client}
-  @li{If (= (msg 0) 0xFF)
+  @li{服务器 <- {连接设置，包括客户端名称@code[}] <- 客户端
+      @ol{@li{如果消息以 0xFF 开头，则解析消息为 (-> msg (slice 1) parse) 并提取 :name 键作为名称。其他连接设置可以存储在此。}
+          @li{如果消息不以 0xFF 开头，则将该消息视为客户端名称。其他选项被视为 nil。}}}
+  @li{服务器 -> {REPL 提示符（不带换行符）@code[}] -> 客户端}
+  @li{服务器 <- {一个输入块 (msg)@code[}] <- 客户端}
+  @li{如果 (= (msg 0) 0xFF)
       @ol{@li{(def result (-> msg (slice 1) parse eval protect))}
-          @li{server -> result -> client}
-          @li{goto 3.}}}
-  @li{If (= (msg 0) 0xFE)}
-  @ol{@li{Return msg as either:
-      @ol{@li{a keyword if the msg contains a command (e.g. :cancel)}
-          @li{an array if the msg contains a command and arguments (e.g. @code`@[:source "path/to/source"]`}}
-      @li{goto 6b.}}}
-  @li{Otherwise
-      @ol{@li{Send chunk to repl input stream}
-          @li{Unless auto-flush is enabled, server -> {(dyn :out) and (dyn :err) (empty at first)@code[}] -> client}
-          @li{goto 2.}}}
+          @li{服务器 -> result -> 客户端}
+          @li{跳转到 3.}}}
+  @li{如果 (= (msg 0) 0xFE)}
+  @ol{@li{将 msg 返回为以下之一：
+      @ol{@li{如果 msg 包含一个命令（例如 :cancel），则返回关键字}
+          @li{如果 msg 包含命令和参数，则返回数组（例如 @code`@[:source "path/to/source"]`}}
+      @li{跳转到 6b.}}}
+  @li{否则
+      @ol{@li{将块发送到 REPL 输入流}
+          @li{除非启用了 auto-flush，否则服务器 -> {(dyn :out) 和 (dyn :err)（初始为空）@code[}] -> 客户端}
+          @li{跳转到 2.}}}
 }
 
-## Examples
+## 示例
 
-Launch a networked REPL server on one machine and connect to it from another machine or process.
+在一台机器上启动网络 REPL 服务器，然后从另一台机器或进程连接到它。
 
-### Server
+### 服务器
 
 @codeblock[janet]```
 (import spork/netrepl)
 
 (def some-def 10)
 
-# Serve a repl into the current environment (@code`some-def` will be visible).
+# 将当前环境作为 repl 提供服务（@code`some-def` 将可见）。
 (netrepl/server "127.0.0.1" "9000" (fiber/getenv (fiber/current)))
 ```
 
-### Client
+### 客户端
 
 @codeblock[janet]```
 (import spork/netrepl)
 
-# Starts a nice terminal repl.
+# 启动一个友好的终端 repl。
 (netrepl/client "127.0.0.1" "9000" "bob")
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[netrepl/]

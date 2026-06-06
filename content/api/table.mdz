@@ -1,12 +1,12 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Table Module"
+{:title "表模块"
  :order 0
  :nav-title "table"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[table/]
 

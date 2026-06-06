@@ -7,37 +7,37 @@
  :template "docpage.html"}
  ---
 
-Timer library for interfacing with the UNIX crontab format. 
+用于与 UNIX crontab 格式接口的定时器库。 
 
-The cron format support is based on the unix cron syntax, with an optional seconds field. 
-  Each field can be a comma separated list of individual values or a range of values. 
+cron 格式支持基于 unix cron 语法，并提供一个可选的秒字段。 
+  每个字段可以是逗号分隔的单个值列表，也可以是一个值范围。 
 
-A range has three variants as follows: 
+范围有以下三种变体： 
 @ol{
-  @li{Two values with a "-" between them, optionally followed by a "/" and a step value.}
-  @li{An asterisk ("*") followed by a "/" and a step value. This implies every "step" value.}
-  @li{A single value followed by a "/" and a step value. This implies every "step" value starting with the single value. I.e., 2/3 implies every 3 units from 2 to max units.}}
+  @li{两个值之间用 "-" 分隔，可选择后跟 "/" 和一个步长值。}
+  @li{一个星号 ("*") 后跟 "/" 和一个步长值。表示每隔 "步长" 个单位。}
+  @li{单个值后跟 "/" 和一个步长值。表示从该值开始，每隔 "步长" 个单位。例如：2/3 表示从 2 到最大值，每隔 3 个单位。}}
 
-A single asterisk ("*") can be used to denote all possible values.
+单独的星号 ("*") 可用于表示所有可能的值。
 
-The fields:
+字段说明：
 @ul{
- @li{minutes: 0-5 }  
- @li{hours: 0-2 } 
- @li{day of month: 1-3 }  
- @li{month: 1-12. Also allowed are the following month codes in any case } 
+ @li{分钟：0-5 }  
+ @li{小时：0-2 } 
+ @li{每月中的日期：1-3 }  
+ @li{月份：1-12。同时允许以下月份代码（不区分大小写）} 
    jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec
- @li{day of week: 0-7, where 0 or 7 is sunday, monday is 1, etc. allows the following day codes (any case)}  
+ @li{每周中的星期：0-7，其中 0 或 7 表示星期日，1 表示星期一，以此类推。允许以下星期代码（不区分大小写）}  
    sun,mon,tue,wed,thu,fri,sat
- @li{ seconds (optional): 0-5}}
+ @li{ 秒（可选）：0-5}}
 
-Cron schedules are represented as tuples of 7 values, a string representation, followed
-by 6 bitmaps representing matching timestamps. Bitmaps are represented as any byte sequence.
+Cron 调度表表示为包含 7 个值的元组：一个字符串表示，
+后跟 6 个表示匹配时间戳的位图。位图以任意字节序列表示。
 
 @codeblock`[string-rep minutes hours day-of-month month day-of-week seconds]`
 
-Note that we have second precision here as opposed to minute precision.
+请注意，这里我们使用的是秒级精度，而非分钟级精度。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[cron/]

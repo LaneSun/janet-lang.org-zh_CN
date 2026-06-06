@@ -9,11 +9,9 @@
  :template "docpage.html"}
 ---
 
-Provide a symmetric way to send and receive seqential messages over a
-networked stream.  Useful for building more complicated application
-level protocols on top of TCP.
+提供一种对称的方式，通过网络流发送和接收顺序消息。用于在 TCP 之上构建更复杂的应用层协议。
 
-## Examples
+## 示例
 
 @codeblock[janet]```
 (import spork/msg)
@@ -27,6 +25,6 @@ level protocols on top of TCP.
 (def blob-respose (recv))
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[msg/]

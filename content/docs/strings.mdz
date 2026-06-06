@@ -1,49 +1,41 @@
-{:title "Strings, Keywords, and Symbols"
+{:title "字符串、关键字和符号"
  :template "docpage.html"
  :order 8}
 ---
 
-Janet supports several varieties of types that can be used as labels for things
-in your program. The most useful type for this purpose is the keyword type. A
-keyword begins with a colon, and then contains 0 or more alphanumeric or a few
-other common characters. For example, @code`:hello`, @code`:my-name`, @code`::`,
-and @code`:ABC123_-*&^%$` are all keywords.
+Janet 支持多种可以用作程序中事物标签的类型。对此最有用的类型是关键字类型。关键字以冒号开头，其后包含零个或多个字母数字或一些其他常见字符。例如，@code`:hello`、@code`:my-name`、@code`::` 和 @code`:ABC123_-*&^%$` 都是关键字。
 
-Keywords, symbols, and strings all behave similarly and can be used as keys for
-tables and structs.  Symbols and keywords are optimized for fast equality
-checks, so are preferred for table keys.  Keywords, symbols, and strings are all
-immutable.
+关键字、符号和字符串的行为类似，都可以用作表和结构体的键。符号和关键字针对快速相等性检查进行了优化，因此更适合用作表键。关键字、符号和字符串都是不可变的。
 
 @codeblock[janet]```
-# Evaluates to :monday
+# 求值为 :monday
 :monday
 
-# Will throw a compile error as monday is not defined
+# 会抛出编译错误，因为 monday 未定义
 monday
 
-# Quote it - evaluates to the symbol monday
+# 引号引用它——求值为符号 monday
 'monday
 
-# Our first define, 'monday'
+# 我们的第一个定义 'monday'
 (def monday "It is monday")
 
-# Now the evaluation should work - monday evaluates to "It is monday"
+# 现在求值应该能工作——monday 求值为 "It is monday"
 monday
 ```
 
-## Keywords
+## 关键字
 
-The most common thing to do with a keyword is to check it for equality or use it
-as a key into a table or struct.
+对关键字最常见的操作是检查其相等性，或将其用作表或结构体的键。
 
 @codeblock[janet]```
-# Evaluates to true
+# 求值为 true
 (= :hello :hello)
 
-# Evaluates to false, everything in janet is case sensitive
+# 求值为 false，janet 中所有内容都区分大小写
 (= :hello :HeLlO)
 
-# Look up into a struct - evaluates to 25
+# 从结构体中查找——求值为 25
 (get {
     :name "John"
     :age 25
@@ -51,41 +43,30 @@ as a key into a table or struct.
 } :age)
 ```
 
-## Symbols
+## 符号
 
-The difference between symbols and keywords is that keywords evaluate to
-themselves, while symbols evaluate to whatever they are bound to. To have a
-symbol evaluate to itself, it must be quoted.
+符号和关键字的区别在于，关键字求值结果为自身，而符号求值结果为其所绑定的内容。要让符号求值为自身，必须对其使用引号引用。
 
-## Strings
+## 字符串
 
-Strings can be used similarly to keywords, but their primary usage is for
-defining either text or arbitrary sequences of bytes. Strings (and symbols) in
-Janet are what is sometimes known as "8-bit clean"; they can hold any number of
-bytes, and are completely unaware of things like character encodings. This is
-completely compatible with ASCII and UTF-8, two of the most common character
-encodings. By being encoding-agnostic, Janet strings can be simple, fast, and
-useful for other uses besides holding text.
+字符串的使用方式与关键字类似，但其主要用途是定义文本或任意字节序列。Janet 中的字符串（和符号）有时被称为"8 位清洁"；它们可以容纳任意数量的字节，并且完全不关心字符编码之类的事情。这与 ASCII 和 UTF-8 完全兼容，这是两种最常见的字符编码。由于与编码无关，Janet 字符串可以简单、快速，并且除了保存文本之外还能用于其他用途。
 
-Literal text can be entered inside double quotes, as we have seen above.
+文本字面量可以用双引号括起来输入，正如我们上面所见。
 
 @codeblock[janet]```
 "Hello, this is a string."
 
-# We can also add escape characters for newlines, double quotes, backslash,
-# tabs, etc.
+# 我们也可以添加转义字符，用于换行符、双引号、反斜杠、制表符等
 "Hello\nThis is on line two\n\tThis is indented\n"
 
-# If your double-quoted string spans multiple lines, newline characters will
-# be removed but other whitespace is preserved.
+# 如果双引号字符串跨越多行，换行符会被移除，但其他空白字符会保留
 "Hello, this
     is al
-l one line
+|l one line
 here."   # -> "Hello, this    is all one linehere."
 
-# For long-strings where you don't want to type a lot of escape characters,
-# you can use 1 or more backticks (`) to delimit a string.
-# To close this string, simply repeat the opening sequence of backticks
+# 对于长字符串，如果不想输入大量转义字符，可以使用 1 个或多个反引号（`）来定界字符串
+# 要关闭此字符串，只需重复打开时的反引号序列
 ``
 This is a string.
 Line 2
@@ -94,18 +75,15 @@ Line 2
 ``
 ```
 
-Strings, symbols, and keywords can all contain embedded UTF-8. It is recommended
-that you embed UTF-8 literally in strings rather than escaping it if it is
-printable.
+字符串、符号和关键字都可以包含嵌入的 UTF-8 编码。建议在字符串中直接嵌入可打印的 UTF-8 字符，而不是使用转义形式。
 
 @codeblock[janet]```
 "Hello, 👍"
 ```
 
-### Substrings
+### 子字符串
 
-The @code`string/slice` function is used to get substrings from a string.
-Negative integers can be used to index from the end of the string.
+@code`string/slice` 函数用于从字符串中获取子字符串。可以使用负整数从字符串末尾开始索引。
 
 @codeblock[janet]```
 (string/slice "abcdefg") # -> "abcdefg"
@@ -115,12 +93,9 @@ Negative integers can be used to index from the end of the string.
 (string/slice "abcdefg" -4 -2) # -> "ef"
 ```
 
-### Finding substrings
+### 查找子字符串
 
-Janet has multiple functions for finding and replacing strings. The Janet string
-finding functions do not work on patterns or regular expressions; they only work
-on string literals. For more flexible searching and replacing, see the
-@link[/docs/peg.html][PEG section].
+Janet 有多个用于查找和替换字符串的函数。Janet 的字符串查找函数不支持模式或正则表达式；它们仅适用于字符串字面量。如需更灵活的查找和替换，请参阅 @link[/docs/peg.html][PEG 部分]。
 
 @codeblock[janet]```
 (string/find "h" "h h h h") #-> 0
@@ -129,52 +104,40 @@ on string literals. For more flexible searching and replacing, see the
 (string/replace-all "a" "b" "a a a a") #-> "b b b b"
 ```
 
-### Splitting strings
+### 分割字符串
 
-The @code`string/split` function can be used to split strings or buffers on a
-delimiting character. This can be used as a quick and dirty function for getting
-fields from a CSV line or words from a sentence.
+@code`string/split` 函数可用于按定界字符分割字符串或缓冲区。这可以作为一种快速粗糙的方法，用于从 CSV 行中获取字段或从句子中获取单词。
 
 @codeblock[janet]```
 (string/split "," "abc,def,ghi") #-> @["abc" "def" "ghi"]
 (string/split " " "abc def ghi") #-> @["abc" "def" "ghi"]
 ```
 
-### Concatenating strings
+### 拼接字符串
 
-There are many ways to concatenate strings. The first, most common way is the
-@code`string` function, which takes any number of arguments and creates a string
-that is the concatenation of all of the arguments.
+拼接字符串有多种方法。第一种也是最常见的方式是使用 @code`string` 函数，它接受任意数量的参数，并创建一个由所有参数拼接而成的字符串。
 
 @codeblock[janet]```
 (string "abc" 123 "def") # -> "abc123def"
 ```
 
-The second way is the @code`string/join` function, which takes an array or tuple
-of strings and joins them together. @code`string/join` can also take an optional
-separator string which is inserted between items in the array. All items in the
-array or tuple must be byte sequences.
+第二种方式是使用 @code`string/join` 函数，它接受一个数组或元组的字符串，并将它们连接在一起。@code`string/join` 还可以接受一个可选的分隔符字符串，该字符串会插入到数组中的各项之间。数组或元组中的所有项必须是字节序列。
 
 @codeblock[janet]```
 (string/join @["abc" "123" "def"]) #-> "abc123def"
 (string/join @["abc" "123" "def"] ",") # -> "abc,123,def"
 ```
 
-This has the advantage over the @code`string` function that one can specify a
-separator. Otherwise, the behavior can be easily emulated using the
-@code`splice` special form.
+相比于 @code`string` 函数，这种方法的好处是可以指定分隔符。否则，其行为可以很容易地使用 @code`splice` 特殊形式来模拟。
 
 @codeblock[janet]```
 (= (string ;@["a" "b" "c"])
    (string/join @["a" "b" "c"])) # -> true
 ```
 
-### Upper and lower case
+### 大写和小写
 
-The string library also provides facilities for converting strings to upper case
-and lower case. However, only ASCII characters will be transformed.  The
-functions @code`string/ascii-upper` and @code`string/ascii-lower` return a new
-string that has all character in the appropriate case.
+字符串库也提供了将字符串转换为大写和小写的功能。但是，只有 ASCII 字符会被转换。@code`string/ascii-upper` 和 @code`string/ascii-lower` 函数会返回一个所有字符都转换为相应大小写的新字符串。
 
 @codeblock[janet]```
 (string/ascii-upper "aBcdef--*") #-> "ABCDEF--*"

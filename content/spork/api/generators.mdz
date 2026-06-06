@@ -9,38 +9,28 @@
  :template "docpage.html"}
 ---
 
-Eager evaluation costs a lot of memory when you need to process lots of data in a chain of eagerly evaluated functions
-as shown below.
+当你需要在一串即时求值的函数链中处理大量数据时，即时求值会消耗大量内存，如下所示。
 
 @codeblock[janet]```
 (->> big-data
      (map inc)
      (filter even?)
-     # ... more eagerly evaluated functions
+     # ... 更多即时求值的函数
      )
 ```
 
-The above code can create huge intermediate results which will be discarded by garbage collector later. You can avoid
-creating huge intermediate results with lazily evaluated generator functions in this module. Unlike lazy sequences in
-haskell and clojure, fiber-based generators don't cache values and don't leak memory.
+上述代码可能会创建大量中间结果，之后会被垃圾回收器丢弃。使用本模块中的惰性求值生成器函数，可以避免创建大量中间结果。与 Haskell 和 Clojure 中的惰性序列不同，基于 fiber 的生成器不会缓存值，也不会内存泄漏。
 
-A @strong[generator] is an iterable coroutine which yields individual values whenever it is resumed, potentially until
-its internal values are exhausted, at which point it's considered dead. A coroutine is just another name for a fiber. A
-fiber is an iterable type that can be consumed by any of janet's core functions that expect iterable data types. A
-generator function can consume other generators and fully realized iterable data types produced by janet's core
-functions. In other words, iterables can generally be used interchangeably regardless of whether they are evaluated
-eagerly or lazily.
+一个 @strong[生成器] 是一个可迭代的协程，每次被恢复时会产生单个值，直到其内部值耗尽，此时它被视为已结束。协程就是 fiber 的另一个名称。fiber 是一种可迭代类型，可以被任何期望可迭代数据类型的 Janet 核心函数消费。生成器函数可以消费其他生成器以及由 Janet 核心函数生成的完整可迭代数据类型。换句话说，可迭代对象通常可以互换使用，无论它们是即时求值还是惰性求值。
 
-This operation makes them very useful for:
+这一特性使其在以下场景中非常有用：
 
-@ul{@li{Asynchronous behaviour}
-    @li{Memory-sensitive applications, where it's not necessary to keep an entire sequence in memory at once}
-    @li{Infinite sequences}}
+@ul{@li{异步行为}
+    @li{内存敏感型应用，无需将整个序列同时保留在内存中}
+    @li{无限序列}}
 
-Note: Certain functions (specifically @code`run` and @code`to-array`) will create an infinite loop if their argument is
-an infinite generator!
+注意：某些函数（特别是 @code`run` 和 @code`to-array`）如果其参数是无限生成器，将导致无限循环！
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[generators/]
-

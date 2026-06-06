@@ -9,11 +9,11 @@
  :template "docpage.html"}
 ---
 
-Provides a way to format Janet code strings and files.
+提供了一种格式化 Janet 代码字符串和文件的方法。
 
-## Examples
+## 示例
 
-### Strings
+### 字符串
 
 @codeblock[janet]```
 (import spork/fmt)
@@ -21,7 +21,7 @@ Provides a way to format Janet code strings and files.
 (fmt/format "(def     a\n 3 )")  => @"(def a\n  3)\n"
 ```
 
-### Files
+### 文件
 
 @codeblock[janet]```
 (import spork/fmt)
@@ -29,6 +29,6 @@ Provides a way to format Janet code strings and files.
 (fmt/format-file "main.janet")
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[fmt/]

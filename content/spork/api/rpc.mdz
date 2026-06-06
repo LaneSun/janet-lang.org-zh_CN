@@ -9,9 +9,9 @@
  :template "docpage.html"}
 ---
 
-A simple remote procedure call tool for Janet.
+一个用于 Janet 的简单远程过程调用工具。
 
-## Server
+## 服务端
 
 @codeblock[janet]```
 (import spork/rpc)
@@ -24,23 +24,23 @@ A simple remote procedure call tool for Janet.
 ```
 
 
-## Client
+## 客户端
 
 @codeblock[janet]```
 (import spork/rpc)
 
 (def c (rpc/client "127.0.0.1" "9001" "joe"))
 
-# Will print on server
+# 将在服务端打印
 (:print c "Hello from client!")
 
 (:add c 1 3 5 7 9) # -> 25
 
-# Close the underlying connection
+# 关闭底层连接
 (:close c)
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[rpc/]
 

@@ -1,40 +1,34 @@
-{:title "Destructuring"
+{:title "解构"
  :template "docpage.html"
  :order 11}
 ---
 
-Janet uses the @code[get] function to retrieve values from inside data
-structures. In many cases, however, you do not need the @code[get] function at
-all. Janet supports destructuring, which means both the @code[def] and
-@code[var] special forms can extract values from inside structures themselves.
+Janet 使用 @code[get] 函数从数据结构中检索值。然而，在许多情况下，你根本不需要使用 @code[get] 函数。Janet 支持解构，这意味着 @code[def] 和 @code[var] 这两个特殊形式可以从结构本身中提取值。
 
 @codeblock[janet](```
-# Without destructuring, we might do
+# 不使用解构，我们可以这样做
 (def my-array @[:mary :had :a :little :lamb])
 (def lamb (get my-array 4))
-(print lamb) # Prints :lamb
+(print lamb) # 打印 :lamb
 
-# Now, with destructuring,
+# 现在，使用解构
 (def [_ _ _ _ lamb] my-array)
-(print lamb) # Again, prints :lamb
+(print lamb) # 再次打印 :lamb
 
-# You can also collect trailing destructured values into a "more"
-# tuple, though note that it copies, and so may be costly.
+# 你也可以将尾部解构的值收集到一个"more"元组中，
+# 但注意它会复制，因此可能开销较大。
 (def [p q & more] my-array)
 (print p) # :mary
 (print q) # :had
 (pp more) # (:a :little :lamb)
 
-# Destructuring works with tables as well
+# 解构也适用于表
 (def person @{:name "Bob Dylan" :age 77})
 (def
   {:name person-name
    :age person-age} person)
-(print person-name) # Prints "Bob Dylan"
-(print person-age)  # Prints 77
+(print person-name) # 打印 "Bob Dylan"
+(print person-age)  # 打印 77
 ```)
 
-Destructuring works in many places in Janet, including @code`let` expressions,
-function parameters, and @code`var`. It is a useful shorthand for extracting
-values from data structures and is the recommended way to get values out of
-small structures.
+解构在 Janet 的许多地方都适用，包括 @code`let` 表达式、函数参数和 @code`var`。它是从数据结构中提取值的有用简写方式，也是从小型结构中获取值的推荐方法。

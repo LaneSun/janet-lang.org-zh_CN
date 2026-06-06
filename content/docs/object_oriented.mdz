@@ -1,54 +1,38 @@
-{:title "Object-Oriented Programming"
+{:title "面向对象编程"
  :template "docpage.html"
  :order 15}
 ---
 
-Although Janet is primarily a functional language, it has support for
-object-oriented programming as well, where objects and classes are represented
-by tables. Object-oriented programming can be very useful in domains that are
-less analytical and more about modeling, such as some simulations, GUIs, and
-game scripting. More specifically, Janet supports a form of object-oriented
-programming via prototypical inheritance, which was pioneered in the
-@link[http://www.selflanguage.org/][Self] language and is used in languages like
-Lua and JavaScript. Janet's implementation of object-oriented programming is
-designed to be simple, terse, flexible, and efficient in that order of priority.
+尽管 Janet 主要是一门函数式语言，但它也支持面向对象编程，其中对象和类由表表示。面向对象编程在那些不那么分析性、更多关于建模的领域中非常有用，例如一些仿真、GUI 和游戏脚本。更具体地说，Janet 通过原型继承支持一种面向对象编程形式，这种形式最早在 @link[http://www.selflanguage.org/][Self] 语言中开创，并在 Lua 和 JavaScript 等语言中使用。Janet 的面向对象编程实现被设计为简单、简洁、灵活和高效，按此优先级顺序。
 
-Please see the @link[/docs/prototypes.html][prototypes section] for more
-information on table prototypes.
+有关表原型的更多信息，请参阅 @link[/docs/prototypes.html][原型部分]。
 
-For example:
+例如：
 
 @codeblock[janet]```
-# Create a new object called Car with two methods, :say and :honk.
+# 创建一个名为 Car 的新对象，包含两个方法 :say 和 :honk。
 (def Car
  @{:type "Car"
    :color "gray"
    :say (fn [self msg] (print "Car says: " msg))
    :honk (fn [self] (print "beep beep! I am " (self :color) "!"))})
 
-# Red Car inherits from Car
+# RedCar 继承自 Car
 (def RedCar
  (table/setproto @{:color "red"} Car))
 
-(:honk Car) # prints "beep beep! I am gray!"
-(:honk RedCar) # prints "beep beep! I am red!"
+(:honk Car) # 打印 "beep beep! I am gray!"
+(:honk RedCar) # 打印 "beep beep! I am red!"
 
-# Pass more arguments
-(:say Car "hello!") # prints "Car says: hello!"
+# 传递更多参数
+(:say Car "hello!") # 打印 "Car says: hello!"
 ```
 
-In the above example, we could replace the method call @code[(:honk Car)] with
-@code[((get Car :honk) Car)], and this is exactly what the runtime does when it
-sees a keyword called as a function. In any method call, the object is always
-passed as the first argument to the method. Since functions in Janet check that
-their arity is correct, make sure to include a self argument to methods, even
-when it is not used in the function body.
+在上面的例子中，我们可以将方法调用 @code[(:honk Car)] 替换为 @code[((get Car :honk) Car)]，这正是运行时在看到一个关键字被作为函数调用时所做的事情。在任何方法调用中，对象总是作为第一个参数传递给方法。由于 Janet 中的函数会检查其参数数量是否正确，请确保在方法中包含一个 self 参数，即使在函数体中未使用它。
 
-## Factory functions
+## 工厂函数
 
-Rather than constructors, creating objects in Janet can usually be done with a
-factory function. One can wrap the boilerplate of initializing fields and
-setting the table prototype using a single function to create a nice interface.
+与构造函数不同，在 Janet 中创建对象通常可以使用工厂函数来完成。可以将初始化字段和设置表原型的样板代码封装到一个函数中，以创建一个良好的接口。
 
 @codeblock[janet]```
 (defn make-car
@@ -64,33 +48,26 @@ setting the table prototype using a single function to create a nice interface.
 (c3 :serial-number) # 0.783099
 ```
 
-One could also define a set of macros for creating objects with useful factory
-functions, methods, and properties. The core library does not currently provide
-such functionality, as it should be fairly simple to customize.
+还可以定义一组宏来创建带有有用工厂函数、方法和属性的对象。核心库目前不提供此类功能，因为定制起来应该相当简单。
 
-## Structs
+## 结构体
 
-In addition to tables, Structs may also be used as objects. As of Janet version
-1.19.0, structs can have prototypes as well as tables, although in prior version
-structs could still be used as objects, just without any inheritance. The above example would work for the
-first object @code`Car`, but @code`RedCar` could not inherit from @code`Car`.
+除了表之外，结构体也可以用作对象。从 Janet 1.19.0 版本开始，结构体可以像表一样拥有原型，尽管在之前的版本中结构体仍然可以用作对象，只是没有任何继承。上述例子对第一个对象 @code`Car` 有效，但 @code`RedCar` 不能从 @code`Car` 继承。
 
 @codeblock[janet]```
-# Create a new struct object called Car with two methods, :say and :honk.
+# 创建一个名为 Car 的新结构体对象，包含两个方法 :say 和 :honk。
 (def Car
  {:type "Car"
   :color "gray"
   :say (fn [self msg] (print "Car says: " msg))
   :honk (fn [self] (print "beep beep! I am " (self :color) "!"))})
 
-(:honk Car) # prints "beep beep! I am gray!"
+(:honk Car) # 打印 "beep beep! I am gray!"
 
-# Pass more arguments
-(:say Car "hello!") # prints "Car says: hello!"
+# 传递更多参数
+(:say Car "hello!") # 打印 "Car says: hello!"
 ```
-To create a struct that inherits fields from another struct, we need to use the constructing function
-@code`struct/with-proto`. There is no analog to @code`table/setproto` for structs because they are immutable, and
-that goes for prototypes as well. Structs can only inherit from other structs, not tables.
+要创建一个继承自另一个结构体字段的结构体，我们需要使用构造函数 @code`struct/with-proto`。结构体没有类似于 @code`table/setproto` 的函数，因为它们是不可变的，原型也是如此。结构体只能继承自其他结构体，不能继承自表。
 
 @codeblock[janet]```
 (def Car
@@ -101,18 +78,14 @@ that goes for prototypes as well. Structs can only inherit from other structs, n
 (:honk my-car "beep")
 ```
 
-## Abstract types
+## 抽象类型
 
-While tables make good objects, Janet also strives for good interoperation with
-C.  Many C libraries expose pseudo object-oriented interfaces to their
-libraries, so Janet allows methods to be added to abstract types. The built in
-abstract type @code`:core/file` can be manipulated with methods as well as the
-@code`file/` functions.
+虽然表是很好的对象，但 Janet 也力求与 C 的良好互操作。许多 C 库向它们的库暴露伪面向对象接口，因此 Janet 允许向抽象类型添加方法。内置抽象类型 @code`:core/file` 既可以通过方法操作，也可以通过 @code`file/` 函数操作。
 
 @codeblock[janet]```
 (file/read stdin :line)
 
-# or
+# 或者
 
 (:read stdin :line)
 ```

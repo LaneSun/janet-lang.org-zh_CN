@@ -1,163 +1,126 @@
-{:title "Dynamic Bindings"
+{:title "动态绑定"
  :template "docpage.html"}
 ---
 
-There are situations where the programmer would like to thread a parameter
-through multiple function calls, without passing that argument to every function
-explicitly.  This can make code more concise, easier to read, and easier to
-extend. Dynamic bindings are a mechanism that provides this in a safe and easy to
-use way.  This is in contrast to lexically-scoped bindings, which are usually
-superior to dynamically-scoped bindings in terms of clarity, composability, and
-performance. However, dynamic scoping can be used to great effect for implicit
-contexts, configuration, and testing. Janet supports dynamic scoping as of
-version 0.5.0 on a per-fiber basis @html[&mdash;] each fiber contains an
-environment table that can be queried for values. Using table prototypes, we can
-easily emulate dynamic scoping.
+有时程序员希望将一个参数穿过多个函数调用，而无需显式地将该参数传递给每个函数。这可以使代码更简洁、更易读、更易扩展。动态绑定（dynamic bindings）提供了一种安全且易于使用的机制来实现这一点。这与词法作用域绑定（lexically-scoped bindings）形成对比，后者在清晰性、可组合性和性能方面通常优于动态作用域绑定。然而，动态作用域在隐式上下文、配置和测试中可以有很好的用途。Janet 从 0.5.0 版本开始，在逐 fiber 的基础上支持动态作用域 @html[&mdash;] 每个 fiber 包含一个环境表（environment table），可以查询其中的值。利用表原型（table prototypes），我们可以轻松模拟动态作用域。
 
-## Setting a value
+## 设置值
 
-To set a dynamic binding, use the @code`setdyn` function.
+要设置动态绑定，请使用 @code`setdyn` 函数。
 
 @codeblock[janet]```
-# Sets a dynamic binding :my-var to 10 in the current fiber.
+# 在当前 fiber 中设置动态绑定 :my-var 为 10
 (setdyn :my-var 10)
 ```
 
-## Getting a value
+## 获取值
 
-To get a dynamically-scoped binding, use the @code`dyn` function.
+要获取动态作用域的绑定，请使用 @code`dyn` 函数。
 
 @codeblock[janet]```
-(dyn :my-var) # returns nil
+(dyn :my-var) # 返回 nil
 (setdyn :my-var 10)
-(dyn :my-var) # returns 10
+(dyn :my-var) # 返回 10
 ```
 
-## Creating a dynamic scope
+## 创建动态作用域
 
-Now that we can get and set dynamic bindings, we need to know how to create
-dynamic scopes themselves. To do this, we can create a new fiber and then use
-@code`fiber/setenv` to set the dynamic environment of the fiber. To inherit from
-the current environment, we set the prototype of the new environment table to
-the current environment table.
+现在我们能够获取和设置动态绑定了，还需要知道如何创建动态作用域本身。要做到这一点，我们可以创建一个新的 fiber，然后使用 @code`fiber/setenv` 来设置该 fiber 的动态环境。要从当前环境继承，我们将新环境表的原型设置为当前环境表。
 
-Below, we set the dynamic binding @code`:pretty-format` to configure the pretty
-print function @code`pp`.
+下面，我们设置动态绑定 @code`:pretty-format` 来配置漂亮打印函数 @code`pp`。
 
 @codeblock[janet]```
-# Body of our new fiber
+# 新 fiber 的主体
 (defn myblock
- []
- (pp [1 2 3]))
+  []
+  (pp [1 2 3]))
 
-# The current env
+# 当前环境
 (def curr-env (fiber/getenv (fiber/current)))
 
-# The dynamic bindings we want to use
+# 我们要使用的动态绑定
 (def my-env @{:pretty-format "Inside myblock: %.20P"})
 
-# Set up a new fiber
+# 设置一个新的 fiber
 (def f (fiber/new myblock))
 (fiber/setenv f (table/setproto my-env curr-env))
 
-# Run the code
-(pp [1 2 3]) # prints "(1 2 3)"
-(resume f) # prints "Inside myblock: (1 2 3)"
-(pp [1 2 3]) # prints "(1 2 3)"
+# 运行代码
+(pp [1 2 3]) # 打印 "(1 2 3)"
+(resume f) # 打印 "Inside myblock: (1 2 3)"
+(pp [1 2 3]) # 打印 "(1 2 3)"
 ```
 
-This is verbose so the core library provides a macro, @code`with-dyns`, that
-makes it much clearer in the common case.
+这有些冗长，因此核心库提供了一个宏 @code`with-dyns`，它在常见情况下使代码更加清晰。
 
 @codeblock[janet]```
-(pp [1 2 3]) # prints "(1 2 3)"
-# prints "Inside with-dyns: (1 2 3)"
+(pp [1 2 3]) # 打印 "(1 2 3)"
+# 打印 "Inside with-dyns: (1 2 3)"
 (with-dyns [:pretty-format "Inside with-dyns: %.20P"]
   (pp [1 2 3]))
-(pp [1 2 3]) # prints "(1 2 3)"
+(pp [1 2 3]) # 打印 "(1 2 3)"
 ```
 
-## When to use dynamic bindings
+## 何时使用动态绑定
 
-Dynamic bindings should be used when you want to pass around an
-implicit, global context, especially when you want to automatically
-reset the context if an error is raised. Since a dynamic binding is
-tied to the current fiber, when a fiber exits the context is
-automatically unset. This is much easier and often more efficient than
-manually trying to detect errors and unset the context. Consider the
-following example code, written once with a global var and once with a
-dynamic binding.
+当你想要传递一个隐式的全局上下文时，尤其是当你希望在发生错误时自动重置上下文时，应该使用动态绑定。由于动态绑定与当前 fiber 相关联，当 fiber 退出时，上下文会自动取消设置。这比手动检测错误并取消设置上下文要容易得多，而且通常也更高效。考虑以下示例代码，一个使用全局变量编写，另一个使用动态绑定编写。
 
-### Using a global var
+### 使用全局变量
 
 @codeblock[janet]```
 (var *my-binding* 10)
 
 (defn may-error
- "A function that may error."
- []
- (if (> (math/random) *my-binding*) (error "uh oh")))
+  "一个可能出错的函数。"
+  []
+  (if (> (math/random) *my-binding*) (error "uh oh")))
 
 (defn do-with-value
- "Set *my-binding* to a value and run may-error."
- [x]
- (def oldx *my-binding*)
- (set *my-binding* x)
- (may-error)
- (set *my-binding* oldx))
+  "将 *my-binding* 设置为一个值并运行 may-error。"
+  [x]
+  (def oldx *my-binding*)
+  (set *my-binding* x)
+  (may-error)
+  (set *my-binding* oldx))
 ```
 
-This example is a bit verbose, but most importantly it fails to reset
-@code`*my-binding*` if an error is thrown. We could fix this with a @code`try`,
-but even that may have subtle bugs if the fiber yields but is never resumed.
-However, there is a better solution with dynamic bindings.
+这个例子有点冗长，但最重要的是，如果抛出错误，它无法重置 @code`*my-binding*`。我们可以用 @code`try` 来修复这个问题，但即使这样，如果 fiber 让出其执行权但从未恢复，也可能存在微妙的 bug。然而，使用动态绑定有一个更好的解决方案。
 
-### Using a dynamic binding
+### 使用动态绑定
 
 @codeblock[janet]```
 (defn may-error
- "A function that may error."
- []
- (if (> (math/random) (dyn :my-binding)) (error "uh oh")))
+  "一个可能出错的函数。"
+  []
+  (if (> (math/random) (dyn :my-binding)) (error "uh oh")))
 
 (defn do-with-value
- [x]
- (with-dyns [:my-binding x]
-   (may-error)))
+  [x]
+  (with-dyns [:my-binding x]
+    (may-error)))
 ```
 
-This looks much cleaner, thanks to a macro, but is also correct in handling
-errors and any other signal that a fiber may emit.  In general, prefer dynamic
-bindings over global vars. Global vars are mainly useful for scripts or truly
-program-global configuration.
+这看起来简洁得多，这要归功于宏，而且在处理错误和 fiber 可能发出的任何其他信号时也是正确的。一般来说，优先使用动态绑定而不是全局变量。全局变量主要对脚本或真正的程序全局配置有用。
 
-## Advanced use cases
+## 高级用例
 
-Dynamic bindings work by a table associated with each fiber, called the fiber
-environment (often "env" for short). This table can be accessed by all
-functions in the fiber, so it serves as place to store implicit context. During
-compilation, this table also contains top-level bindings available for use, and
-is what is returned from a @code`(require ...)` expression.
+动态绑定通过每个 fiber 关联的一个表来工作，这个表称为 fiber 环境（常简称为 "env"）。该表可以被 fiber 中的所有函数访问，因此它充当了存储隐式上下文的地方。在编译期间，此表还包含可供使用的顶层绑定，并且是 @code`(require ...)` 表达式返回的内容。
 
-With this in mind, there is no requirement that the first argument to
-@code`(setdyn name value)` and @code`(dyn name)` be keywords. These functions
-can be used to quickly put values in and get values from the current
-environment. As such, these can be used for getting metadata for a given symbol.
+考虑到这一点，@code`(setdyn name value)` 和 @code`(dyn name)` 的第一个参数不要求必须是关键字。这些函数可用于快速将值放入当前环境或从当前环境获取值。因此，它们可以用于获取给定符号的元数据。
 
 @codeblock[janet]```
-(dyn 'pp) # -> prints all metadata in the current environment for pp.
-(setdyn 'pp nil) # -> will not work, as 'pp is defined in the current environments prototype table.
-(setdyn 'pp @{}) # -> will define 'pp as nil.
+(dyn 'pp) # -> 打印当前环境中 pp 的所有元数据。
+(setdyn 'pp nil) # -> 不会生效，因为 'pp 定义在当前环境的原型表中。
+(setdyn 'pp @{}) # -> 将 'pp 定义为 nil。
 (def a 10)
-(setdyn 'a nil) # -> will remove the binding to 'a in the current environment.
+(setdyn 'a nil) # -> 将移除当前环境中 'a 的绑定。
 ```
 
-Macros can modify this table to do things that are otherwise not possible in a
-macro.
+宏可以修改此表，以完成在宏中无法做到的事情。
 
 @codeblock[janet]```
 (defmacro make-defs
-  "Add many defs at the top level, binding them to random numbers determined at compile time."
+  "在顶层添加多个 def，将它们绑定到编译时确定的随机数。"
   [x]
   (each name ['a 'b 'c 'd 'e 'f 'g]
     (setdyn name @{:value (math/random)}))

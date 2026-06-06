@@ -1,65 +1,41 @@
-{:title "The Event Loop"
+{:title "事件循环"
  :template "docpage.html"
  :order 19}
 ---
 
-Janet comes with a powerful concurrency model out of the box - the event loop. The event loop provides
-concurrency within a single thread by allowing cooperating fibers to yield instead of
-blocking forward progress. This is a form of cooperative multi-threading that can be useful in many applications, like
-situations where there are many concurrent, IO-bound tasks. This means tasks that spend most of their execution time waiting for
-network or disk, rather than using CPU time.
+Janet 内置了一个强大的并发模型——事件循环。事件循环通过允许协作的 fiber 让出（yield）而不是阻塞执行，在单个线程内提供并发能力。这是一种协作式多线程的形式，在许多场景下都很有用，比如存在大量并发的 IO 密集型任务的情况。这意味着这些任务大部分执行时间都花在等待网络或磁盘上，而不是消耗 CPU 时间。
 
-Most event loop functionality in Janet is exposed through the @code`ev/` module, but many other functions outside this module
-will interact with the event loop.
+Janet 中大多数事件循环功能通过 @code`ev/` 模块暴露，但该模块之外的许多其他函数也会与事件循环交互。
 
-## An Overview of the Event Loop
+## 事件循环概述
 
-Janet is by no means the first language to provide an event loop, and most languages or tools that provide them work
-in the same general way.
+Janet 绝对不是第一个提供事件循环的语言，大多数提供事件循环的语言或工具都以大致相同的方式工作。
 
-All programs in Janet are wrapped in an implicit loop that will run until all tasks are complete. The following is pseudo-code
-describing how the event loop works - the event loop code is all actually implemented directly in the runtime for efficiency.
+Janet 中的所有程序都包裹在一个隐式的循环中，该循环会一直运行直到所有任务完成。以下是描述事件循环工作方式的伪代码——为了提高效率，事件循环代码实际上都直接实现在运行时中。
 
 @codeblock[janet]```
-# Functions that yield to the event loop will put (fiber/root) here.
+# 让出给事件循环的函数会在这里放置 (fiber/root)
 (def pending-tasks @[])
 
-# Pseudo-code of the event loop scheduler
+# 事件循环调度器的伪代码
 (while (not (empty? pending-tasks))
   (def [root-fiber data] (wait-for-next-event))
   (resume root-fiber data))
 ```
 
-Each @code`root-fiber`, or task, is a fiber that will be automatically resumed
-when an event (or sequence of events) that it is waiting for occurs. Generally, one should not manually
-resume tasks - the event loop will call @code`resume` when the completion event occurs.
+每个 @code`root-fiber`（即任务）是一个 fiber，当它等待的事件（或事件序列）发生时，它会被自动恢复。通常，不应手动恢复任务——事件循环会在完成事件发生时调用 @code`resume`。
 
-To be precise, a task is just any fiber that was scheduled to run by the event loop.
-Therefore, all tasks are fibers, but not all fibers are tasks. You can get the currently executing task in Janet with @code`(fiber/root)`.
+准确地说，任务就是任何被事件循环调度运行的 fiber。因此，所有任务都是 fiber，但并非所有 fiber 都是任务。在 Janet 中，你可以通过 @code`(fiber/root)` 获取当前正在执行的任务。
 
-## Blocking the Event Loop
+## 阻塞事件循环
 
-When using the event loop, it is important to be aware that CPU bound
-loops will block all other tasks on the event loop. For example, an
-infinite while loop that does not yield to the event loop will bring
-the entire thread to a halt!  This is generally considered to be one
-of the biggest drawbacks to cooperative multi-threading, so be
-cautious and do not mix in blocking functions into a program that uses
-the event loop. Many functions in Janet's core library will not block
-when the event loop is enabled, but a few will. All functions in the
-@code`file/` module will block, so be careful when using these with
-networked files.  These functions may be changed or deprecated in the
-future. Other blocking functions include @code`os/sleep` and
-@code`getline`.
+在使用事件循环时，需要注意 CPU 密集型的循环会阻塞事件循环上的所有其他任务。例如，一个不让出给事件循环的无限 while 循环会导致整个线程停滞！这通常被认为是协作式多线程最大的缺点之一，所以要小心谨慎，不要在一个使用事件循环的程序中混入阻塞函数。Janet 核心库中的许多函数在事件循环启用时不会阻塞，但少数会。@code`file/` 模块中的所有函数都会阻塞，因此在处理网络文件时要小心使用这些函数。这些函数将来可能会被更改或弃用。其他阻塞函数包括 @code`os/sleep` 和 @code`getline`。
 
-NOTE: This means that getting input from the repl will block the event loop! Be careful of this when trying to use @code`ev/` functions
-from the built in repl. Instead, you can use a stream-based repl such as @code`spork/netrepl` which will interact well with the event loop.
+注意：这意味着从 repl 获取输入会阻塞事件循环！在尝试从内置 repl 中使用 @code`ev/` 函数时要注意这一点。相反，你可以使用基于流的 repl，比如 @code`spork/netrepl`，它可以与事件循环良好地交互。
 
-## Creating Tasks
+## 创建任务
 
-A default Janet program has a single task that will run until complete. To create new tasks, Janet provides two
-built-in functions - @code`ev/go` and @code`ev/call`. @code`ev/call` is implemented in terms of @code`ev/go`, and other
-macros and functions are wrappers around these two functions.
+一个默认的 Janet 程序有一个会运行到完成的任务。要创建新任务，Janet 提供了两个内置函数——@code`ev/go` 和 @code`ev/call`。@code`ev/call` 是基于 @code`ev/go` 实现的，其他宏和函数都是这两个函数的包装器。
 
 @codeblock[janet]```
 (defn worker
@@ -70,50 +46,41 @@ macros and functions are wrappers around these two functions.
     (ev/sleep 0.5))
   (print name " is done!"))
 
-# Start bob working in a new task with ev/call
+# 使用 ev/call 让 bob 在一个新任务中开始工作
 (ev/call worker "bob" 10)
 
 (ev/sleep 0.25)
 
-# Start sally working in a new task with ev/go
+# 使用 ev/go 让 sally 在一个新任务中开始工作
 (ev/go (fiber/new |(worker "sally" 20)))
 
 (ev/sleep 11)
 (print "Everyone should be done by now!")
 ```
 
-This example will start two worker tasks that will run concurrently with each other. The @code`ev/call` function takes a function as well as its arguments
-and calls that function inside a new task. @code`ev/call` returns the newly created task fiber immediately.
+这个示例将启动两个彼此并发运行的工作任务。@code`ev/call` 函数接受一个函数及其参数，并在一个新任务中调用该函数。@code`ev/call` 会立即返回新创建的任务 fiber。
 
-The more general way to start new tasks is @code`ev/go`, which takes as an argument a fiber to be resumed by the event loop scheduler.
-@code`ev/go` allows the programmer to customize fiber flags as well as specify a supervisor channel for the newly created task.
+启动新任务的更通用的方式是 @code`ev/go`，它接受一个将由事件循环调度器恢复的 fiber 作为参数。@code`ev/go` 允许程序员自定义 fiber 标志，以及为新创建的任务指定监督通道（supervisor channel）。
 
-Lastly, there is the @code`ev/spawn` macro for concisely running a series of forms in a new task.
+最后，还有一个 @code`ev/spawn` 宏，用于简洁地在新任务中运行一系列表达式。
 
-### Task Communication
+### 任务通信
 
-To communicate between tasks, the @code`ev/` module offers two abstractions: streams and channels. Both abstraction works as FIFO (First In, First Out) data structures, but operate
-on different kinds of data. Channels allow the programmer to communicate by sending any Janet value as messages, and only work inside a thread - they do not allow communication
-between threads, processes, or over the network. Streams are wrappers around file descriptors and operate on streams of bytes. Streams can communicate across threads, processes, and across
-the network.
+为了在任务之间通信，@code`ev/` 模块提供了两个抽象：流（stream）和通道（channel）。这两种抽象都作为 FIFO（先进先出）数据结构工作，但操作不同类型的数据。通道允许程序员通过发送任意 Janet 值作为消息来进行通信，并且只在单个线程内工作——它们不允许在线程、进程之间或通过网络进行通信。流是对文件描述符的包装，操作字节流。流可以跨线程、进程和网络进行通信。
 
-With these constraints, channels are preferred for things like internal queues and between-task communication, where streams are useful for most everything else.
+在这些限制下，通道更适合用于内部队列和任务间通信，而流则适用于几乎所有其他场景。
 
-## Channels
+## 通道
 
-Channels are based around a queue abstraction, where producer tasks will add items to the channel with @code`ev/give`, and consumer tasks will remove items from the
-channel with @code`ev/take`. If there are no items in the channel when @code`ev/take` is called, the consumer will suspend until a producer gives an item
-to the channel. Similarly, if a task gives to a full channel, it will suspend until a consumer takes an item from the queue, freeing up space for the producer
-to give an item to the channel.
+通道基于队列抽象，生产者任务通过 @code`ev/give` 向通道添加元素，消费者任务通过 @code`ev/take` 从通道移除元素。如果调用 @code`ev/take` 时通道中没有元素，消费者将挂起，直到生产者向通道提供一个元素。类似地，如果任务向一个已满的通道提供元素，它将挂起，直到消费者从队列中取走一个元素，为生产者释放空间来向通道提供元素。
 
-Internally, channels are infinitely expanding queues, so one might think that they never need to be "full", but allowing channels to fill up and suspend writers
-allows for back pressure. Back pressure means that a task can indicate to other tasks that it is "backed up", and that they should stop sending it "work".
+在内部，通道是无限扩展的队列，因此有人可能认为它们永远不需要"满"，但允许通道填满并挂起写入者可以实现背压（back pressure）。背压意味着一个任务可以向其他任务指示它已经"积压"了，其他任务应该停止向它发送"工作"。
 
 @codeblock[janet]```
-# Create a new channel with a limit of 10 items.
+# 创建一个限制为 10 个元素的新通道
 (def channel (ev/chan 10))
 
-# Write to the channel forever
+# 永远向通道写入
 (ev/spawn
   (forever
     (ev/give channel (math/random))))
@@ -129,30 +96,24 @@ allows for back pressure. Back pressure means that a task can indicate to other 
 (ev/call consumer "bob" 1)
 (ev/call consumer "sally" 0.63)
 
-# Call (ev/sleep 1) to see some results
+# 调用 (ev/sleep 1) 查看一些结果
 ```
 
-## Streams
+## 流
 
-Streams let Janet do IO without blocking. They provide a very similar interface to files, with a few extra caveats and capabilities. There are several ways to acquire streams, such
-as using the @code`net/` module, @code`os/open`, and @code`os/pipe`.
+流让 Janet 能够在不阻塞的情况下进行 IO。它们提供了与文件非常相似的接口，但有一些额外的注意事项和功能。有多种方式可以获取流，例如使用 @code`net/` 模块、@code`os/open` 和 @code`os/pipe`。
 
-To read from a stream, use @code`ev/read` or @code`ev/chunk`. These can also be accessed with @code`:read` and @code`:chunk` methods on streams.
+要从流中读取，请使用 @code`ev/read` 或 @code`ev/chunk`。也可以通过流上的 @code`:read` 和 @code`:chunk` 方法来访问这些功能。
 
-To write to a stream, use the function @code`ev/write`. This can be referenced as the @code`:write` method on streams as well.
+要向流中写入，请使用 @code`ev/write` 函数。这也可以作为流上的 @code`:write` 方法来引用。
 
-For some examples on how to use streams, see documentation on @link[networking.html]{networking} in Janet.
+有关如何使用流的一些示例，请参阅 Janet 中关于 @link[networking.html]{网络} 的文档。
 
-## Cancellation
+## 取消
 
-Sometimes, IO operations can take too long or even hang
-indefinitely. Janet offers @code`ev/cancel` to interrupt and cancel an
-ongoing IO operation. This will cause the canceled task to be resumed
-but immediately error. From the point of view of the canceled task, it
-will look as though the last function that yielded to the event loop
-raised an error.
+有时，IO 操作可能耗时过长甚至无限期挂起。Janet 提供了 @code`ev/cancel` 来中断和取消正在进行的 IO 操作。这会导致被取消的任务被恢复但立即出错。从被取消的任务的角度来看，就像最后一个让出给事件循环的函数抛出了一个错误。
 
-Macros like @code`try` and @code`protect` will continue to work just as if the cancellation error was any other error.
+像 @code`try` 和 @code`protect` 这样的宏会继续正常工作，就像取消错误是任何其他错误一样。
 
 @codeblock[janet]```
 (def f
@@ -161,25 +122,16 @@ Macros like @code`try` and @code`protect` will continue to work just as if the c
     (ev/sleep 10000)
     (print "finished long io!")))
 
-# wait 2 seconds before canceling the long IO.
+# 等待 2 秒后取消长时间 IO
 (ev/sleep 2)
 (ev/cancel f "canceled")
 ```
 
-## Supervisor Channels
+## 监督通道
 
-An interesting problem with supporting multiple tasks is error handling - if a task raises an error (or any other uncaught signal), who should handle it? The programmer
-often wants to know when a task fails (or finishes), and then continue with some other code. Alternatively, it might be desirable to try again a number of times before
-really giving up.
+支持多个任务的一个有趣问题是错误处理——如果一个任务抛出了错误（或其他任何未捕获的信号），应该由谁来处理？程序员通常想知道任务何时失败（或完成），然后继续执行其他代码。或者，可能希望在真正放弃之前重试几次。
 
-Janet has the concept of supervisor channels to support this. When a
-new task is scheduled with @code`ev/go`, one can optionally specify a
-channel to set as the new tasks supervisor.  When the task yields to
-the event loop, or raises any kind of fiber signal, a message is
-automatically written to the supervisor channel. Another task can then
-continuously listen on that channel to monitor other tasks, handling
-errors or restarting them. This is a powerful pattern that can be used
-to build robust applications that gracefully handle failure.
+Janet 有监督通道（supervisor channel）的概念来支持这一点。当使用 @code`ev/go` 调度新任务时，可以选择指定一个通道作为新任务的监督器（supervisor）。当任务让出给事件循环，或引发任何类型的 fiber 信号时，会自动向监督通道写入一条消息。然后另一个任务可以持续监听该通道来监控其他任务，处理错误或重启它们。这是一个强大的模式，可用于构建优雅处理失败的健壮应用程序。
 
 @codeblock[janet]```
 (def channel (ev/chan))
@@ -204,7 +156,7 @@ to build robust applications that gracefully handle failure.
   (print "starting new worker...")
   (ev/go (fiber/new worker :tp) nil channel))
 
-# make sure there are always two workers until counter gets to 100
+# 确保在 counter 达到 100 之前始终有两个 worker
 (start-worker)
 (forever
   (start-worker)
@@ -213,14 +165,10 @@ to build robust applications that gracefully handle failure.
   (if (>= counter 100) (break)))
 ```
 
-The fiber mask argument (@code`:tp` above) determines what signals are automatically written to the supervisor channel. By default, the fiber will only write to the supervisor channel
-when it completes successfully, with the message @code`[:ok fiber]`. The most useful setting here is @code`:t`, which causes the fiber to write an event to the supervisor channel when it terminates.
-These events will be tuples of 2 arguments, @code`(signal fiber)`.
+fiber 掩码参数（上面的 @code`:tp`）决定了哪些信号会自动写入监督通道。默认情况下，fiber 只会在成功完成时向监督通道写入消息 @code`[:ok fiber]`。这里最有用的设置是 @code`:t`，它使 fiber 在终止时向监督通道写入一个事件。这些事件将是包含 2 个参数的元组，@code`(signal fiber)`。
 
-A task can also write custom messages to its supervisor with @code`ev/give-supervisor`.
+任务也可以通过 @code`ev/give-supervisor` 向其监督器写入自定义消息。
 
-## Standard streams
+## 标准流
 
-@code`stdin`, @code`stdout`, and @code`stderr` in janet core API are files. File operations block the event loop.
-Functions in @link[/spork/api/stream.html]{spork/stream} module create standard streams that don't block the event loop,
-but they don't work on microsoft windows.
+Janet 核心 API 中的 @code`stdin`、@code`stdout` 和 @code`stderr` 是文件。文件操作会阻塞事件循环。@link[/spork/api/stream.html]{spork/stream} 模块中的函数创建不会阻塞事件循环的标准流，但它们在 Microsoft Windows 上不起作用。

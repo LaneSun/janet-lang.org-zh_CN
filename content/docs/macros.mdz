@@ -1,54 +1,41 @@
-{:title "Macros"
+{:title "宏"
  :template "docpage.html"
  :order 10}
 ---
 
-Janet supports macros: routines that take code as input and return transformed
-code as output. A macro is like a function, but transforms the code itself
-rather than data, so it is more flexible in what it can do than a function.
-Macros let you extend the syntax of the language itself.
+Janet 支持宏：即那些将代码作为输入并返回转换后代码作为输出的例程。宏类似于函数，但它转换的是代码本身而非数据，因此它比函数更加灵活。宏让你能够扩展语言本身的语法。
 
-You have seen some macros already. The @code[let], @code[loop], and @code[defn]
-forms are macros. When the compiler sees a macro, it evaluates the macro and
-then compiles the result. We say the macro has been @strong{expanded} after the
-compiler evaluates it. A simple version of the @code[defn] macro can be thought
-of as transforming code of the form
+你已经见过一些宏了。@code[let]、@code[loop] 和 @code[defn] 等特殊形式本身就是宏。当编译器遇到宏时，它会先求值该宏，然后再编译其结果。我们说该宏在编译器求值它之后被@strong{展开了}。可以将 @code[defn] 宏的一个简化版本看作是将如下形式的代码
 
 @codeblock[janet](```
 (defn1 myfun [x] body)
 ```)
 
-into
+转换为
 
 @codeblock[janet](```
 (def myfun (fn myfun [x] body))
 ```)
 
-We could write such a macro like so:
+我们可以这样编写这样一个宏：
 
 @codeblock[janet](```
 (defmacro defn1 [name args body]
  (tuple 'def name (tuple 'fn name args body)))
 ```)
 
-There are a couple of issues with this macro, but it will work for simple
-functions quite well.
+这个宏有几个问题，但对于简单的函数来说，它还是相当好用的。
 
-The first issue is that our @code`defn1` macro can't define functions with
-multiple expressions in the body. We can make the macro variadic, just like a
-function. Here is a second version of this macro:
+第一个问题是，我们的 @code`defn1` 宏无法定义包含多个表达式的函数体。我们可以让宏变成可变参数的，就像函数一样。下面是这个宏的第二个版本：
 
 @codeblock[janet](```
 (defmacro defn2 [name args & body]
  (tuple 'def name (apply tuple 'fn name args body)))
 ```)
 
-Great! Now we can define functions with multiple elements in the body.
+太好了！现在我们可以定义包含多个表达式的函数体了。
 
-We can still improve this macro even more though. First, we can add a docstring
-to it. If someone is using the function later, they can use @code[(doc defn3)]
-to get a description of the function. Next, we can rewrite the macro using
-Janet's builtin quasiquoting facilities.
+不过，我们还可以进一步改进这个宏。首先，我们可以给它添加一个文档字符串。如果之后有人使用了这个函数，他们可以用 @code[(doc defn3)] 来获取该函数的描述。其次，我们可以使用 Janet 内置的准引用（quasiquote）工具来重写这个宏。
 
 @codeblock[janet](```
 (defmacro defn3
@@ -57,17 +44,9 @@ Janet's builtin quasiquoting facilities.
  ~(def ,name (fn ,name ,args ,;body)))
 ```)
 
-This is functionally identical to our previous version @code[defn2], but written
-in such a way that the macro output is more clear. The leading tilde @code[~] is
-shorthand for the @code[(quasiquote x)] special form, which is like @code[(quote
-x)] except we can unquote expressions inside it. The comma in front of
-@code[name] and @code[args] is an unquote, which allows us to put a value in the
-quasiquote. Without the unquote, the symbol @code`name` would be put in the
-returned tuple, and every function we defined would be called @code`name`!
+这在功能上与之前的 @code[defn2] 版本完全相同，但编写方式使得宏输出更加清晰。开头的波浪号 @code[~] 是 @code[(quasiquote x)] 特殊形式的简写，它类似于 @code[(quote x)]，但我们可以对其内部的表达式进行反引用（unquote）。@code[name] 和 @code[args] 前面的逗号就是一个反引用，它允许我们在准引用中放入一个值。如果没有反引用，符号 @code`name` 会被放入返回的元组中，而我们定义的每个函数都会被叫做 @code`name`！
 
-Similar to @code`name`, we must also unquote @code`body`. However, a normal
-unquote doesn't work.  See what happens if we use a normal unquote for
-@code`body` as well.
+与 @code`name` 类似，我们也必须对 @code`body` 进行反引用。然而，普通的反引用在这里是不行的。看看如果我们也对 @code`body` 使用普通反引用会发生什么：
 
 @codeblock[janet](```
 (def name 'myfunction)
@@ -78,21 +57,16 @@ unquote doesn't work.  See what happens if we use a normal unquote for
 # -> (def myfunction (fn myfunction (x y z) ((print x) (print y) (print z))))
 ```)
 
-There is an extra set of parentheses around the body of our function! We don't
-want to put the body @strong{inside} the form @code[(fn args ...)], we want to
-@strong{splice} it into the form. Luckily, Janet has the @code[(splice x)]
-special form for this purpose, and a shorthand for it, the @code`;` character.
-When combined with the unquote special, we get the desired output:
+函数体周围多了一组括号！我们不希望把函数体@strong{放进} @code[(fn args ...)] 形式@strong{里面}，而是想把它@strong{拼接}到该形式中。幸运的是，Janet 为此提供了 @code[(splice x)] 特殊形式，以及它的简写 @code`;` 字符。当与反引用特殊形式结合使用时，我们就能得到期望的输出：
 
 @codeblock[janet](```
 ~(def ,name (fn ,name ,args ,;body))
 # -> (def myfunction (fn myfunction (x y z) (print x) (print y) (print z)))
 ```)
 
-## Accidental Binding Capture
+## 意外绑定捕获
 
-Sometimes when we write macros, we must generate symbols for local bindings.
-Ignoring that this could be written as a function, consider the following macro:
+有时在编写宏时，我们需要为本地绑定生成符号。先不考虑这个功能可以写成一个函数，看看下面这个宏：
 
 @codeblock[janet]```
 (defmacro max1
@@ -101,12 +75,9 @@ Ignoring that this could be written as a function, consider the following macro:
  ~(if (> ,x ,y) ,x ,y))
 ```
 
-This almost works, but will evaluate both @code`x` and @code`y` twice. This is
-because both show up in the macro twice. For example, @code[(max1 (do (print 1)
-1) (do (print 2) 2))] will print both 1 and 2 twice, which would be surprising
-to a user of this macro.
+这几乎可以工作，但会两次求值 @code`x` 和 @code`y`。这是因为它们都在宏中出现了两次。例如，@code[(max1 (do (print 1) 1) (do (print 2) 2))] 会打印 1 和 2 各两次，这会让宏的使用者感到意外。
 
-We can do better:
+我们可以做得更好：
 
 @codeblock[janet]```
 (defmacro max2
@@ -117,38 +88,23 @@ We can do better:
     (if (> x y) x y)))
 ```
 
-Now we have no double evaluation problem! But we now have an even more subtle
-problem.  What happens in the following code?
+现在我们没有双重求值的问题了！但我们现在遇到了一个更微妙的问题。下面的代码会发生什么？
 
 @codeblock[janet]```
 (def x 10)
 (max2 8 (+ x 4))
 ```
 
-We want the maximum to be 14, but this will actually evaluate to 12! This can be
-understood if we expand the macro. You can expand a macro once in Janet using
-the @code[(macex1 x)] function.  (To expand macros until there are no macros
-left to expand, use @code[(macex x)]. Be careful: Janet has many macros, so the
-full expansion may be almost unreadable).
+我们期望最大值是 14，但实际上结果会是 12！展开宏就能理解这一点。你可以在 Janet 中使用 @code[(macex1 x)] 函数来展开宏一次。（要一直展开到没有宏可展开为止，使用 @code[(macex x)]。注意：Janet 有很多宏，所以完全展开后的结果可能几乎无法阅读。）
 
 @codeblock[janet](```
 (macex1 '(max2 8 (+ x 4)))
 # -> (let (x 8 y (+ x 4)) (if (> x y) x y))
 ```)
 
-After expansion, @code`y` wrongly refers to the @code`x` inside the macro (which
-is bound to 8) rather than the @code`x` defined to be 10. The problem is the
-reuse of the symbol @code`x` inside the macro, which overshadowed the original
-binding. This problem is called the
-@link[https://en.wikipedia.org/wiki/Hygienic_macro#The_hygiene_problem]{hygiene
-problem} and is solved in many programming languages
-(such as Scheme) by hygienic macros. Hygienic macros prevent such
-accidental captures, but usually constrain the kinds of macros that can be written. Janet's macro system does @em{not} use hygienic macros as presented in @link[ftp://jcmc.indiana.edu/pub/techreports/TR206.pdf]{Kohlbecker et al.'s 1986 paper} - instead, programmer diligence is required to avoid accidental captures.
+展开之后，@code`y` 错误地引用了宏内部的 @code`x`（它被绑定为 8），而不是被定义为 10 的那个 @code`x`。问题在于宏内部重用了符号 @code`x`，它遮蔽了原来的绑定。这个问题被称为@link[https://en.wikipedia.org/wiki/Hygienic_macro#The_hygiene_problem]{卫生问题}，在许多编程语言（如 Scheme）中通过卫生宏（hygienic macros）来解决。卫生宏可以防止这种意外捕获，但通常会限制可以编写的宏的种类。Janet 的宏系统@em{没有}使用 @link[ftp://jcmc.indiana.edu/pub/techreports/TR206.pdf]{Kohlbecker 等人 1986 年的论文}中提出的卫生宏——相反，需要程序员自己注意以避免意外捕获。
 
-Janet provides a general solution to this problem in terms of the
-@code[(gensym)] function, which returns a symbol which is guaranteed to be
-unique and not collide with any symbols defined previously. We can define our
-macro once more for a fully correct macro.
+Janet 为此提供了一个通用的解决方案，即 @code[(gensym)] 函数，它返回一个保证唯一且不与之前定义的任何符号冲突的符号。我们可以再次定义我们的宏，得到一个完全正确的版本。
 
 @codeblock[janet](```
 (defmacro max3
@@ -159,10 +115,9 @@ macro once more for a fully correct macro.
  ~(let [,$x ,x
         ,$y ,y]
     (if (> ,$x ,$y) ,$x ,$y)))
-```)
+```
 
-Since it is quite common to create several gensyms for use inside a macro body,
-Janet provides a macro @code[with-syms] to make this definition a bit terser.
+由于在宏体内创建多个 gensym 是相当常见的操作，Janet 提供了一个 @code[with-syms] 宏来使这个定义更简洁一些。
 
 @codeblock[janet](```
 (defmacro max4
@@ -172,10 +127,6 @@ Janet provides a macro @code[with-syms] to make this definition a bit terser.
    ~(let [,$x ,x
           ,$y ,y]
       (if (> ,$x ,$y) ,$x ,$y))))
-```)
+```
 
-As you can see, macros are very powerful but are also prone to subtle bugs. You
-must remember that at their core, macros are just functions that output code,
-and the code that they return must work in many contexts! Many times a function
-will suffice and be more useful than a macro, as functions can be more easily
-passed around and used as first class values.
+正如你所见，宏非常强大，但也容易出现微妙的错误。你必须记住，宏本质上只是返回代码的函数，而它们返回的代码必须在许多上下文中都能工作！很多时候，一个函数就能胜任并且比宏更有用，因为函数可以更容易地作为一等值传递和使用。

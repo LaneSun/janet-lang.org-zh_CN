@@ -9,21 +9,21 @@
  :template "docpage.html"}
 ---
 
-@p{@link[https://clojure.org/]{Clojure} contains a very useful core library (or "namespace" in Clojure parlance) called @link[https://clojure.github.io/clojure/clojure.data-api.html]{clojure.data} (@link[https://github.com/clojure/clojure/blob/51c6d7a70912a8f65e81a8e11ae6f56c94920725/src/clj/clojure/data.clj]{source}). It contains one "exported" function: @code`clojure.data/diff`. This addition to spork, @code`data.janet`, should exactly replicate the behavior of @code`clojure.data/diff` using Janet tables, structs, arrays, and tuples in place of their Clojure equivalents.}
+@p{@link[https://clojure.org/]{Clojure} 包含一个非常有用的核心库（用 Clojure 的说法叫做"命名空间"），名为 @link[https://clojure.github.io/clojure/clojure.data-api.html]{clojure.data}（@link[https://github.com/clojure/clojure/blob/51c6d7a70912a8f65e81a8e11ae6f56c94920725/src/clj/clojure/data.clj]{源代码}）。它包含一个"导出"函数：@code`clojure.data/diff`。作为 spork 的补充，@code`data.janet` 应使用 Janet 的表、结构体、数组和元组来精确复制 @code`clojure.data/diff` 的行为，以替代它们在 Clojure 中的对应类型。}
 
-## Function
+## 函数
 
-The @code`diff` function recursively compares the structure and contents of two data structures (struct, table, tuple, array) and returns an array with three elements:
+@code`diff` 函数递归比较两个数据结构（结构体、表、元组、数组）的结构和内容，并返回一个包含三个元素的数组：
 
-@codeblock[janet]`@[things-only-in-a things-only-in-b things-in-both]`
+@codeblock[janet]`@[things-only-in-a things-only-in-b things-only-in-both]`
 
-In the case of nested associative data structures (i.e., tables and structs), the comparison is recursive and the data structures are neatly partitioned into the same @code`@[things-only-in-a things-only-in-b things-in-both]` structure, but arbitrary levels deep in the two original associative data structures.
+对于嵌套的关联数据结构（即表和结构体），比较是递归进行的，数据结构被整齐地划分到相同的 @code`@[things-only-in-a things-only-in-b things-only-in-both]` 结构中，但在两个原始关联数据结构中可以深入到任意层级。
 
-This function makes comparing two structs or tables for changes trivial. (An example use case: compare the decoded JSON returned from a REST API call made seconds ago against the version of that same decoded JSON from that same API that was returned from the same call made an hour ago and stored locally in a database for comparison an hour later.)
+这个函数使得比较两个结构体或表的变化变得非常简单。（一个示例用例：将几秒前从 REST API 调用返回的解码 JSON，与一小时前从同一 API 的同一调用返回并存储在本地数据库中用于一小时后比较的同一解码 JSON 版本进行比较。）
 
-## Example
+## 示例
 
-So for example, @code`diff`'ing the two nested structs @code`{:a 1 :b 2 :c {:d 3 :e 4}}` and @code`{:a 4 :b 2 :c {:d 3 :e 5 :f 6}}` looks like this:
+例如，对两个嵌套结构体 @code`{:a 1 :b 2 :c {:d 3 :e 4}}` 和 @code`{:a 4 :b 2 :c {:d 3 :e 5 :f 6}}` 进行 @code`diff` 操作的结果如下：
 
 @codeblock[janet]```
 repl:1:> (import spork/data :as d)
@@ -31,16 +31,16 @@ repl:2:> (d/diff {:a 1 :b 2 :c {:d 3 :e 4}} {:a 4 :b 2 :c {:d 3 :e 5 :f 6}})
 @[@{:a 1 :c @{:e 4}} @{:a 4 :c @{:e 5 :f 6}} @{:b 2 :c @{:d 3}}]
 ```
 
-The return is @code`@[@{:a 1 :c @{:e 4}} @{:a 4 :c @{:e 5 :f 6}} @{:b 2 :c @{:d 3}}]` because:
+返回值为 @code`@[@{:a 1 :c @{:e 4}} @{:a 4 :c @{:e 5 :f 6}} @{:b 2 :c @{:d 3}}]`，因为：
 
 @ul{
-  @li{the value for @code`:a` appears in both and is different in each one (so @code`:a` is a key in both the first and second returned table, with each value set as seen in the first and second original structs)}
-  @li{the value for @code`:b` appears in both and is the same in each (so @code`:b` is a key only in the third returned table, containing the shared value in both original strucs)}
-  @li{the nested value of @code`:d` appears in both and is the same in each (so @code`:c` is a key in the third returned table, containing the value of @code`:d` that is shared in both original structs)}
-  @li{the nested value of @code`:e` appears in both and is different in each one (so @code`:c` is a key in both the first and second returned table, containing the value @code`:e` with with each value set as seen in the first and second original structs), and}
-  @li{the key/value pair @code`:f` 6 only appears in the latter original struct (so only the second returned table contains @code`:f` and its value).}
+  @li{值 @code`:a` 在两个结构中都存在且不同（因此 @code`:a` 是第一个和第二个返回表中的键，每个值分别设置为第一个和第二个原始结构体中的值）}
+  @li{值 @code`:b` 在两个结构中都存在且相同（因此 @code`:b` 仅在第三个返回表中作为键，包含两个原始结构体中共有的值）}
+  @li{嵌套值 @code`:d` 在两个结构中都存在且相同（因此 @code`:c` 是第三个返回表中的键，包含两个原始结构体中共有的 @code`:d` 值）}
+  @li{嵌套值 @code`:e` 在两个结构中都存在且不同（因此 @code`:c` 是第一个和第二个返回表中的键，包含值 @code`:e`，每个值分别设置为第一个和第二个原始结构体中的值），以及}
+  @li{键值对 @code`:f` 6 仅出现在后一个原始结构体中（因此只有第二个返回表包含 @code`:f` 及其值）。}
 }
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[data/]

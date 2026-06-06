@@ -1,48 +1,20 @@
-{:title "Fiber Overview"
+{:title "Fiber 概述"
  :nav-title "Fibers"
  :template "docpage.html"
  :order 13}
 ---
 
-Janet has support for single-core asynchronous programming via
-coroutines or fibers.  Fibers allow a process to stop and resume
-execution later, essentially enabling multiple returns from a
-function.  This allows many patterns such as schedules, generators,
-iterators, live debugging, and robust error handling.  Janet's error
-handling is actually built on top of fibers (when an error is thrown,
-control is returned to the parent fiber).
+Janet 通过协程（coroutines）或 fiber 支持单核异步编程。Fiber 允许一个进程暂停并在之后恢复执行，本质上实现了函数的多次返回。这使得许多模式成为可能，例如调度器、生成器、迭代器、实时调试和健壮的错误处理。Janet 的错误处理实际上构建在 fiber 之上（当抛出错误时，控制权会返回到父 fiber）。
 
-A temporary return from a fiber is called a yield, and can be invoked
-with the @code[yield] function.  To resume a fiber that has been
-yielded, use the @code[resume] function.
+从 fiber 中的临时返回称为 yield（让出），可以通过 @code[yield] 函数调用。要恢复一个已让出的 fiber，使用 @code[resume] 函数。
 
-When @code[resume] is called on a fiber, it will only return when that
-fiber either returns, yields, throws an error, or otherwise emits a
-signal.  In all of these cases a value is produced and can be obtained
-via the function @code[fiber/last-value].  This function takes a fiber
-as its sole argument.  If a fiber has never been resumed,
-@code[fiber/last-value] will return `nil`.
+当对某个 fiber 调用 @code[resume] 时，只有当该 fiber 返回、让出、抛出错误或以其他方式发出信号时，它才会返回。在所有这些情况下，都会产生一个值，可以通过 @code[fiber/last-value] 函数获取。该函数接受一个 fiber 作为其唯一参数。如果一个 fiber 从未被恢复过，@code[fiber/last-value] 将返回 `nil`。
 
-Different from traditional coroutines, Janet's fibers implement a
-signaling mechanism, which is used to distinguish between different
-kinds of returns.  When a fiber yields or throws an error, control is
-returned to the calling fiber.  The parent fiber must then check what
-kind of state the fiber is in to differentiate errors from return
-values from user-defined signals.  This state is referred to as the
-status of a fiber and can be checked using the @code[fiber/status]
-function.  This function takes a fiber as its sole argument.
+与传统协程不同，Janet 的 fiber 实现了一种信号机制，用于区分不同类型的返回。当 fiber 让出或抛出错误时，控制权会返回到调用方 fiber。父 fiber 随后必须检查该 fiber 所处的状态类型，以区分错误、返回值以及用户定义的信号。这种状态称为 fiber 的状态，可以使用 @code[fiber/status] 函数进行检查。该函数接受一个 fiber 作为其唯一参数。
 
-To create a fiber, use the @code[fiber/new] function.  The fiber
-constructor takes one or two arguments.  The first argument (required)
-is the function that the fiber will execute.  This function must
-accept an arity of zero. The next argument (optional) is a collection
-of flags checking what kinds of signals to trap and return via
-@code[resume].  This is useful so the programmer does not need to
-handle all of the different kinds of signals from a fiber.  Any
-untrapped signals are simply propagated to the previous calling fiber.
+要创建一个 fiber，使用 @code[fiber/new] 函数。fiber 构造函数接受一个或两个参数。第一个参数（必需）是 fiber 将要执行的函数。该函数必须接受零个参数。下一个参数（可选）是一组标志，用于指定要捕获并通过 @code[resume] 返回的信号类型。这对程序员来说很有用，这样就不需要处理 fiber 中所有不同类型的信号。任何未捕获的信号只会传播到前一个调用方 fiber。
 
-Note that the terms "block", "mask", and "capture" are sometimes used
-to refer to the "trapping" of signals.
+请注意，术语"block"（阻塞）、"mask"（掩码）和"capture"（捕获）有时也用来指代信号的"捕获"（trapping）。
 
 @codeblock[janet](```
 (def f (fiber/new (fn []
@@ -52,25 +24,24 @@ to refer to the "trapping" of signals.
                    (yield 4)
                    5)))
 
-# Get the status of the fiber (:alive, :dead, :debug, :new, :pending, or :user0-:user9)
+# 获取 fiber 的状态（:alive、:dead、:debug、:new、:pending 或 :user0-:user9）
 (fiber/status f) # -> :new
-(fiber/last-value f) # -> fiber hasn't been resumed yet, so returns nil
+(fiber/last-value f) # -> fiber 尚未被恢复，因此返回 nil
 
 (resume f) # -> 1
-(fiber/last-value f) # -> 1 (again)
+(fiber/last-value f) # -> 1（再次）
 (resume f) # -> 2
 (resume f) # -> 3
 (resume f) # -> 4
 (fiber/status f) # -> :pending
 (resume f) # -> 5
 (fiber/status f) # -> :dead
-(resume f) # -> throws an error because the fiber is dead
-```)
+(resume f) # -> 抛出错误，因为 fiber 已终止
+```
 
-## Using fibers to capture errors
+## 使用 fiber 捕获错误
 
-Besides being used as coroutines, fibers can be used to implement error handling
-(i.e. exceptions).
+除了用作协程之外，fiber 还可用于实现错误处理（即异常）。
 
 @codeblock[janet](```
 (defn my-function-that-errors []
@@ -78,48 +49,42 @@ Besides being used as coroutines, fibers can be used to implement error handling
  (error "oops!")
  (print "never gets here"))
 
-# Use the :e flag to only trap errors.
+# 使用 :e 标志仅捕获错误
 (def f (fiber/new my-function-that-errors :e))
 (def result (resume f))
 (if (= (fiber/status f) :error)
  (print "result contains the error")
  (print "result contains the good result"))
-```)
+```
 
-Since the above code is rather verbose, Janet provides a @code[try] macro which
-is similar to try/catch in other languages.  It wraps the body in a new fiber,
-@code[resume]s the fiber, and then checks the result. If the fiber has errored,
-an error clause is evaluated.
+由于上述代码较为冗长，Janet 提供了一个 @code[try] 宏，类似于其他语言中的 try/catch。它将主体包装在一个新的 fiber 中，@code[resume] 该 fiber，然后检查结果。如果 fiber 出错，则会求值错误子句。
 
 @codeblock[janet](```
 (try
  (error 1)
  ([err] (print "got error: " err)))
-# evaluates to nil and prints "got error: 1"
+# 求值为 nil 并打印 "got error: 1"
 
 (try
  (+ 1 2 3)
  ([err] (print "oops")))
-# Evaluates to 6 - no error thrown
-```)
+# 求值为 6 - 没有抛出错误
+```
 
-The @code[signal] function can be used to raise a particular signal.
-The function's first argument, @code[what], specifies the signal,
-while the second argument, @code[x], is an arbitrary payload value.
+@code[signal] 函数可用于引发特定信号。该函数的第一个参数 @code[what] 指定信号类型，第二个参数 @code[x] 是任意载荷值。
 
 @codeblock[janet](```
 (try
   (signal :error 1)
   ([err] (print "got error: " err)))
-# evaluates to nil and prints "got error: 1"
+# 求值为 nil 并打印 "got error: 1"
 
 (defer (pp :hey)
   (signal :user4 :hello)
   (pp :unreached))
-# only prints :hey
-```)
+# 仅打印 :hey
+```
 
-## Lazy evaluation
+## 惰性求值
 
-Janet's core functions are eagerly evaluated. @link[/spork/api/generators.html]{spork/generators} module contains lazily
-evaluated generator functions.
+Janet 的核心函数是立即求值的。@link[/spork/api/generators.html]{spork/generators} 模块包含惰性求值的生成器函数。

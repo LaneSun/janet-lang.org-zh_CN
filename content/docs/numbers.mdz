@@ -1,43 +1,27 @@
-{:title "Numbers and Arithmetic"
+{:title "数字和算术"
  :template "docpage.html"
  :order 3}
 ---
 
-Any programming language will have some way to do arithmetic. Janet is no
-exception, and supports the basic arithmetic operators.
+任何编程语言都有某种方式进行算术运算。Janet 也不例外，它支持基本的算术运算符。
 
 @codeblock[janet](```
-# Prints 13
+# 打印 13
 # (1 + (2*2) + (10/5) + 3 + 4 + (5 - 6))
 (print (+ 1 (* 2 2) (/ 10 5) 3 4 (- 5 6)))
 ```)
 
-Just like the @code`print` function, all arithmetic operators are entered in
-prefix notation. Janet also supports the remainder operator, or @code[%], which
-returns the remainder of division. For example, @code[(% 10 3)] is 1, and
-@code[(% 10.5 3)] is 1.5. The lines that begin with @code[#] are comments.
+就像 @code`print` 函数一样，所有算术运算符都使用前缀表示法输入。Janet 也支持取余运算符 @code[%]，它返回除法的余数。例如，@code[(% 10 3)] 的结果是 1，@code[(% 10.5 3)] 的结果是 1.5。以 @code[#] 开头的行是注释。
 
-All Janet numbers are IEEE 754 double precision floating point numbers. They can
-be used to represent both integers and real numbers to a finite precision.
+所有 Janet 数字都是 IEEE 754 双精度浮点数。它们可以用来表示有限精度的整数和实数。
 
-## Numeric literals
+## 数字字面量
 
-Numeric literals can be written in many ways. Numbers can be written in base 10,
-with underscores used to separate digits into groups. A decimal point can be
-used for floating point numbers. Numbers can also be written in other bases by
-prefixing the number with the desired base and the character 'r'. For example,
-16 can be written as @code[16], @code[1_6], @code[16r10], @code[4r100], or
-@code[0x10]. The @code[0x] prefix can be used for hexadecimal as it is so
-common. The radix must be themselves written in base 10, and can be any integer
-from 2 to 36. For any radix above 10, use the letters as digits (not case
-sensitive).
+数字字面量有多种书写方式。数字可以用十进制书写，用下划线分隔数字分组。浮点数可以使用小数点。数字也可以使用其他进制，方法是在数字前加上所需的进制和字符 'r'。例如，16 可以写成 @code[16]、@code[1_6]、@code[16r10]、@code[4r100] 或 @code[0x10]。由于十六进制非常常见，@code[0x] 前缀可用于十六进制。进制基数本身必须以十进制书写，可以是 2 到 36 之间的任意整数。对于大于 10 的进制，使用字母作为数字（不区分大小写）。
 
-Numbers can also be in scientific notation such as @code[3e10]. A custom radix
-can be used for scientific notation numbers (the exponent will share the radix).
-For numbers in scientific notation with a radix other than 10, use the @code[&]
-symbol to indicate the exponent rather than @code[e].
+数字也可以使用科学记数法，如 @code[3e10]。可以为科学记数法的数字使用自定义进制（指数将共享该进制）。对于使用非 10 进制的科学记数法数字，使用 @code[&] 符号表示指数，而不是 @code[e]。
 
-Some example numbers:
+一些数字示例：
 @codeblock[janet]```
 0
 +0.0
@@ -46,24 +30,14 @@ Some example numbers:
 0x23.23
 1e10
 1.6e-4
-7r343_111_266.6&+10 # a base 7 number in scientific notation.
-# evaluates to 1.72625e+13 in base 10
+7r343_111_266.6&+10 # 一个以 7 为基数的科学记数法数字。
+# 在十进制下计算结果为 1.72625e+13
 ```
 
-Janet will allow some pretty wacky formats for numbers. However, no matter what
-format you write your number in, the resulting value will always be a double
-precision floating point number.
+Janet 允许一些相当奇怪的数字格式。但无论你使用什么格式书写数字，结果值始终是一个双精度浮点数。
 
-## Arithmetic functions
+## 算术函数
 
-Besides the 5 main arithmetic functions, Janet also supports a number of math
-functions taken from the C library @code[<math.h>], as well as bit-wise
-operators that behave like they do in C or Java. Functions like @code[math/sin],
-@code[math/cos], @code[math/log], and @code[math/exp] will behave as expected to
-a C programmer. They all take either 1 or 2 numeric arguments and return a real
-number (never an integer!). Bit-wise functions are all prefixed with @code`b`.
-They are @code[bnot], @code[bor], @code[bxor], @code[band], @code[blshift],
-@code[brshift], and @code[brushift]. Bit-wise functions only work on integers.
+除了 5 个主要的算术函数，Janet 还支持来自 C 库 @code[<math.h>] 的许多数学函数，以及类似于 C 或 Java 的位运算符。像 @code[math/sin]、@code[math/cos]、@code[math/log] 和 @code[math/exp] 这样的函数的行为与 C 程序员预期的一致。它们都接受 1 个或 2 个数值参数，并返回一个实数（绝不是整数！）。位运算符都以 @code`b` 为前缀。它们是 @code[bnot]、@code[bor]、@code[bxor]、@code[band]、@code[blshift]、@code[brshift] 和 @code[brushift]。位运算符仅对整数有效。
 
-See the @link[/api/math.html][Math API] for information on functions in the
-@code[math/] namespace.
+有关 @code[math/] 命名空间中函数的更多信息，请参阅 @link[/api/math.html][数学 API] 文档。

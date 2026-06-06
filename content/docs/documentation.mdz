@@ -1,21 +1,15 @@
-{:title "Documentation"
+{:title "文档"
  :template "docpage.html"
  :order 23}
- ---
+---
 
-Documenting code is an important way to communicate to users how and when to use
-a particular piece of functionality.
+为代码编写文档是与用户沟通特定功能使用方式和时机的重要方式。
 
-In many languages, documentation is associated with code through convention
-(e.g. a comment that comes immediately before a function definition describing
-the function, its parameters and the return value). In contrast, Janet includes
-first-class support for documentation through the use of docstrings.
+在许多语言中，文档通过约定与代码关联（例如，紧接在函数定义之前的注释，描述函数、其参数和返回值）。相比之下，Janet 通过使用文档字符串为文档提供了一流的支持。
 
-## Detecting Docstrings
+## 文档字符串检测
 
-A docstring is a string that Janet associates with a particular binding in an
-environment. Janet detects docstrings by looking at the elements in the binding,
-if a string is located at a particular position, it is used as the docstring.
+文档字符串是 Janet 与环境中的特定绑定相关联的字符串。Janet 通过检查绑定中的元素来检测文档字符串，如果字符串位于特定位置，则将其用作文档字符串。
 
 @codeblock[janet]```
 (defn my-function
@@ -24,29 +18,21 @@ if a string is located at a particular position, it is used as the docstring.
   (+ x 2))
 ```
 
-In the above example, Janet treats the string @code`"This function adds two to
-the argument."` as the docstring. When creating the binding associated with the
-symbol @code`my-function`, Janet will add a key @code`:doc` with the docstring
-as its value.
+在上面的示例中，Janet 将字符串 @code`"This function adds two to the argument."` 视为文档字符串。在创建与符号 @code`my-function` 关联的绑定时，Janet 会添加一个键 @code`:doc`，其值为文档字符串。
 
-In the case of function and macro definitions, the string that occurs before the
-tuple of arguments is used as the docstring. In other cases, the string that
-occurs before the final value is used as the docstring. The string should come
-after any tags (e.g. @code`:private`) that are associated with the binding.
+对于函数和宏定义，出现在参数元组之前的字符串被用作文档字符串。在其他情况下，出现在最终值之前的字符串被用作文档字符串。该字符串应位于与绑定关联的任何标签（例如 @code`:private`）之后。
 
 @codeblock[janet]```
 (def
-  my-binding       # the symbol used to name the binding
-  :my-tag          # one or more tags that are associated with the binding
-  "The docstring"  # the docstring associated with the binding
-  42)              # the value associated with the binding
+  my-binding       # 用于命名绑定的符号
+  :my-tag          # 与该绑定关联的一个或多个标签
+  "The docstring"  # 与该绑定关联的文档字符串
+  42)              # 与该绑定关联的值
 ```
 
-## Accessing Docstrings
+## 访问文档字符串
 
-As described above, docstrings are added to a binding under the @code`:doc`
-keyword. The docstrings can be accessed from a binding using the @code`(dyn)`
-function and accessing the value associated with @code`:doc`.
+如上所述，文档字符串通过 @code`:doc` 关键字添加到绑定中。可以使用 @code`(dyn)` 函数访问绑定中与 @code`:doc` 关联的值，从而获取文档字符串。
 
 @codeblock[janet]```
 (defn my-function
@@ -57,9 +43,7 @@ function and accessing the value associated with @code`:doc`.
 (get (dyn 'my-function) :doc)
 ```
 
-Note that when a docstring is displayed with @code`(doc)`, Janet adds additional
-information to the docstring before displaying it. To use this modified string,
-wrap the call to @code`(doc)` in a call to @code`(with-dyns)`.
+请注意，当使用 @code`(doc)` 显示文档字符串时，Janet 会在显示之前向文档字符串添加额外信息。要使用此修改后的字符串，请将对 @code`(doc)` 的调用包装在对 @code`(with-dyns)` 的调用中。
 
 @codeblock[janet]```
 (def b @"")
@@ -67,18 +51,11 @@ wrap the call to @code`(doc)` in a call to @code`(with-dyns)`.
   (doc my-function))
 ```
 
-## Using Long-Strings
+## 使用长字符串
 
-Janet provides two literal forms for expressing a strings: ordinary strings
-(that is, a sequence of characters delimited by the double quote character,
-@code`"`) and long-strings (that is, a sequence of characters delimited by one
-or more backquote characters, @code"`").
+Janet 提供了两种表示字符串的字面形式：普通字符串（即由双引号字符 @code`"` 界定的字符序列）和长字符串（即由一个或多个反引号字符界定的字符序列）。
 
-While either form can be used for docstrings, long-strings have two advantages
-over ordinary strings. First, new lines are preserved. This makes it simple to
-write readable strings in code. Second, Janet will automatically removed
-indentation (so-called "dedenting") for whitespace that appears before the
-column in which the long-string began. This is best seen with an example.
+虽然两种形式都可以用于文档字符串，但长字符串相比普通字符串有两个优势。首先，换行符被保留。这使得在代码中编写可读的字符串变得简单。其次，Janet 会自动去除长字符串起始列之前的空白（即所谓的"反缩进"）。通过一个示例可以最好地理解这一点。
 
 @codeblock[janet]```
 (defn my-second-function
@@ -90,26 +67,21 @@ column in which the long-string began. This is best seen with an example.
   (string (+ 3 x)))
 ```
 
-## Formatting with Markdown
+## 使用 Markdown 格式化
 
-Docstrings are typically read in a plaintext environment. Formatting systems
-like Markdown are a natural fit for these situations.
+文档字符串通常在纯文本环境中阅读。像 Markdown 这样的格式化系统很适合这些场景。
 
-Janet's built-in documentation viewer, @code`(doc)`, understands a subset of
-Markdown and will indent docstrings that use this subset in an intelligent way.
-The subset of Markdown includes:
+Janet 内置的文档查看器 @code`(doc)` 理解 Markdown 的一个子集，并将以智能的方式缩进使用该子集的文档字符串。Markdown 的子集包括：
 
-@ul{@li{top-level paragraphs}
-    @li{single-level ordered and unordered lists}
-    @li{code blocks}}
+@ul{@li{顶级段落}
+    @li{单级有序和无序列表}
+    @li{代码块}}
 
-Other Markdown-formatted text (e.g. code spans) are simply treated as ordinary
-text.
+其他 Markdown 格式的文本（例如代码跨度）仅被视为普通文本。
 
-## Adding Docstrings to Modules
+## 为模块添加文档字符串
 
-In addition to documenting bindings, documentation can be added to a file using
-@code`(setdyn)`.
+除了为绑定编写文档外，还可以使用 @code`(setdyn)` 为文件添加文档。
 
 @codeblock[janet]```
 # my-module.janet
@@ -119,7 +91,7 @@ In addition to documenting bindings, documentation can be added to a file using
 (defn plus-two [x] (+ x 2))
 ```
 
-At the REPL, this docstring can be retrieved using the path to the module:
+在 REPL 中，可以使用模块路径检索此文档字符串：
 
 @codeblock```
 repl:1:> (import ./my-module)

@@ -1,57 +1,43 @@
-{:title "Special Forms"
+{:title "特殊形式"
  :template "docpage.html"
  :order 2}
 ---
 
-This document serves as an overview of all of the special forms in Janet.
+本文档概述了 Janet 中的所有特殊形式。
 
-Tuples are used to represent function calls, macros, and special forms. Most
-functionality is exposed through functions, some through macros, and a minimal
-amount through special forms. Special forms are neither functions nor macros
-@html`&mdash;` they are used by the compiler to directly express a low-level
-construct that cannot be expressed through macros or functions.  Special forms
-can be thought of as forming the real 'core' language of Janet. There are only
-13 special forms in Janet.
+元组用于表示函数调用、宏和特殊形式。大多数功能通过函数暴露，部分通过宏暴露，少数通过特殊形式暴露。特殊形式既不是函数也不是宏@html`&mdash;`它们被编译器用来直接表达无法通过宏或函数实现的底层结构。可以将特殊形式视为构成 Janet 真正的"核心"语言。Janet 中只有 13 种特殊形式。
 
 ## @code`(def name meta... value)`
 
-This special form binds a value to a symbol. The symbol can be substituted for
-the value in subsequent expressions for the same result. A binding made by
-@code`def` is a constant and cannot be updated. A symbol can be redefined to a
-new value, but previous uses of the binding will refer to the previous value of
-the binding.
+此特殊形式将一个值绑定到一个符号。在后续表达式中，该符号可以被替换为该值而得到相同结果。由 @code`def` 创建的绑定是一个常量，不能被更新。符号可以被重新定义为新值，但之前对绑定的使用仍会引用绑定之前的值。
 
 @codeblock[janet]```
 (def anumber (+ 1 2 3 4 5))
 
-(print anumber) # prints 15
+(print anumber) # 打印 15
 ```
 
-@p{@code`def` can also take a tuple, array, table or struct to perform
-    destructuring on the value. This allows us to do multiple assignments in one
-    @code`def`.}
+@p{@code`def` 也可以接受元组、数组、表或结构体来对值进行解构。这允许我们在一个 @code`def` 中执行多个赋值。}
 
 @codeblock[janet]```
 (def [a b c] (range 10))
-(print a " " b " " c) # prints 0 1 2
+(print a " " b " " c) # 打印 0 1 2
 
 (def {:x x} @{:x (+ 1 2)})
-(print x) # prints 3
+(print x) # 打印 3
 
 (def [y {:x x}] @[:hi @{:x (+ 1 2)}])
-(print y x) # prints hi3
+(print y x) # 打印 hi3
 ```
 
-@p{@code`def` can also append metadata and a docstring to the symbol when in the
-    global scope.  If not in the global scope, the extra metadata will be
-    ignored.}
+@p{当 @code`def` 在全局作用域中时，还可以向符号附加元数据和文档字符串。如果不在全局作用域中，额外的元数据将被忽略。}
 
 @codeblock[janet]```
-(def mydef :private 3) # Adds the :private key to the metadata table.
-(def mydef2 :private "A docstring" 4) # Add a docstring
+(def mydef :private 3) # 将 :private 键添加到元数据表中。
+(def mydef2 :private "A docstring" 4) # 添加文档字符串
 
-# The metadata will be ignored here because mydef is
-# not accessible outside of the do form.
+# 这里的元数据将被忽略，因为 mydef 在
+# do 表单之外不可访问。
 (do
  (def mydef :private 3)
  (+ mydef 1))
@@ -59,162 +45,129 @@ the binding.
 
 ## @code`(var name meta... value)`
 
-Similar to @code`def`, but bindings set in this manner can be updated using set.
-In all other respects it is the same as @code`def`.
+与 @code`def` 类似，但通过此方式设置的绑定可以使用 set 更新。在其他方面与 @code`def` 相同。
 
 @codeblock[janet]```
 (var a 1)
 (defn printa [] (print a))
 
-(printa) # prints 1
+(printa) # 打印 1
 (++ a)
-(printa) # prints 2
+(printa) # 打印 2
 (set a :hi)
-(printa) # prints hi
+(printa) # 打印 hi
 ```
 
 ## @code`(fn name? args body...)`
 
-Compile a function literal (closure). A function literal consists of an optional
-name, an argument list, and a function body. The optional name is allowed so
-that functions can more easily be recursive. The argument list is a tuple of
-named parameters, and the body is 0 or more forms. The function will evaluate to
-the last form in the body. The other forms will only be evaluated for side
-effects.
+编译一个函数字面量（闭包）。函数字面量由一个可选名称、一个参数列表和一个函数体组成。允许可选名称是为了让函数更容易实现递归。参数列表是命名参数的元组，函数体包含 0 个或多个表达式。函数将求值为函数体中的最后一个表达式。其他表达式仅为了副作用而求值。
 
-Functions also introduce a new lexical scope, meaning the @code`def`s and
-@code`var`s inside a function body will not escape outside the body.
+函数还会引入一个新的词法作用域，这意味着函数体内的 @code`def`s 和 @code`var`s 不会泄漏到函数体外部。
 
 @codeblock[janet]```
-(fn []) # The simplest function literal. Takes no arguments and returns nil.
-(fn [x] x) # The identity function
-(fn identity [x] x) # The name will make stacktraces nicer
-(fn [] 1 2 3 4 5) # A function that returns 5
-(fn [x y] (+ x y)) # A function that adds its two arguments.
+(fn []) # 最简单的函数字面量。不接受参数并返回 nil。
+(fn [x] x) # 恒等函数
+(fn identity [x] x) # 名称将使堆栈跟踪更清晰
+(fn [] 1 2 3 4 5) # 返回 5 的函数
+(fn [x y] (+ x y)) # 将两个参数相加的函数。
 
-(fn [& args] (length args)) # A variadic function that counts its arguments.
+(fn [& args] (length args)) # 一个对参数个数计数的可变参数函数。
 
-# A function that doesn't strictly check the number of arguments.
-# Extra arguments are ignored.
+# 一个不严格检查参数数量的函数。
+# 多余参数被忽略。
 (fn [w x y z &] (tuple w w x x y y z z))
 
-# For improved debugging, name with symbol or keyword
+# 为了改善调试，使用符号或关键字命名
 (fn alice [] :smile)
 (fn :bob [] :sit)
 ```
 
-For more information on functions, see the @link[/docs/functions.html][Functions
-section].
+有关函数的更多信息，请参见 @link[/docs/functions.html][函数章节]。
 
 ## @code`(do body...)`
 
-Execute a series of forms for side effects and evaluates to the final form. Also
-introduces a new lexical scope without creating or calling a function.
+执行一系列表单以产生副作用，并求值为最后一个表单。还会引入一个新的词法作用域，而无需创建或调用函数。
 
 @codeblock[janet]```
-(do 1 2 3 4) # Evaluates to 4
+(do 1 2 3 4) # 求值为 4
 
-# Prints 1, 2 and 3, then evaluates to (print 3), which is nil
+# 打印 1、2 和 3，然后求值为 (print 3)，结果为 nil
 (do (print 1) (print 2) (print 3))
 
-# Prints 1
+# 打印 1
 (do
  (def a 1)
  (print a))
 
-# a is not defined here, so fails
+# 这里 a 未定义，所以会失败
 a
 ```
 
 ## @code`(quote x)`
 
-Evaluates to the literal value of the first argument. The argument is not
-compiled and is simply used as a constant value in the compiled code. Preceding
-a form with a single quote is shorthand for @code`(quote expression)`.
+求值为第一个参数的字面值。该参数不会被编译，在编译后的代码中直接作为常量值使用。在表达式前加单引号是 @code`(quote expression)` 的简写。
 
 @codeblock[janet]```
-(quote 1) # evaluates to 1
-(quote hi) # evaluates to the symbol hi
-(quote quote) # evaluates to the symbol quote
+(quote 1) # 求值为 1
+(quote hi) # 求值为符号 hi
+(quote quote) # 求值为符号 quote
 
-'(1 2 3) # Evaluates to a tuple (1 2 3)
-'(print 1 2 3) # Evaluates to a tuple (print 1 2 3)
+'(1 2 3) # 求值为元组 (1 2 3)
+'(print 1 2 3) # 求值为元组 (print 1 2 3)
 ```
 
 ## @code`(if condition when-true when-false?)`
 
-Introduce a branching construct. The first form is the condition, the second
-form is the form to evaluate when the condition is true, and the optional third
-form is the form to evaluate when the condition is false. If no third form is
-provided it defaults to @code`nil`.
+引入分支结构。第一个表达式是条件，第二个表达式是在条件为真时求值的表达式，可选的第三个表达式是在条件为假时求值的表达式。如果没有提供第三个表达式，则默认为 @code`nil`。
 
-The @code`if` special form will not evaluate the when-true or when-false forms
-unless it needs to - it is a lazy form, which is why it cannot be a function or
-macro.
+@code`if` 特殊形式不会求值 when-true 或 when-false 表达式，除非必要——它是一种惰性形式，这就是它不能是函数或宏的原因。
 
-The condition is considered false only if it evaluates to @code`nil` or
-@code`false` - all other values are considered @code`true`.
+条件仅在求值为 @code`nil` 或 @code`false` 时才被视为假——所有其他值都被视为 @code`true`。
 
-If when-true or when-false is evaluated, this is done in the context
-of a newly introduced lexical scope.
+如果求值 when-true 或 when-false，这将在新引入的词法作用域上下文中进行。
 
 @codeblock[janet]```
-(if true 10) # evaluates to 10
-(if false 10) # evaluates to nil
-(if true (print 1) (print 2)) # prints 1 but not 2
-(if 0 (print 1) (print 2)) # prints 1
-(if nil (print 1) (print 2)) # prints 2
-(if @[] (print 1) (print 2)) # prints 1
+(if true 10) # 求值为 10
+(if false 10) # 求值为 nil
+(if true (print 1) (print 2)) # 打印 1 但不打印 2
+(if 0 (print 1) (print 2)) # 打印 1
+(if nil (print 1) (print 2)) # 打印 2
+(if @[] (print 1) (print 2)) # 打印 1
 ```
 
 ## @code`(splice x)`
 
-The @code`splice` special form is an interesting form that allows an array or
-tuple to be put into another form inline.  It only has an effect in two places -
-as an argument in a function call or literal constructor, or as the argument to
-the unquote form. Outside of these two settings, the splice special form simply
-evaluates directly to its argument @code`x`. The shorthand for @code`splice` is
-prefixing a form with a semicolon. The @code`splice` special form has no effect
-on the behavior of other special forms, except as an argument to @code`unquote`.
+@code`splice` 特殊形式是一种有趣的形式，它允许将数组或元组内联放入另一个表单中。它只在两个地方起作用——作为函数调用或字面量构造器中的参数，或者作为 unquote 形式的参数。在这两种设置之外，splice 特殊形式直接求值为其参数 @code`x`。@code`splice` 的简写是在表达式前加分号。@code`splice` 特殊形式不影响其他特殊形式的行为，除非作为 @code`unquote` 的参数。
 
-In the context of a function call, @code`splice` will insert @em{the contents}
-of @code`x` in the parameter list.
+在函数调用的上下文中，@code`splice` 会将 @code`x` 的@em{内容}插入到参数列表中。
 
 @codeblock[janet]```
-(+ 1 2 3) # evaluates to 6
+(+ 1 2 3) # 求值为 6
 
-(+ @[1 2 3]) # bad
+(+ @[1 2 3]) # 错误的用法
 
-(+ (splice @[1 2 3])) # also evaluates to 6
+(+ (splice @[1 2 3])) # 同样求值为 6
 
-(+ ;@[1 2 3]) # Same as above
+(+ ;@[1 2 3]) # 同上
 
-(+ ;(range 100)) # Sum the first 100 natural numbers
+(+ ;(range 100)) # 求前 100 个自然数的和
 
-(+ ;(range 100) 1000) # Sum the first 100 natural numbers and 1000
+(+ ;(range 100) 1000) # 求前 100 个自然数与 1000 的和
 
-[;(range 100)] # First 100 integers in a tuple instead of an array.
+[;(range 100)] # 以元组形式存储前 100 个整数，而不是数组。
 
-(def ;[a 10]) # this will not work as def is a special form.
+(def ;[a 10]) # 这不起作用，因为 def 是特殊形式。
 ```
 
-Notice that this means we rarely need the @code`apply` function, as the
-@code`splice` operator is more flexible.
+注意，这意味着我们很少需要 @code`apply` 函数，因为 @code`splice` 操作符更加灵活。
 
-A @code`splice` form can also be used as the argument to an @code`unquote` form,
-where it will behave like an @code`unquote-splicing` special in Common Lisp.
-Using the short form of both of these specials, this can be abbreviated
-@code`,;some-array-expression`.
+@code`splice` 形式也可以用作 @code`unquote` 形式的参数，此时它的行为类似于 Common Lisp 中的 @code`unquote-splicing` 特殊形式。使用这两种特殊形式的简写，可以缩写为 @code`,;some-array-expression`。
 
 ## @code`(while condition body...)`
 
-The @code`while` special form compiles to a C-like @code`while` loop. The body
-of the form will be continuously evaluated until the condition is @code`false`
-or @code`nil`. Therefore, it is expected that the body will contain some side
-effects or the loop will go on forever. The @code`while` loop always evaluates
-to @code`nil`.
+@code`while` 特殊形式编译成类似 C 语言的 @code`while` 循环。循环体将被持续求值，直到条件为 @code`false` 或 @code`nil`。因此，循环体中应包含一些副作用，否则循环将永远持续下去。@code`while` 循环始终求值为 @code`nil`。
 
-Note that the @code`while` special form introduces a new lexical scope.
+注意，@code`while` 特殊形式会引入一个新的词法作用域。
 
 @codeblock[janet]```
 (var i 0)
@@ -225,19 +178,12 @@ Note that the @code`while` special form introduces a new lexical scope.
 
 ## @code`(break value?)`
 
-Break from a @code`while` loop or return early from a function. The @code`break`
-special form can only break from the inner-most loop. Since a @code`while` loop
-always returns @code`nil`, the optional @code`value` parameter has no effect when
-used in a @code`while` loop, but when returning from a function, the
-@code`value` parameter is the function's return value.
+从 @code`while` 循环中跳出或从函数提前返回。@code`break` 特殊形式只能从最内层的循环中跳出。由于 @code`while` 循环总是返回 @code`nil`，可选的 @code`value` 参数在 @code`while` 循环中使用时没有效果，但从函数返回时，@code`value` 参数就是函数的返回值。
 
-The @code`break` special form is most useful as a low level construct for
-macros. You should try to avoid using it in handwritten code, although it can be
-very useful for handling early exit conditions without requiring deeply indented
-code (try the @code`cond` macro first, though).
+@code`break` 特殊形式作为宏的底层构造最为有用。应尽量避免在手写代码中使用它，尽管它在处理提前退出条件时非常有用，无需编写深度缩进的代码（不过可以先试试 @code`cond` 宏）。
 
 @codeblock[janet]```
-# Breaking from a while loop
+# 从 while 循环中跳出
 (while true
  (def x (math/random))
  (if (> x 0.95) (break))
@@ -245,7 +191,7 @@ code (try the @code`cond` macro first, though).
 ```
 
 @codeblock[janet]```
-# Early exit example using (break)
+# 使用 (break) 的提前退出示例
 (fn myfn
  [x]
  (if (= x :one) (break))
@@ -254,7 +200,7 @@ code (try the @code`cond` macro first, though).
  (print "x = " x)
  x)
 
-# Example using (cond)
+# 使用 (cond) 的示例
 (fn myfn
  [x]
  (cond
@@ -268,47 +214,35 @@ code (try the @code`cond` macro first, though).
 
 ## @code`(set l-value r-value)`
 
-Update the value of the var @code`l-value` with the new @code`r-value`. The
-@code`set` special form will then evaluate to @code`r-value`.
+用新的 @code`r-value` 更新变量 @code`l-value` 的值。@code`set` 特殊形式将求值为 @code`r-value`。
 
-The @code`r-value` can be any expression, and the @code`l-value` should be a
-bound var or a pair of a data structure and key. This allows set to behave like
-@code`setf` or @code`setq` in Common Lisp.
+@code`r-value` 可以是任何表达式，@code`l-value` 应该是一个已绑定的变量或一个数据结构与键的配对。这使得 set 的行为类似于 Common Lisp 中的 @code`setf` 或 @code`setq`。
 
 @codeblock[janet]```
 (var x 10)
 (defn prx [] (print x))
-(prx) # prints 10
+(prx) # 打印 10
 (set x 11)
-(prx) # prints 11
+(prx) # 打印 11
 (set x nil)
-(prx) # prints nil
+(prx) # 打印 nil
 
 (def tab @{})
 (set (tab :property) "hello")
-(pp tab) # prints @{:property "hello"}
+(pp tab) # 打印 @{:property "hello"}
 ```
 
 ## @code`(quasiquote x)`
 
-Similar to @code`(quote x)`, but allows for unquoting within @code`x`. This
-makes @code`quasiquote` useful for writing macros, as a macro definition often
-generates a lot of templated code with a few custom values. The shorthand for
-quasiquote is a leading tilde @code`~` before a form. With that form,
-@code`(unquote x)` will evaluate and insert @code`x` into the @code`unquote`
-form. The shorthand for @code`(unquote x)` is @code`,x`.
+类似于 @code`(quote x)`，但允许在 @code`x` 内部进行反引用。这使得 @code`quasiquote` 在编写宏时非常有用，因为宏定义通常生成大量模板代码并带有少量自定义值。quasiquote 的简写是在表达式前加波浪线 @code`~`。使用该形式时，@code`(unquote x)` 将求值并插入 @code`x` 到 @code`unquote` 形式中。@code`(unquote x)` 的简写是 @code`,x`。
 
 ## @code`(unquote x)`
 
-Unquote a form within a @code`quasiquote`. Outside of a @code`quasiquote`,
-@code`unquote` is invalid.
+在 @code`quasiquote` 内对表达式进行反引用。在 @code`quasiquote` 外部，@code`unquote` 是无效的。
 
 ## @code`(upscope & body)`
 
-Similar to @code`do`, @code`upscope` evaluates a number of forms and sequence and evaluates to the
-result of the last form. However, @code`upscope` does not create a new lexical scope, which means
-that bindings created inside it are visible in the scope where upscope is declared. This is
-useful for writing macros that make several def and var declarations at once.
+类似于 @code`do`，@code`upscope` 求值一系列表达式并返回最后一个表达式的结果。但是，@code`upscope` 不会创建新的词法作用域，这意味着在其内部创建的绑定在声明 upscope 的作用域中可见。这对于编写一次性声明多个 def 和 var 声明的宏非常有用。
 
 @codeblock[janet]```
 (upscope
@@ -319,8 +253,7 @@ useful for writing macros that make several def and var declarations at once.
 (+ a b c) # -> 6
 ```
 
-In general, use this macro as a last resort. There are other, often better ways to do this, including
-using destructuring.
+通常，应最后考虑使用此宏。还有其他通常更好的方法来完成此操作，包括使用解构。
 
 @codeblock[janet]```
 (def [a b c] [1 2 3])

@@ -1,40 +1,25 @@
-{:title "Modules"
+{:title "模块"
  :template "docpage.html"
  :order 13}
 ---
 
-As programs grow, they should be broken into smaller pieces for
-maintainability.  Janet has the concept of modules to this end. A
-module is a collection of bindings and its associated environment.  By
-default, modules correspond one-to-one with source files in Janet,
-although you may override this and structure modules however you like.
+随着程序规模的增长，应将其拆分为更小的部分以便于维护。Janet 为此引入了模块的概念。模块是绑定的集合及其关联的环境。默认情况下，模块与 Janet 中的源文件一一对应，不过你可以覆盖这一规则，按照自己的方式组织模块。
 
-## Installing a module
+## 安装模块
 
-Using @code`jpm`, the @code`path` module can be installed like so from
-the command line:
+使用 @code`jpm`，可以通过命令行安装 @code`path` 模块：
 
 @codeblock```
 sudo jpm install https://github.com/janet-lang/path.git
 ```
 
-The use of @code`sudo` is not required in some setups, but is often
-needed for a global install on POSIX systems. You can pass in a git
-repository URL to the @code`install` command, and @code`jpm` will
-install that package globally on your system.
+在某些配置中不需要 @code`sudo`，但在 POSIX 系统上进行全局安装时通常需要。你可以向 @code`install` 命令传入 git 仓库 URL，@code`jpm` 会将该包全局安装到你的系统上。
 
-If you are not using @code`jpm`, you can place the file
-@code`path.janet` from the repository in your current directory, and
-Janet will be able to import it as well. However, for more complicated
-packages or packages containing native C extensions, @code`jpm` will
-usually be much easier.
+如果你不使用 @code`jpm`，可以将仓库中的 @code`path.janet` 文件放在当前目录下，Janet 也能导入它。但对于更复杂的包或包含原生 C 扩展的包，使用 @code`jpm` 通常会方便得多。
 
-## Importing a module
+## 导入模块
 
-To use a module, the best way is to use the @code`(import)` macro,
-which looks for a module with the given name on your system and
-imports its symbols into the current environment, usually prefixed
-with the name of the module.
+要使用模块，最佳方式是使用 @code`(import)` 宏，它会在你的系统上查找给定名称的模块，并将其符号导入到当前环境，通常以模块名称为前缀。
 
 @codeblock[janet]```
 (import path)
@@ -42,10 +27,7 @@ with the name of the module.
 (path/join (os/cwd) "temp")
 ```
 
-Once @code`path` is imported, all of its symbols are available to the
-host program, but prefixed with @code`path/`. To import the symbols
-with a custom prefix or without any prefix, use the @code`:prefix`
-argument to the @code`import` macro.
+导入 @code`path` 后，其所有符号均可供宿主程序使用，但带有 @code`path/` 前缀。要以自定义前缀或无前缀方式导入符号，可以使用 @code`import` 宏的 @code`:prefix` 参数。
 
 @codeblock[janet]```
 (import path :prefix "")
@@ -53,8 +35,7 @@ argument to the @code`import` macro.
 (join (os/cwd) "temp")
 ```
 
-You may also use the @code`:as` argument to specify the prefix in a
-more natural way.
+你也可以使用 @code`:as` 参数以更自然的方式指定前缀。
 
 @codeblock[janet]```
 (import path :as p)
@@ -62,88 +43,36 @@ more natural way.
 (p/join (os/cwd) "temp")
 ```
 
-By default, the following files will be searched for in order for
-@code`(import foo)`:
+默认情况下，对于 @code`(import foo)`，将按顺序搜索以下文件：
 
 * @code`foo.jimage`
 * @code`foo.janet`
 * @code`foo/init.janet`
 * @code`foo.<native-extension>`
 
-where @code`<native-extension>` is the file extension for shared
-objects / libraries for the current platform (e.g. `dll` for Windows,
-`dylib` for macos, and `so` for other unix-likes).  This is a
-"first-match wins" arrangement so at most one file will be imported.
+其中 @code`<native-extension>` 是当前平台共享对象/库的文件扩展名（例如 Windows 上为 `dll`，macOS 上为 `dylib`，其他类 Unix 系统上为 `so`）。这是一种"先匹配者获胜"的机制，因此最多只会导入一个文件。
 
-## Custom loaders (@code`module/paths` and @code`module/loaders`)
+## 自定义加载器（@code`module/paths` 和 @code`module/loaders`）
 
-The @code`module/paths` and @code`module/loaders` data structures
-determine how Janet will load a given module name. @code`module/paths`
-is a list of patterns and methods to use to try and find a given
-module. The entries in @code`module/paths` will be checked in order,
-as it is possible that multiple entries could match.  If a module name
-matches a pattern (which usually means that some file exists), then we
-use the corresponding loader in @code`module/loaders` to evaluate that
-file, source code, URL, or whatever else we want to derive from the
-module name. The resulting value, usually an environment table, is
-then cached so that it can be reused later without evaluating a module
-twice.
+@code`module/paths` 和 @code`module/loaders` 数据结构决定了 Janet 如何加载给定的模块名称。@code`module/paths` 是一组模式和方法列表，用于尝试查找给定的模块。@code`module/paths` 中的条目会按顺序检查，因为可能有多个条目都能匹配。如果一个模块名称匹配某个模式（通常意味着某个文件存在），那么我们就使用 @code`module/loaders` 中相应的加载器来评估该文件、源代码、URL 或任何我们想从模块名称派生的内容。结果值（通常是环境表）会被缓存，以便以后可以重用，而无需两次评估同一个模块。
 
-By modifying @code`module/paths` and @code`module/loaders`, you can
-create custom module schemes, handlers for file extensions, or even
-your own module system. It is recommended to not modify existing
-entries in @code`module/paths` or @code`module/loader`, and simply add
-to the existing entries. This is rather advanced usage, but can be
-incredibly useful in creating DSLs that feel native to Janet.
+通过修改 @code`module/paths` 和 @code`module/loaders`，你可以创建自定义模块方案、文件扩展名处理器，甚至自己的模块系统。建议不要修改 @code`module/paths` 或 @code`module/loader` 中的现有条目，而是直接添加到现有条目中。这是一种较为高级的用法，但在创建具有 Janet 原生感的 DSL 时非常有用。
 
 ### @code`module/paths`
 
-This is an array of file paths to search for modules in the file
-system. Each element in this array is a tuple @code`[path type
-predicate]`, where @code`path` is a templated file path, which
-determines what path corresponds to a module name, and where
-@code`type` is the loading method used to load the module. @code`type`
-can be one of @code`:native`, @code`:source`, @code`:image`, or any
-key in the @code`module/loaders` table.
+这是一个在文件系统中搜索模块的文件路径数组。数组中的每个元素都是一个元组 @code`[path type predicate]`，其中 @code`path` 是一个模板化的文件路径，用于确定模块名称对应的路径；@code`type` 是用于加载模块的加载方法。@code`type` 可以是 @code`:native`、@code`:source`、@code`:image` 之一，也可以是 @code`module/loaders` 表中的任意键。
 
-@p{@code`predicate` is an optional function or file extension used to
-    further filter whether or not a module name should match.  It's
-    mainly useful when @code`path` is a string and you want to further
-    refine the pattern.}
+@p{@code`predicate` 是一个可选的函数或文件扩展名，用于进一步过滤模块名称是否应该匹配。当 @code`path` 是字符串且你想要进一步细化模式时，它特别有用。}
 
-@p{@code`path` can also be a function that checks if a module name
-    matches. If the module name matches, the function should return a
-    string that will be used as the main identifier for the
-    module. Most of the time, this should be the absolute path to the
-    module, but it can be any unique key that identifies the module
-    such as an absolute URL. It is this key that is used to determine
-    if a module has been loaded already.  This mechanism lets
-    @code`./mymod` and @code`mymod` refer to the same module even
-    though they are different names passed to @code`import`.}
+@p{@code`path` 也可以是一个函数，用于检查模块名称是否匹配。如果模块名称匹配，该函数应返回一个字符串，该字符串将用作模块的主要标识符。大多数情况下，这应该是模块的绝对路径，但也可以是任何能标识模块的唯一键，例如绝对 URL。正是这个键用于判断模块是否已经加载。这一机制使得 @code`./mymod` 和 @code`mymod` 即使作为不同的名称传给 @code`import`，也能指向同一个模块。}
 
 ### @code`module/loaders`
 
-Once a primary module identifier and module type has been chosen,
-Janet's import machinery (defined mostly in @code`require` and
-@code`module/find`) will use the appropriate loader from
-@code`module/loaders` to get an environment table.  Each loader in the
-table is just a function that takes the primary module identifier
-(usually an absolute path to the module) as well as optionally any
-other arguments passed to @code`require` or @code`import`, and returns
-the environment table.  For example, the @code`:source` type is a thin
-wrapper around @code`dofile`, the @code`:image` type is a wrapper
-around @code`load-image`, and the @code`:native` type is a wrapper
-around @code`native`.
+一旦选择了主要模块标识符和模块类型，Janet 的导入机制（主要定义在 @code`require` 和 @code`module/find` 中）将使用 @code`module/loaders` 中相应的加载器来获取环境表。表中的每个加载器都是一个函数，该函数接收主要模块标识符（通常是模块的绝对路径）以及可选地传递给 @code`require` 或 @code`import` 的其他参数，并返回环境表。例如，@code`:source` 类型是对 @code`dofile` 的轻量封装，@code`:image` 类型是对 @code`load-image` 的封装，@code`:native` 类型是对 @code`native` 的封装。
 
-### URL loader example
+### URL 加载器示例
 
-An example from @code`examples/urlloader.janet` in the source
-repository shows how a loader can be a wrapper around curl and
-@code`dofile` to load source files from HTTP URLs.  To use it, simply
-evaluate this file somewhere in your program before you require code
-from a URL. Don't use this as-is in production code, because if
-@code`url` contains spaces in @code`load-url`, the module will not
-load correctly. A more robust solution would quote the URL.
+源代码仓库中 @code`examples/urlloader.janet` 的示例展示了加载器如何作为 curl 和 @code`dofile` 的封装来从 HTTP URL 加载源文件。要使用它，只需在程序中需要从 URL 加载代码之前评估该文件即可。不要在生产代码中直接使用此示例，因为如果在 @code`load-url` 中 @code`url` 包含空格，模块将无法正确加载。更健壮的解决方案是对 URL 进行引号处理。
 
 @codeblock[janet]```
 (defn- load-url
@@ -159,16 +88,14 @@ load correctly. A more robust solution would quote the URL.
           (string/has-prefix? "https://" path))
     path))
 
-# Add the module loader and path tuple to right places
+# 将模块加载器和路径元组添加到正确位置
 (array/push module/paths [check-http-url :janet-http])
 (put module/loaders :janet-http load-url)
 ```
 
-## Relative imports
+## 相对导入
 
-You can include files relative to the current file by prefixing the
-module name with @code`./`. For example, suppose you have a file tree
-that is structured like so:
+你可以通过在模块名称前加上 @code`./` 来包含当前文件的相对文件。例如，假设你有如下结构的文件树：
 
 @codeblock```
 mymod/
@@ -178,13 +105,7 @@ mymod/
     dep2.janet
 ```
 
-With the above structure, @code`init.janet` can import @code`dep1` and
-@code`dep2` with relative imports. This is robust because the entire
-@code`mymod/` directory can be installed without any chance that
-@code`dep1` and @code`dep2` will overwrite other files, or that
-@code`init.janet` will accidentally import a different file named
-@code`dep1.janet` or @code`dep2.janet`. @code`mymod` can even be a
-sub-directory in another Janet source tree and work as expected.
+通过上述结构，@code`init.janet` 可以使用相对导入来导入 @code`dep1` 和 @code`dep2`。这种方式很健壮，因为整个 @code`mymod/` 目录可以被安装，而无需担心 @code`dep1` 和 @code`dep2` 会覆盖其他文件，或者 @code`init.janet` 意外导入另一个名为 @code`dep1.janet` 或 @code`dep2.janet` 的文件。@code`mymod` 甚至可以成为另一个 Janet 源代码树的子目录，并正常工作。
 
 init.janet
 @codeblock[janet]```
@@ -194,93 +115,67 @@ init.janet
 ...
 ```
 
-Note that relative imports are relative to the current file, not to
-the working directory. For that behavior, see the section on working
-directory imports.
+请注意，相对导入是相对于当前文件的，而不是工作目录。有关那种行为，请参阅工作目录导入部分。
 
-### Pre-loaded Modules
+### 预加载模块
 
-An easy way to bypass the import system and create custom modules is
-to manually add modules into @code`module/cache`.
+绕过导入系统并创建自定义模块的一种简单方法是手动将模块添加到 @code`module/cache`。
 
 @codeblock[janet]```
 (put module/cache "mymod" (dofile "localfile.janet"))
-# The module defined by localfile.janet can now be
-# imported with (import mymod)
+# localfile.janet 定义的模块现在可以
+# 通过 (import mymod) 导入
 ```
 
-This is not recommended except in a few circumstances where a module
-needs to be loaded at runtime but doesn't exist on disk, such as if a
-program were compiled into a standalone executable. A pattern to allow
-this in a standalone executable built with @code`jpm` is as follows:
+除了少数情况（如模块需要在运行时加载但磁盘上不存在，例如程序被编译为独立可执行文件）之外，不建议这样做。在通过 @code`jpm` 构建的独立可执行文件中实现此功能的模式如下：
 
 @codeblock[janet]```
 (def mod1 (require "./localfile"))
 
 (defn main [& args]
   (put module/cache "mod1" mod1)
-  # now calls to (import mod1) at runtime will succeed.
+  # 现在运行时调用 (import mod1) 将成功。
   (import mod1))
 ```
 
-### Working Directory Imports
+### 工作目录导入
 
-Starting in 1.14.1, Janet will allow imports relative to the current
-working directory.  This is very useful in scripting circumstances
-where source code must be loaded at runtime.  This can be done with
-the function @code`dofile`, but it can also be done with the default
-import system.
+从 1.14.1 版本开始，Janet 允许相对于当前工作目录的导入。这在需要在运行时加载源代码的脚本场景中非常有用。这可以通过 @code`dofile` 函数实现，也可以通过默认的导入系统实现。
 
-To import a file relative to the working directory, prefix the import
-path with a forward slash "/".
+要导入相对于工作目录的文件，请在导入路径前加上正斜杠 "/"。
 
 @codeblock[janet]```
 (import /local)
 ```
 
-This will import from a file @code`./local.janet`, (or
-@code`./local.so`, @code`./local.jimage`, and so on), and prefix the
-imported symbols with @code`local/`.
+这将从 @code`./local.janet`（或 @code`./local.so`、@code`./local.jimage` 等）文件中导入，并使用 @code`local/` 前缀作为导入符号的前缀。
 
-### \@-prefixed Imports
+### @-前缀导入
 
-Starting in 1.26.0, Janet allows importing modules from custom
-directories more easily using the @code`@`-prefix in a module path.
+从 1.26.0 版本开始，Janet 允许通过在模块路径中使用 @code`@` 前缀来更方便地从自定义目录导入模块。
 
-For example, if there is a dynamic binding @code`:custom-modules` that
-is a file system path to a directory of modules, import from that
-directory with:
+例如，如果存在一个动态绑定 @code`:custom-modules`，它是一个指向模块目录的文件系统路径，则可以通过以下方式从该目录导入：
 
 @codeblock[janet]```
 (import @custom-modules/mymod)
 ```
 
-As a special case, it is possible to import from absolute paths by
-prefixing an absolute path with @code`@`.  For example, to import
-from @code`/tmp/custom-modules/mymod.janet`, express this as:
+作为一种特殊情况，可以通过在绝对路径前加上 @code`@` 来从绝对路径导入。例如，要从 @code`/tmp/custom-modules/mymod.janet` 导入，可以这样表示：
 
 @codeblock[janet]```
 (import @/tmp/custom-modules/mymod)
 ```
 
-Note that although using absolute paths is possible and useful for
-testing, it is not recommended for most production use cases.
+请注意，虽然使用绝对路径是可行的且对测试有用，但在大多数生产用例中不建议这样做。
 
-## Writing a module
+## 编写模块
 
-Writing a module in Janet is mostly about exposing only the public
-functions that you want users of your module to be able to use. All
-top level functions defined via @code`defn`, macros defined via
-@code`defmacro`, constants defined via @code`def`, and vars defined
-via @code`var` will be exported in your module. To mark a function or
-binding as private to your module, you may use @code`defn-` or
-@code`def-` at the top level.  You can also add the keyword
-@code`:private` as metadata for the binding.
+在 Janet 中编写模块主要是只暴露你想要模块用户能够使用的公共函数。所有通过 @code`defn` 定义的顶级函数、通过 @code`defmacro` 定义的宏、通过 @code`def` 定义的常量以及通过 @code`var` 定义的变量都会被导出到你的模块中。要将函数或绑定标记为模块私有，可以在顶级使用 @code`defn-` 或 @code`def-`。你还可以添加 @code`:private` 关键字作为绑定的元数据。
 
-Sample module:
+示例模块：
 
 @codeblock[janet]```
-# Put imports and other requisite code up here
+# 在此处放置导入和其他必要代码
 
 (def api-constant
   "Some constant."
@@ -309,20 +204,18 @@ Sample module:
   (+ 10 (private-fun stuff 1 2)))
 ```
 
-To import our sample module given that it is stored on disk at
-@code`mymod.janet`, we could do something like the following (this
-also works in a REPL):
+要导入我们存储于磁盘 @code`mymod.janet` 的示例模块，可以执行以下操作（也可在 REPL 中运行）：
 
 @codeblock[janet]```
 (import mymod)
 
-mymod/api-constant # evaluates to 1000
+mymod/api-constant # 求值为 1000
 
-(mymod/api-fun 10) # evaluates to 23
+(mymod/api-fun 10) # 求值为 23
 
-mymod/*api-var* # evaluates to nil
+mymod/*api-var* # 求值为 nil
 (set mymod/*api-var* 10)
-mymod/*api-var* # evaluates to 10
+mymod/*api-var* # 求值为 10
 
-(mymod/private-fun 10) # will not compile
+(mymod/private-fun 10) # 无法编译
 ```

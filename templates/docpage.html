@@ -5,13 +5,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{{ (dyn :title) }}</title>
-    <meta name="description" content="{{ (or (dyn :description) `Janet is a functional and imperative programming language. It runs on Windows, Linux, macOS, FreeBSD and *nix.`) }}">
+    <meta name="description" content="{{ (or (dyn :description) `Janet 是一种函数式和命令式编程语言。它运行在 Windows、Linux、macOS、FreeBSD 和类 Unix 系统上。`) }}">
     <link rel="stylesheet" href="{{ (relative-url `/css/main.css`) }}" type="text/css" media="screen" charset="utf-8">
     <link rel="stylesheet" href="{{ (relative-url `/css/docpage.css`) }}" type="text/css" media="screen" charset="utf-8">
     <link rel="shortcut icon" href="../assets/favicon.ico">
 
     <!-- Open Graph -->
-    <meta property="og:description" content="{{ (or (dyn :description) `Janet is a functional and imperative programming language. It runs on Windows, Linux, macOS, FreeBSD and *nix.`) }}" />
+    <meta property="og:description" content="{{ (or (dyn :description) `Janet 是一种函数式和命令式编程语言。它运行在 Windows、Linux、macOS、FreeBSD 和类 Unix 系统上。`) }}" />
     <meta property="og:title" content="{{ (dyn :title) }}" />
     <meta property="og:type" content="website" />
   </head>
@@ -22,7 +22,7 @@
       <div class="bar"></div>
       <div class="bar botbar"></div>
     </div>
-    <iframe class="search-bar" src="https://duckduckgo.com/search.html?site=janet-lang.org&prefill=Search janet-lang.org" frameborder="0"></iframe>
+    <iframe class="search-bar" src="https://duckduckgo.com/search.html?site=janet-lang.org&prefill=搜索 janet-lang.org" frameborder="0"></iframe>
     <script charset="utf-8">
       function toggleToc() {
         var el = document.getElementById('toc-toggle');
@@ -52,7 +52,7 @@
         </ul>
       </div>
       <div class="content-wrapper main-content">
-        <h4 class="subtitle">Janet {{janet/version}}-{{janet/build}} Documentation<br>(Other Versions:
+        <h4 class="subtitle">Janet {{janet/version}}-{{janet/build}} 文档<br>(其他版本：
           {% (each v other-versions %}
           <a href="{{ (relative-url (string v url)) }}">{{v}}</a>
           {% ) %})</h4>

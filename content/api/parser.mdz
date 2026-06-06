@@ -1,12 +1,12 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Parser Module"
+{:title "解析器模块"
  :order 0
  :nav-title "parser"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[parser/]
 

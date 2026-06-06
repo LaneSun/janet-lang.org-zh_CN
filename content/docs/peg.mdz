@@ -1,32 +1,15 @@
-{:title "Parsing Expression Grammars"
+{:title "解析表达式语法"
  :template "docpage.html"
  :order 16}
 ---
 
-A common programming task is recognizing patterns in text, be it filtering
-emails from a list or extracting data from a CSV file. Programming languages and
-libraries usually offer a number of tools for this, including prebuilt parsers,
-simple operations on strings (splitting a string on commas), and regular
-expressions.  The pre-built or custom-built parser is usually the most robust
-solution, but can be very complex to maintain and may not exist for many
-languages. String functions are not powerful enough for a large class of
-languages, and regular expressions can be hard to read (which characters are
-escaped?) and under-powered (don't parse HTML with regex!).
+在文本中识别模式是一项常见的编程任务，无论是从列表中筛选电子邮件，还是从CSV文件中提取数据。编程语言和库通常提供多种工具来完成这项工作，包括预构建的解析器、简单的字符串操作（例如按逗号分割字符串）以及正则表达式。预构建或自定义的解析器通常是最稳健的方案，但维护起来可能非常复杂，而且对于许多语言可能并不存在现成的方案。字符串函数对于很大一类语言来说功能不够强大，而正则表达式又难以阅读（哪些字符需要转义？）并且能力有限（不要用正则表达式解析HTML！）。
 
-PEGs, or Parsing Expression Grammars, are another formalism for recognizing
-languages. PEGs are easier to write than a custom parser and more powerful than
-regular expressions. They also can produce grammars that are easily
-understandable and fast. PEGs can also be compiled to a bytecode format that can
-be reused. Janet offers the @code`peg` module for writing and evaluating PEGs.
+PEG（Parsing Expression Grammars，解析表达式语法）是另一种用于识别语言的形式系统。PEG比自定义解析器更容易编写，比正则表达式更强大。它们还能生成易于理解和快速执行的语法。PEG还可以编译为可重复使用的字节码格式。Janet提供了@code`peg`模块，用于编写和评估PEG。
 
-Janet's @code`peg` module borrows syntax and ideas from both LPeg and REBOL/Red
-parse module. Janet has no built-in regex module because PEGs offer a superset
-of the functionality of regular expressions.
+Janet的@code`peg`模块借鉴了LPeg和REBOL/Red解析模块的语法和思想。Janet没有内置的正则表达式模块，因为PEG提供了正则表达式功能的超集。
 
-Below is a simple example for checking if a string is a valid IP address. Notice
-how the grammar is descriptive enough that you can read it even if you don't
-know the PEG syntax (example is translated from a
-@link[https://www.red-lang.org/2013/11/041-introducing-parse.html][RED language blog post]).
+下面是一个检查字符串是否为有效IP地址的简单示例。注意语法的描述性很强，即使你不了解PEG语法也能读懂（示例翻译自一篇@link[https://www.red-lang.org/2013/11/041-introducing-parse.html][RED语言博客文章]）。
 
 @codeblock[janet]```
 (def ip-address
@@ -46,68 +29,50 @@ know the PEG syntax (example is translated from a
 (peg/match ip-address "0.0.0.0more text") # -> @[]
 ```
 
-## The API
+## API
 
-The @code`peg` module has few functions because the complexity is exposed
-through the pattern syntax. Note that there is only one match function,
-@code`peg/match`. Variations on matching, such as parsing or searching, can be
-implemented inside patterns.  PEGs can also be compiled ahead of time with
-@code`peg/compile` if a PEG will be reused many times.
+@code`peg`模块的函数很少，因为复杂性通过模式语法来暴露。注意只有一个匹配函数@code`peg/match`。匹配的各种变体，如解析或搜索，可以在模式内部实现。如果PEG会被多次重用，也可以使用@code`peg/compile`预先编译。
 
 ### @code`(peg/match peg text [,start=0] & arguments)`
 
-Match a PEG against some text. Returns an array of captured data if the text
-matches, or @code`nil` if there is no match. The caller can provide an optional
-@code`start` index to begin matching, otherwise the PEG starts on the first
-character of text. A PEG can either be a compiled PEG object or PEG source.
+将PEG与一段文本进行匹配。如果文本匹配，则返回捕获数据的数组，否则返回@code`nil`。调用者可以提供可选的@code`start`索引来指定匹配起始位置，否则PEG从文本的第一个字符开始匹配。PEG可以是已编译的PEG对象，也可以是PEG源码。
 
 ### @code`(peg/compile peg)`
 
-Compiles a PEG source data structure into a new PEG. Throws an error if there
-are problems with the PEG code.
+将PEG源码数据结构编译为新的PEG。如果PEG代码存在问题，则抛出错误。
 
-## Primitive patterns
+## 基本模式
 
-Larger patterns are built up with primitive patterns, which recognize individual
-characters, string literals, or a given number of characters. A character in
-Janet is considered a byte, so PEGs will work on any string of bytes. No special
-meaning is given to the @code`0` byte, or the string terminator as in many
-languages.
+较大的模式由基本模式构建而成，这些基本模式可以识别单个字符、字符串字面量或指定数量的字符。Janet中的字符被视为一个字节，因此PEG可以处理任何字节字符串。与许多语言不同，@code`0`字节或字符串终止符没有特殊含义。
 
 @tag[table]{
-    @tr{@th{Pattern Signature}
-        @th{What it matches}}
+    @tr{@th{模式签名}
+        @th{匹配内容}}
 
-    @tr{@td{"cat" (a string)}
-        @td{ The literal string. }}
+    @tr{@td{"cat" (一个字符串)}
+        @td{ 字面量字符串。 }}
 
-    @tr{@td{3 (an integer)}
+    @tr{@td{3 (一个整数)}
         @td{ 
-		If positive, matches a number of characters, and advances that many characters.
-		If 0, counts as an (empty string) match.
-        If negative, matches if not that many characters and does not advance.
-        For example, -1 will match the end of a string. }}
+		如果为正数，匹配指定数量的字符并前进相应数量的字符。
+		如果为0，视为匹配（空字符串）。
+        如果为负数，则不匹配该数量的字符且不前进。
+        例如，-1将匹配字符串的结尾。 }}
 
     @tr{@td{@code`(range "az" "AZ")` }
-        @td{ Matches characters in a range and advances 1 character. Multiple
-        ranges can be combined together. }}
+        @td{ 匹配指定范围内的字符并前进1个字符。可以组合多个范围。 }}
 
     @tr{@td{@code`(set "abcd")`}
-        @td{ Match any character in the argument string. Advances 1 character.
-        }}
+        @td{ 匹配参数字符串中的任意字符。前进1个字符。 }}
 
     @tr{@td{@code`true`}
-        @td{ Always matches. Does not advance any characters. Epsilon in NFA.
-        }}
+        @td{ 始终匹配。不前进任何字符。类似NFA中的ε（空转移）。 }}
 
     @tr{@td{@code`false`}
-        @td{ Never matches. Does not advance any characters. Equivalent to
-        @code`(! true)`.
-        }}
+        @td{ 从不匹配。不前进任何字符。等价于@code`(! true)`。 }}
 }
 
-Primitive patterns are not that useful by themselves, but can be passed to
-@code`peg/match` and @code`peg/compile` like any other pattern.
+基本模式本身用处不大，但它们可以像其他任何模式一样传递给@code`peg/match`和@code`peg/compile`。
 
 @codeblock[janet]```
 (peg/match "hello" "hello") # -> @[]
@@ -129,128 +94,90 @@ Primitive patterns are not that useful by themselves, but can be passed to
 (peg/match false "wink") # -> nil
 ```
 
-## Combining patterns
+## 组合模式
 
-These primitive patterns can be combined with several combinators to match a
-wide number of languages. These combinators can be thought of as the looping and
-branching forms in a traditional language (that is how they are implemented when
-compiled to bytecode).
+这些基本模式可以通过多种组合子来组合，以匹配大量语言。这些组合子可以看作传统语言中的循环和分支结构（在编译为字节码时，它们正是这样实现的）。
 
 @tag[table]{
-    @tr{@th{Pattern Signature}
-        @th{What it matches}}
+    @tr{@th{模式签名}
+        @th{匹配内容}}
 
     @tr{@td{@code`(choice a b c ...)` }
-        @td{ Tries to match a, then b, and so on. Will succeed on the first
-        successful match, and fails if none of the arguments match the text. }}
+        @td{ 依次尝试匹配a、b等。在第一个成功匹配处成功，如果所有参数都无法匹配文本则失败。 }}
 
     @tr{@td{@code`(+ a b c ...)` }
-        @td{ Alias for @code`(choice a b c ...)` }}
+        @td{ @code`(choice a b c ...)` 的别名 }}
 
     @tr{@td{@code`(sequence a b c)` }
-        @td{ Tries to match a, b, c and so on in sequence. If any of these
-        arguments fail to match the text, the whole pattern fails. }}
+        @td{ 依次尝试匹配a、b、c等。如果其中任何一个参数无法匹配文本，整个模式失败。 }}
 
     @tr{@td{@code`(* a b c ...)` }
-        @td{ Alias for @code`(sequence a b c ...)` }}
+        @td{ @code`(sequence a b c ...)` 的别名 }}
 
     @tr{@td{@code`(any x)` }
-        @td{ Matches 0 or more repetitions of x. }}
+        @td{ 匹配0次或多次重复的x。 }}
 
     @tr{@td{@code`(some x)` }
-        @td{ Matches 1 or more repetitions of x. }}
+        @td{ 匹配1次或多次重复的x。 }}
 
     @tr{@td{@code`(between min max x)` }
-        @td{ Matches between min and max (inclusive) repetitions of x. }}
+        @td{ 匹配min到max（包含）次重复的x。 }}
 
     @tr{@td{@code`(at-least n x)` }
-        @td{ Matches at least n repetitions of x. }}
+        @td{ 匹配至少n次重复的x。 }}
 
     @tr{@td{@code`(at-most n x)` }
-        @td{  Matches at most n repetitions of x. }}
+        @td{ 匹配至多n次重复的x。 }}
 
     @tr{@td{@code`(repeat n x)` }
-        @td{ Matches exactly n repetitions of x. }}
+        @td{ 匹配恰好n次重复的x。 }}
 
     @tr{@td{@code`(if cond patt)` }
-        @td{ Tries to match patt only if cond matches as well. cond will not
-        produce any captures. }}
+        @td{ 仅在cond也匹配时尝试匹配patt。cond不会产生任何捕获。 }}
 
     @tr{@td{@code`(if-not cond patt)` }
-        @td{ Tries to match only if cond does not match. cond will not produce
-        any captures. }}
+        @td{ 仅在cond不匹配时尝试匹配。cond不会产生任何捕获。 }}
 
     @tr{@td{@code`(not patt)` }
-        @td{ Matches only if patt does not match. Will not produce captures or
-        advance any characters. }}
+        @td{ 仅在patt不匹配时匹配。不会产生捕获，也不前进任何字符。 }}
 
     @tr{@td{@code`(! patt)` }
-    @td{ Alias for @code`(not patt)` }}
+    @td{ @code`(not patt)` 的别名 }}
 
     @tr{@td{@code`(look ?offset patt)` }
-        @td{ Matches only if patt matches at a fixed offset. offset can be
-             any integer and defaults to 0. The peg will not advance any
-             characters. }}
+        @td{ 仅在patt在固定偏移量处匹配时才匹配。offset可以是任意整数，默认为0。PEG不会前进任何字符。 }}
 
     @tr{@td{@code`(> offset ?patt)` }
-        @td{ Alias for @code`(look offset ?patt)` }}
+        @td{ @code`(look offset ?patt)` 的别名 }}
 
     @tr{@td{@code`(to patt)` }
-        @td{ Match until patt is found (not including it in the match). If the
-             end of the input is reached without finding patt, the entire
-             pattern does not match. }}
+        @td{ 匹配直到找到patt为止（匹配结果中不包含patt）。如果在到达输入末尾前未找到patt，整个模式不匹配。 }}
 
     @tr{@td{@code`(thru patt)` }
-        @td{ Match until patt is found (including it in the match). If the end
-             of the input is reached without finding patt, the entire pattern
-             does not match. }}
+        @td{ 匹配直到找到patt为止（匹配结果中包含patt）。如果在到达输入末尾前未找到patt，整个模式不匹配。 }}
 
     @tr{@td{@code`(backmatch ?tag)` }
-        @td{ If tag is provided, matches against the tagged capture.  If no
-             tag is provided, matches against the last capture, but only if
-             that capture is untagged.  The peg advances if there was a
-             match.}}
+        @td{ 如果提供了标签，则匹配该标签对应的捕获。如果未提供标签，则匹配最后一次捕获（仅当该捕获未带标签时）。如果匹配成功，PEG前进。}}
 
     @tr{@td{@code`(opt patt)` }
-        @td{ Alias for @code`(between 0 1 patt)` }}
+        @td{ @code`(between 0 1 patt)` 的别名 }}
 
     @tr{@td{@code`(? patt)` }
-        @td{ Alias for @code`(between 0 1 patt)` }}
+        @td{ @code`(between 0 1 patt)` 的别名 }}
 
     @tr{@td{@code`(n patt)` }
-        @td{ Alias for @code`(repeat n patt)` }}
+        @td{ @code`(repeat n patt)` 的别名 }}
 
     @tr{@td{@code`(sub window-patt patt)` }
-        @td{ Match @code`window-patt`, and if it succeeds match
-             @code`patt` against the characters that @code`window-patt`
-             matched. @code`patt` cannot match more than @code`window-patt`;
-             it will see end-of-input at the end of the substring matched by
-             @code`window-patt`. If @code`patt` also succeeds, @code`sub`
-             will advance to the end of what @code`window-patt` matched. }}
+        @td{ 匹配@code`window-patt`，如果成功，则对@code`window-patt`匹配到的字符执行@code`patt`匹配。@code`patt`不能匹配超过@code`window-patt`的范围；它会在@code`window-patt`匹配到的子字符串末尾看到输入结束。如果@code`patt`也成功，@code`sub`会前进到@code`window-patt`匹配的末尾。 }}
 
     @tr{@td{@code`(split separator-patt patt)` }
-        @td{ Split the remaining input by @code`separator-patt`, and execute
-             @code`patt` on each substring. @code`patt` will execute with its
-             input constrained to the next instance of @code`separator-patt`,
-             as if narrowed by @code`(sub (to separator-patt) ...)`.
-             @code`split` will continue to match separators and patterns until
-             it reaches the end of the input; if you don't want to match to the
-             end of the input you should first narrow it with
-             @code`(sub ... (split ...))`. }}
+        @td{ 用@code`separator-patt`分割剩余的输入，并在每个子字符串上执行@code`patt`。@code`patt`的执行范围被限制在下一个@code`separator-patt`实例之前，就像通过@code`(sub (to separator-patt) ...)`进行限定一样。@code`split`会持续匹配分隔符和模式，直到到达输入末尾；如果不想匹配到输入末尾，应先用@code`(sub ... (split ...))`进行限定。 }}
 
     @tr{@td{@code`(til separator-patt patt)` }
-        @td{ If @code`(to separator-patt)` matches, match @code`patt` against
-             the characters that @code`(to separator-patt)` matched, and
-             advance as if @code`(thru separator-patt)` matched.  Any captures
-             in @code`(to separator-patt)` are dropped. }}}
+        @td{ 如果@code`(to separator-patt)`匹配成功，则对@code`(to separator-patt)`匹配到的字符执行@code`patt`匹配，前进方式如同@code`(thru separator-patt)`匹配成功。@code`(to separator-patt)`中的任何捕获都会被丢弃。 }}
 
-PEGs try to match an input text with a pattern in a greedy manner.  This means
-that if a rule fails to match, that rule will fail and not try again. The only
-backtracking provided in a PEG is provided by the @code`(choice x y z ...)`
-special, which will try rules in order until one succeeds, and the whole pattern
-succeeds. If no sub-pattern succeeds, then the whole pattern fails. Note that
-this means that the order of @code`x y z` in choice @strong{does} matter. If
-@code`y` matches everything that @code`z` matches, @code`z` will never succeed.
+PEG以贪婪方式尝试将输入文本与模式进行匹配。这意味着如果某个规则匹配失败，该规则将直接失败且不会重试。PEG中唯一的回溯机制由@code`(choice x y z ...)`提供，它会按顺序尝试规则，直到其中一个成功，此时整个模式成功。如果没有子模式成功，则整个模式失败。请注意，这意味着@code`x y z`在choice中的顺序@strong{确实}重要。如果@code`y`能匹配@code`z`能匹配的所有内容，那么@code`z`永远不会成功。
 
 @codeblock[janet]```
 (peg/match '(choice "ant" "bee") "bee") # -> @[]
@@ -301,7 +228,7 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 (peg/match '(thru "?") "swim?") # -> @[]
 (peg/match '(* (thru "?") "?") "swim?") # -> nil
 
-# see capturing section for `capture`, `'`, and tagging
+# 参见捕获章节了解capture、'和标签标记
 (peg/match '(* (capture "a") (backmatch)) "aa") # -> @["a"]
 (peg/match ~(* '"a" "b" '(backmatch)) "aba") # -> @["a" "a"]
 (peg/match ~(* (capture "a" :x) "b" '(backmatch :x)) "aba") # -> @["a" "a"]
@@ -326,160 +253,102 @@ this means that the order of @code`x y z` in choice @strong{does} matter. If
 (peg/match '(* (til ";" (some (set "ehy"))) 2 -1) "hey_;hi") # -> @[]
 ```
 
-## Captures
+## 捕获
 
-So far we have only been concerned with "does this text match this language?".
-This is useful, but it is often more useful to extract data from text if it does
-match a PEG. The @code`peg` module uses the concept of a capture stack to
-extract data from text. As the PEG is trying to match a piece of text, some
-forms may push Janet values onto the capture stack as a side effect. If the text
-matches the main PEG language, @code`(peg/match)` will return the final capture
-stack as an array.
+到目前为止，我们只关心"这段文本是否匹配这种语言？"这很有用，但更常见的是，当文本匹配某个PEG时，从中提取数据。@code`peg`模块使用捕获栈的概念来从文本中提取数据。当PEG尝试匹配一段文本时，某些形式可能会将Janet值推入捕获栈，作为副作用。如果文本匹配主要的PEG语言，@code`(peg/match)`将返回最终的捕获栈作为数组。
 
-Capture specials will only push captures to the capture stack if their child
-pattern matches the text.  Most captures specials will match the same text as
-their first argument pattern. In addition, most specials that produce captures
-can take an optional argument @code`tag` that applies a keyword tag to the
-capture.  These tagged captures can then be recaptured via the @code`(backref
-tag)` special in subsequent matches.  Tagged captures, when combined with the
-@code`(cmt)` special, provide a powerful form of look-behind that can make many
-grammars simpler.
+捕获特殊形式只有在它们的子模式匹配文本时才会将捕获推入捕获栈。大多数捕获特殊形式匹配的文本与其第一个参数模式相同。此外，大多数产生捕获的特殊形式可以接受一个可选参数@code`tag`，用于为捕获应用一个关键字标签。这些带标签的捕获之后可以通过@code`(backref tag)`特殊形式在后续匹配中重新捕获。带标签的捕获与@code`(cmt)`特殊形式结合使用时，提供了一种强大的后顾（look-behind）机制，可以使许多语法更加简洁。
 
 @tag[table]{
-    @tr{@th{Pattern Signature}
-        @th{What it matches}}
+    @tr{@th{模式签名}
+        @th{匹配内容}}
 
     @tr{@td{@code`(capture patt ?tag)` }
-        @td{ Captures all of the text in patt if patt matches. If patt contains
-        any captures, then those captures will be pushed on to the capture
-        stack before the total text. }}
+        @td{ 如果patt匹配，则捕获patt中的所有文本。如果patt包含任何捕获，这些捕获会在整体文本之前被推入捕获栈。 }}
 
     @tr{@td{@code`(<- patt ?tag)` }
-        @td{ Alias for @code`(capture patt ?tag)` }}
+        @td{ @code`(capture patt ?tag)` 的别名 }}
 
     @tr{@td{@code`(quote patt ?tag)` }
-        @td{ Another alias for @code`(capture patt ?tag)`. This allows code
-        like @code`'patt` to capture a pattern. }}
+        @td{ @code`(capture patt ?tag)` 的另一个别名。这使得像@code`'patt`这样的代码可以捕获一个模式。 }}
 
     @tr{@td{@code`(group patt ?tag) ` }
-        @td{ Captures an array of all of the captures in patt. }}
+        @td{ 捕获patt中所有捕获组成的数组。 }}
 
     @tr{@td{@code`(replace patt subst ?tag)` }
-        @td{ Replaces the captures produced by patt by applying subst to them.
-        If subst is a table or struct, will push @code`(get subst last-capture)`
-        to the capture stack after removing the old captures. If subst is a
-        function, will call subst with the captures of patt as arguments and
-        push the result to the capture stack. Otherwise, will push subst
-        literally to the capture stack. }}
+        @td{ 通过对patt的捕获应用subst来替换它们。如果subst是表或结构体，则在移除旧捕获后，将@code`(get subst last-capture)`推入捕获栈。如果subst是函数，则以patt的捕获作为参数调用subst，并将结果推入捕获栈。否则，直接将subst的字面值推入捕获栈。 }}
 
     @tr{@td{@code`(/ patt subst ?tag)` }
-        @td{ Alias for @code`(replace patt subst ?tag)` }}
+        @td{ @code`(replace patt subst ?tag)` 的别名 }}
 
     @tr{@td{@code`(constant k ?tag)` }
-        @td{ Captures a constant value and advances no characters. }}
+        @td{ 捕获一个常量值，不前进任何字符。 }}
 
     @tr{@td{@code`(argument n ?tag)` }
-        @td{ Captures the nth extra argument to the match function and does not
-        advance. }}
+        @td{ 捕获匹配函数的第n个额外参数，不前进任何字符。 }}
 
     @tr{@td{@code`(position ?tag)` }
-        @td{ Captures the current index into the text and advances no input. }}
+        @td{ 捕获当前在文本中的索引，不前进任何输入。 }}
 
     @tr{@td{@code`($ ?tag)` }
-        @td{ Alias for @code`(position ?tag)`. }}
+        @td{ @code`(position ?tag)` 的别名。 }}
 
     @tr{@td{@code`(column ?tag)` }
-        @td{ Captures the column number of the current position in the matched
-        text. }}
+        @td{ 捕获当前在匹配文本中的列号。 }}
 
     @tr{@td{@code`(line ?tag)` }
-        @td{ Captures the line number of the current position in the matched
-        text. }}
+        @td{ 捕获当前在匹配文本中的行号。 }}
 
     @tr{@td{@code`(accumulate patt ?tag)` }
-        @td{ Capture a string that is the concatenation of all captures in patt.
-        This will try to be efficient and not create intermediate strings if
-        possible. }}
+        @td{ 捕获一个字符串，该字符串是patt中所有捕获的拼接结果。如果可能，会尝试高效地避免创建中间字符串。 }}
 
     @tr{@td{@code`(% patt ?tag)` }
-        @td{ Alias for @code`(accumulate patt ?tag)` }}
+        @td{ @code`(accumulate patt ?tag)` 的别名 }}
 
     @tr{@td{@code`(cmt patt fun ?tag)` }
-        @td{ Invokes @code`fun` with all of the captures of
-        @code`patt` as arguments (if @code`patt` matches). If the
-        result is truthy, then captures the result. The whole
-        expression fails if @code`fun` returns false or nil. }}
+        @td{ 如果@code`patt`匹配，则使用@code`patt`的所有捕获作为参数调用@code`fun`。如果结果为真值，则捕获该结果。如果@code`fun`返回false或nil，则整个表达式失败。 }}
 
     @tr{@td{@code`(cms patt fun ?tag)` }
-        @td{ Invokes @code`fun` with all of the captures of
-        @code`patt` as arguments (if @code`patt` matches). If the
-        result is a tuple or array, each element of the indexed
-        type is captured separately (i.e. the indexed type is
-        spliced). If the result is any other truthy non-indexed
-        type, the result is captured as is (i.e. as with
-        @code`cmt`). The whole expression fails if @code`fun`
-        returns false or nil. }}
+        @td{ 如果@code`patt`匹配，则使用@code`patt`的所有捕获作为参数调用@code`fun`。如果结果是元组或数组，则索引类型的每个元素被单独捕获（即索引类型被拼接）。如果结果是任何其他真值且非索引类型，则结果原样捕获（与@code`cmt`相同）。如果@code`fun`返回false或nil，则整个表达式失败。 }}
 
     @tr{@td{@code`(backref tag ?tag)` }
-        @td{ Duplicates the last capture with the tag @code`tag`. If no such
-        capture exists then the match fails. }}
+        @td{ 复制最后一个带有标签@code`tag`的捕获。如果不存在这样的捕获，则匹配失败。 }}
 
     @tr{@td{@code`(-> tag ?tag)` }
-        @td{ Alias for @code`(backref tag)`. }}
+        @td{ @code`(backref tag)` 的别名。 }}
 
     @tr{@td{@code`(unref patt ?tag)` }
-        @td{Lets a user "scope" tagged captures.
-        After the rule has matched, all captures with the given tag can no longer be
-        referred to by their tag. However, such captures from outside
-        rule are kept as is. If no tag is given, all tagged captures from rule
-        are unreferenced. Note that this doesn't drop the captures, merely
-        removes their association with the tag. This means subsequent calls to
-        backref and backmatch will no longer "see" these tagged captures. }}
+        @td{ 让用户可以对带标签的捕获进行"作用域限定"。规则匹配后，所有带有给定标签的捕获不能再通过其标签被引用。但是，来自规则外部的此类捕获保持不变。如果未提供标签，则规则中的所有带标签捕获都被取消引用。注意，这并不会丢弃捕获，只是移除它们与标签的关联。这意味着后续对backref和backmatch的调用将不再"看到"这些带标签的捕获。 }}
 
     @tr{@td{@code`(error ?patt)` }
-        @td{ Throws a Janet error.  If optional argument @code`patt` is
-        provided and it matches successfully, the error thrown will be the
-        last capture of @code`patt`, or a generic error if @code`patt`
-        produces no captures. If no argument is provided, a generic error is
-        thrown. If @code`patt` does not match, no error will be thrown.
-        }}
+        @td{ 抛出一个Janet错误。如果提供了可选参数@code`patt`且匹配成功，则抛出的错误将是@code`patt`的最后一次捕获；如果@code`patt`不产生任何捕获，则抛出通用错误。如果未提供参数，则抛出通用错误。如果@code`patt`不匹配，则不抛出错误。 }}
 
     @tr{@td{@code`(drop patt)` }
-        @td{ Ignores (drops) all captures from patt. }}
+        @td{ 忽略（丢弃）patt的所有捕获。 }}
 
     @tr{@td{@code`(only-tags patt)` }
-        @td{ Ignores all captures from @code`patt`, while making tagged
-        captures within @code`patt` available for future back-referencing. }}
+        @td{ 忽略@code`patt`的所有捕获，同时使@code`patt`内的带标签捕获可用于后续的反向引用。 }}
 
     @tr{@td{@code`(nth index patt ?tag)` }
-        @td{ Capture one of the captures in @code`patt` at @code`index`.
-        If no such capture exists, then the match fails. }}
+        @td{ 捕获@code`patt`中位于@code`index`位置的其中一个捕获。如果不存在这样的捕获，则匹配失败。 }}
 
     @tr{@td{@code`(uint num-bytes ?tag)` }
-        @td{ Capture a little endian, unsigned, two's complement integer from 
-        @code`num-bytes`. Works for 1 to 8 byte integers. }}
+        @td{ 从小端、无符号、二进制补码整数中捕获@code`num-bytes`个字节。适用于1到8字节整数。 }}
 
     @tr{@td{@code`(uint-be num-bytes ?tag)` }
-        @td{ Capture a big endian, unsigned, two's complement integer from 
-        @code`num-bytes`. Works for 1 to 8 byte integers. }}
+        @td{ 从大端、无符号、二进制补码整数中捕获@code`num-bytes`个字节。适用于1到8字节整数。 }}
 
     @tr{@td{@code`(int num-bytes ?tag)` }
-        @td{ Capture a little endian, signed, two's complement integer from 
-        @code`num-bytes`. Works for 1 to 8 byte integers. }}
+        @td{ 从小端、有符号、二进制补码整数中捕获@code`num-bytes`个字节。适用于1到8字节整数。 }}
 
     @tr{@td{@code`(int-be num-bytes ?tag)` }
-        @td{ Capture a big endian, signed, two's complement integer from 
-        @code`num-bytes`. Works for 1 to 8 byte integers. }}
+        @td{ 从大端、有符号、二进制补码整数中捕获@code`num-bytes`个字节。适用于1到8字节整数。 }}
 
     @tr{@td{@code`(lenprefix n patt)` }
-        @td{ Matches n repetitions of a pattern, where n is supplied from other
-        parsed input and is not a constant. }}
+        @td{ 匹配n次重复的模式，其中n来自其他解析输入的提供，并非一个常量。 }}
 
     @tr{@td{@code`(number patt ?base ?tag)` }
-        @td{ Capture a number parsed from the matched pattern. This uses the
-         same parser as Janet itself, so it supports all numeric notation
-         allowed in Janet files. To tag the capture without forcing a
-         particular base, use @code`(number patt nil :tag)`. }}}
+        @td{ 捕获从匹配模式解析出的数字。它使用与Janet自身相同的解析器，因此支持Janet文件中允许的所有数字表示法。要在不强制指定特定进制的情况下给捕获添加标签，请使用@code`(number patt nil :tag)`。 }}
 
 @codeblock[janet]```
 (peg/match '(capture "x") "xy") # -> @["x"]
@@ -555,23 +424,17 @@ grammars simpler.
 (peg/match '(number (some (range "07")) 8) "10") # -> @[8]
 (peg/match '(number (some (range "09" "AF")) 16) "FF") # -> @[255]
 
-# length obtained from top of capture stack placed there via `number`
+# 长度通过`number`从捕获栈顶部获取
 (peg/match ~(lenprefix (number (range "09")) '1) "2xy") # -> @["x" "y"]
 ```
 
-## Grammars and recursion
+## 语法与递归
 
-The feature that makes PEGs so much more powerful than pattern
-matching solutions like (vanilla) regex is mutual recursion.  To do
-recursion in a PEG, you can wrap multiple patterns in a grammar, which
-is a Janet struct or table. The patterns must be named by keywords,
-which can then be used in all sub-patterns in the grammar.
+使得PEG比（普通）正则表达式等模式匹配方案强大得多的特性是互递归。要在PEG中实现递归，可以将多个模式包装在一个语法（grammar）中，语法是一个Janet结构体或表。这些模式必须用关键字命名，随后可以在语法中的所有子模式中使用。
 
-Each grammar, defined by a struct or table, must also have a main
-rule, called @code`:main`, that is the pattern that the entire grammar
-is defined by.
+每个由结构体或表定义的语法都必须包含一个主规则，称为@code`:main`，它是定义整个语法的模式。
 
-An example grammar that uses mutual recursion:
+一个使用互递归的示例语法：
 
 @codeblock[janet]```
 (def my-grammar
@@ -585,63 +448,48 @@ An example grammar that uses mutual recursion:
 (peg/match my-grammar "(babaabab)") # -> nil
 ```
 
-Keep in mind that recursion is implemented with a stack, meaning that very
-recursive grammars can overflow the stack. The compiler is able to turn some
-recursion into iteration via tail-call optimization, but some patterns may fail
-on large inputs. It is also possible to construct (very poorly written) patterns
-that will result in long loops and be very slow in general.
+请记住，递归是通过栈实现的，这意味着深度递归的语法可能导致栈溢出。编译器能够通过尾调用优化将某些递归转换为迭代，但某些模式在大型输入上可能失败。也可能构造出（编写得很差）的模式，导致长循环并变得非常慢。
 
-## Built-in patterns
+## 内建模式
 
-Besides the primitive patterns and pattern combinators given above, the
-@code`peg` module also provides a default grammar with a handful of commonly
-used patterns. All of these shorthands can be defined with the combinators above
-and primitive patterns, but you may see these aliases in other grammars and they
-can make grammars simpler and easier to read.
+除了上面给出的基本模式和模式组合子外，@code`peg`模块还提供了一个包含一些常用模式的默认语法。所有这些简写形式都可以用上面的组合子和基本模式定义，但你可能会在其他语法中看到这些别名，它们可以使语法更简单、更易读。
 
 @tag[table]{
-    @tr{@th{Name} @th{Expanded} @th{Description}}
-    @tr{@td{@code`:d`} @td{@code`(range "09")`} @td{Matches an ASCII digit.}}
-    @tr{@td{@code`:a`} @td{@code`(range "az" "AZ")`} @td{Matches an ASCII letter.}}
-    @tr{@td{@code`:w`} @td{@code`(range "az" "AZ" "09")`} @td{Matches an ASCII digit or letter.}}
-    @tr{@td{@code`:s`} @td{@code`(set " \t\r\n\0\f\v")`} @td{Matches an ASCII whitespace character.}}
-    @tr{@td{@code`:h`} @td{@code`(range "09" "af" "AF")`} @td{Matches a hex character.}}
+    @tr{@th{名称} @th{展开形式} @th{描述}}
+    @tr{@td{@code`:d`} @td{@code`(range "09")`} @td{匹配一个ASCII数字。}}
+    @tr{@td{@code`:a`} @td{@code`(range "az" "AZ")`} @td{匹配一个ASCII字母。}}
+    @tr{@td{@code`:w`} @td{@code`(range "az" "AZ" "09")`} @td{匹配一个ASCII数字或字母。}}
+    @tr{@td{@code`:s`} @td{@code`(set " \t\r\n\0\f\v")`} @td{匹配一个ASCII空白字符。}}
+    @tr{@td{@code`:h`} @td{@code`(range "09" "af" "AF")`} @td{匹配一个十六进制字符。}}
 
-    @tr{@td{@code`:D`} @td{@code`(if-not :d 1)`} @td{Matches a character that is not an ASCII digit.}}
-    @tr{@td{@code`:A`} @td{@code`(if-not :a 1)`} @td{Matches a character that is not an ASCII letter.}}
-    @tr{@td{@code`:W`} @td{@code`(if-not :w 1)`} @td{Matches a character that is not an ASCII digit or letter.}}
-    @tr{@td{@code`:S`} @td{@code`(if-not :s 1)`} @td{Matches a character that is not ASCII whitespace.}}
-    @tr{@td{@code`:H`} @td{@code`(if-not :h 1)`} @td{Matches a character that is not a hex character.}}
+    @tr{@td{@code`:D`} @td{@code`(if-not :d 1)`} @td{匹配一个不是ASCII数字的字符。}}
+    @tr{@td{@code`:A`} @td{@code`(if-not :a 1)`} @td{匹配一个不是ASCII字母的字符。}}
+    @tr{@td{@code`:W`} @td{@code`(if-not :w 1)`} @td{匹配一个不是ASCII数字或字母的字符。}}
+    @tr{@td{@code`:S`} @td{@code`(if-not :s 1)`} @td{匹配一个不是ASCII空白字符的字符。}}
+    @tr{@td{@code`:H`} @td{@code`(if-not :h 1)`} @td{匹配一个不是十六进制字符的字符。}}
 
-    @tr{@td{@code`:d+`} @td{@code`(some :d)`} @td{Matches 1 or more ASCII digits.}}
-    @tr{@td{@code`:a+`} @td{@code`(some :a)`} @td{Matches 1 or more ASCII letters.}}
-    @tr{@td{@code`:w+`} @td{@code`(some :w)`} @td{Matches 1 or more ASCII digits and letters.}}
-    @tr{@td{@code`:s+`} @td{@code`(some :s)`} @td{Matches 1 or more ASCII whitespace characters.}}
-    @tr{@td{@code`:h+`} @td{@code`(some :h)`} @td{Matches 1 or more hex characters.}}
+    @tr{@td{@code`:d+`} @td{@code`(some :d)`} @td{匹配1个或多个ASCII数字。}}
+    @tr{@td{@code`:a+`} @td{@code`(some :a)`} @td{匹配1个或多个ASCII字母。}}
+    @tr{@td{@code`:w+`} @td{@code`(some :w)`} @td{匹配1个或多个ASCII数字和字母。}}
+    @tr{@td{@code`:s+`} @td{@code`(some :s)`} @td{匹配1个或多个ASCII空白字符。}}
+    @tr{@td{@code`:h+`} @td{@code`(some :h)`} @td{匹配1个或多个十六进制字符。}}
 
-    @tr{@td{@code`:d*`} @td{@code`(any :d)`} @td{Matches 0 or more ASCII digits.}}
-    @tr{@td{@code`:a*`} @td{@code`(any :a)`} @td{Matches 0 or more ASCII letters.}}
-    @tr{@td{@code`:w*`} @td{@code`(any :w)`} @td{Matches 0 or more ASCII digits and letters.}}
-    @tr{@td{@code`:s*`} @td{@code`(any :s)`} @td{Matches 0 or more ASCII whitespace characters.}}
-    @tr{@td{@code`:h*`} @td{@code`(any :h)`} @td{Matches 0 or more hex characters.}}
+    @tr{@td{@code`:d*`} @td{@code`(any :d)`} @td{匹配0个或多个ASCII数字。}}
+    @tr{@td{@code`:a*`} @td{@code`(any :a)`} @td{匹配0个或多个ASCII字母。}}
+    @tr{@td{@code`:w*`} @td{@code`(any :w)`} @td{匹配0个或多个ASCII数字和字母。}}
+    @tr{@td{@code`:s*`} @td{@code`(any :s)`} @td{匹配0个或多个ASCII空白字符。}}
+    @tr{@td{@code`:h*`} @td{@code`(any :h)`} @td{匹配0个或多个十六进制字符。}}
 }
 
-All of these aliases are defined in @code`default-peg-grammar`, which is a table
-that maps from the alias name to the expanded form. You can even add your own
-aliases here which are then available for all PEGs in the program. Modifiying
-this table will not affect already compiled PEGs.
+所有这些别名都定义在@code`default-peg-grammar`中，这是一个将别名名称映射到展开形式的表。你甚至可以在这里添加自己的别名，之后它们将对程序中的所有PEG可用。修改此表不会影响已编译的PEG。
 
-## String searching and other idioms
+## 字符串搜索与其他惯用法
 
-Although all pattern matching is done in anchored mode, operations like global
-substitution and searching can be implemented with the PEG module. A simple
-Janet function that produces PEGs that search for strings shows how captures and
-looping specials can be composed, and how quasiquoting can be used to embed values
-in patterns.
+尽管所有模式匹配都以锚定模式进行，但全局替换和搜索等操作可以通过PEG模块实现。下面这个简单的Janet函数，用于生成搜索字符串的PEG，展示了捕获和循环特殊形式如何组合，以及如何使用准引用（quasiquoting）将值嵌入到模式中。
 
 @codeblock[janet]```
 (defn finder
- "Creates a peg that finds all locations of str in the text."
+ "创建一个用于查找文本中所有str位置的PEG。"
  [str]
  (peg/compile ~(any (+ (* ($) ,str) 1))))
 
@@ -649,19 +497,18 @@ in patterns.
 
 (peg/match where-are-the-dogs? "dog dog cat dog") # -> @[0 4 12]
 
-# Our finder function also works on any pattern, not just strings.
+# 我们的finder函数也适用于任何模式，而不仅仅是字符串。
 
 (def find-cats (finder '(* "c" (some "a") "t")))
 
 (peg/match find-cats "cat ct caat caaaaat cat") # -> @[0 7 12 20]
 ```
 
-We can also wrap a PEG to turn it into a global substitution grammar with the
-accumulate special @code`(%)`.
+我们还可以包装一个PEG，使用累加特殊形式@code`(%)`将其转换为全局替换语法。
 
 @codeblock[janet]```
 (defn replacer
- "Creates a peg that replaces instances of patt with subst."
+ "创建一个替换patt实例为subst的PEG。"
  [patt subst]
  (peg/compile ~(% (any (+ (/ (<- ,patt) ,subst) (<- 1))))))
 ```

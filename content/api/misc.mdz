@@ -1,13 +1,13 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Top Level Bindings"
+{:title "顶层绑定"
  :nav-title "misc"
  :template "docpage.html"}
 ---
 
-All of the core functions, macros, and bindings that are not part of any module.
+所有不属于任何模块的核心函数、宏和绑定。
 
-## Index
+## 索引
 
 @gen-docs/gen-peg('(not (* (some (if-not "/" 1)) "/")))
 

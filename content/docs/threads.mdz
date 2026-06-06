@@ -1,43 +1,30 @@
-{:title "Multithreading"
+{:title "多线程"
  :template "docpage.html"
  :order 20}
 ---
 
-Multithreading is the process of running a program on multiple threads at the same time, usually
-to improve throughput. Threads allow your program to take full advantage of the multiple
-processors on modern CPUs letting you do work in the background without stopping
-the main program flow, or breaking up an expensive operation to run on multiple processors.
+多线程是指同时在多个线程上运行程序的过程，通常用于提高吞吐量。线程让你的程序能够充分利用现代 CPU 的多个处理器，在不停止主程序流程的情况下在后台执行工作，或将高开销操作分解到多个处理器上运行。
 
-Janet's @code`ev/` module supports spawning native operating system threads in a way that
-is compatible with other @code`ev/` functions and will not block the event loop. 
+Janet 的 @code`ev/` 模块支持以与其他 @code`ev/` 函数兼容的方式创建原生操作系统线程，并且不会阻塞事件循环。
 
-For the most part, Janet values are not shared between threads. Each thread has its own Janet heap, which
-means threads behave more like processes that communicate by message passing.
-However, this does not prevent native code from sharing memory across these
-threads. Without native extensions, however, the only way for two Janet threads
-to communicate directly is through message passing with threaded channels.
+在大多数情况下，Janet 值不会在线程之间共享。每个线程都有自己的 Janet 堆，这意味着线程的行为更像通过消息传递进行通信的进程。然而，这并不阻止原生代码在这些线程之间共享内存。但如果没有原生扩展，两个 Janet 线程之间直接通信的唯一方式就是通过线程化通道进行消息传递。
 
-By default, a Janet program will not exit until all threads have terminated.
+默认情况下，Janet 程序在所有线程终止之前不会退出。
 
-## Creating threads
+## 创建线程
 
-The most primitive way to create a thread is @code`(ev/thread fiber &opt value flags supervisor)`.
-This will start and wait for a message containing a function that it will run as the
-main body.
+创建线程最原始的方式是 @code`(ev/thread fiber &opt value flags supervisor)`。这将启动一个线程并等待一条包含一个函数的消息，该函数将作为主执行体运行。
 
 @codeblock[janet]```
 (defn worker
   []
-  (print "New thread started!"))
+  (print "新线程已启动！"))
 
-# Create a new thread and wait for it to complete.
+# 创建一个新线程并等待其完成
 (ev/thread (fiber/new worker :t))
 ```
 
-By itself, the above code isn't very useful because the main fiber will suspend until the new thread
-is complete. But it is quite useful to have threads suspend execution of the calling fiber by
-default - we can then easily have a thread wrapped with a fiber to be handled like other asynchronous tasks
-in the @code`ev/` module. To run the thread in the background, you can either use the @code`:n` flag, or wrap the call to @code`ev/thread` in its own fiber.
+单独来看，上述代码并不是很有用，因为主 fiber 会挂起直到新线程完成。但默认让线程挂起调用方 fiber 的执行非常有用——这样我们可以轻松地将线程包装在 fiber 中，像处理其他异步任务一样在 @code`ev/` 模块中处理。要在后台运行线程，你可以使用 @code`:n` 标志，或者将对 @code`ev/thread` 的调用包装在它自己的 fiber 中。
 
 @codeblock[janet]```
 (ev/thread (fiber/new worker :t) nil :n)
@@ -46,81 +33,59 @@ in the @code`ev/` module. To run the thread in the background, you can either us
   (ev/thread (fiber/new worker :t)))
 ```
 
-To make this process easier, Janet comes with a few built-in macros, @code`ev/spawn-thread` to run a
-block of code in a new thread, return immediately, and
-@code`ev/do-thread` to run a block of code but wait for it to return.
+为了简化这一过程，Janet 提供了一些内置宏：@code`ev/spawn-thread` 用于在新线程中运行代码块并立即返回，以及 @code`ev/do-thread` 用于运行代码块但等待其返回。
 
 @codeblock[janet]```
 (ev/spawn-thread
-  (print "New thread started!"))
+  (print "新线程已启动！"))
 
 (ev/do-thread
-  (print "New thread started!"))
+  (print "新线程已启动！"))
 ```
 
-## Sending and receiving messages
+## 发送与接收消息
 
-Threads in Janet do not share a memory heap and must communicate via threaded
-channels. Threaded channels behave much like normal channels in the @code`ev/` module, with
-the only difference being that they can send values between threads by copying messages. Threaded channels are
-used for both communication and coordination between threads.
+Janet 中的线程不共享内存堆，必须通过线程化通道进行通信。线程化通道的行为与 @code`ev/` 模块中的普通通道非常相似，唯一的区别在于它们可以通过复制消息在线程之间传递值。线程化通道既用于线程之间的通信，也用于协调。
 
-Threaded channels can be created with @code`ev/thread-chan`.
+线程化通道可以使用 @code`ev/thread-chan` 创建。
 
 @codeblock[janet]```
-# Create a threaded channel with space for 10 values
+# 创建一个可容纳10个值的线程化通道
 (def thread-channel (ev/thread-chan 10))
 
 (ev/spawn-thread
  (repeat 10
   (def item (ev/take thread-channel))
-  (print "got " item)))
+  (print "收到 " item)))
 
 (repeat 10
  (os/sleep 0.2)
  (ev/give thread-channel :item))
 ```
 
-## Thread Supervisors
+## 线程监管器
 
-Threaded channels can also be used as supervisors for spawned threads. A supervisor is a channel
-that receives messages whenever
-an event, like an error, occurs in the supervised thread. Another fiber or
-thread can then read from this supervisor channel and
-handle the errors, usually by either logging the event, retrying the operation, or canceling other operations.
+线程化通道也可以用作已生成线程的监管器。监管器是一个通道，当监管的线程中发生事件（如错误）时，它会接收消息。另一个 fiber 或线程随后可以从这个监管器通道读取数据并处理错误，通常是通过记录事件、重试操作或取消其他操作。
 
-Thread supervisors need to be specified when creating the thread.
+线程监管器需要在创建线程时指定。
 
 @codeblock[janet]```
 (def supervisor (ev/thread-chan 10))
 
 (defn worker
- []
- (repeat 10
-  (if (< 0.9 (math/random))
-   (error "oops!")))
- (print "done!"))
+  []
+  (repeat 10
+   (if (< 0.9 (math/random))
+    (error "哎呀！")))
+  (print "完成！"))
 
-# Start a worker thread that will signal events on the supervisor channel
+# 启动一个工作线程，该线程将在监管器通道上发出信号事件
 (ev/thread worker nil :n supervisor)
 
-# Get one event from the supervisor channel (on the initial thread here)
-# It will either be (:error "oops!" nil) or (:ok nil nil).
+# 从监管器通道获取一个事件（在此处是初始线程上）
+# 事件将是 (:error "哎呀！" nil) 或 (:ok nil nil)
 (def event (ev/take supervisor))
 (pp event)
 ```
-Events from thread supervisors are much like events from normal fiber
-supervisors, but the first argument is not an entire copy of the fiber
-or thread, it is the event name. In the above example, depending on whether
-or not the "oops!" error was triggered, @code`event` will be either
-@code`(:error "oops!" nil)` or @code`(:ok nil nil)`. @code`:error` and
-@code`:ok` correspond to @code`(fiber/status f)`, while @code`"oops!"` and
-@code`nil` to @code`(fiber/last-value)` of the main fiber of the child
-thread.  The third element of the tuple is the associated
-task id, if the fiber has an associated environment, or @code`nil`
-otherwise.
 
-
-
-
-
+来自线程监管器的事件与来自普通 fiber 监管器的事件非常相似，但第一个参数不是 fiber 或线程的完整副本，而是事件名称。在上面的示例中，根据是否触发了 "哎呀！" 错误，@code`event` 将是 @code`(:error "哎呀！" nil)` 或 @code`(:ok nil nil)`。@code`:error` 和 @code`:ok` 对应子线程主 fiber 的 @code`(fiber/status f)`，而 @code`"哎呀！"` 和 @code`nil` 对应其 @code`(fiber/last-value)`。元组的第三个元素是关联的任务 ID（如果 fiber 有关联的环境的话），否则为 @code`nil`。

@@ -7,9 +7,8 @@
  :template "docpage.html"}
  ---
 
-The declare-cc module provides a DSL to the @code`cc` module for compiling C and C++ projects that 
-eliminates boilerplate, provides incremental builds, and re-implements support for building @code`project.janet` projects outside of JPM.
+declare-cc 模块为 @code`cc` 模块提供了一个 DSL，用于编译 C 和 C++ 项目，它消除了样板代码、提供了增量构建功能，并重新实现了在 JPM 之外构建 @code`project.janet` 项目的支持。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[declare-cc/]

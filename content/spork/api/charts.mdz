@@ -7,8 +7,8 @@
  :template "docpage.html"}
  ---
 
-High quality data visualization and charting
+高质量的数据可视化与图表制作
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[charts/]

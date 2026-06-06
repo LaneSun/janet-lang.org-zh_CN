@@ -1,11 +1,11 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Fiber Module"
+{:title "Fiber 模块"
  :order 0
  :nav-title "fiber"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[fiber/]

@@ -2,7 +2,7 @@
 (def- months '("January" "February" "March" "April" "May" "June" "July" "August" "September"
                         "October" "November" "December"))
 (defn nice-date
-  "Get the current date nicely formatted"
+  "获取当前日期，格式美观"
   []
   (let [date (os/date)
         M (months (date :month))
@@ -17,7 +17,5 @@ $}
 <footer>
   &copy; Calvin Rose &amp; contributors {{ ((os/date) :year) }}
   <div class="gentag">{{ (string "Generated on " (nice-date) " with Janet " janet/version "-" janet/build) }}</div>
-  <div class="see-problem">See a problem? Source
-    <a href="https://github.com/janet-lang/janet-lang.org">on GitHub</a></div>
+  <div class="see-problem">发现了问题？在 <a href="https://github.com/janet-lang/janet-lang.org">GitHub</a> 上查看源码</div>
 </footer>
-

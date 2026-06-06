@@ -1,12 +1,12 @@
-{:title "Table C API"
+{:title "表 C API"
  :template "docpage.html"
  :order 6}
 ---
 
-## Definition
+## 定义
 
 @codeblock[c]```
-/* A mutable associative data type. Backed by a hashtable. */
+/* 可变关联数据类型，由哈希表实现。 */
 struct JanetTable {
     JanetGCObject gc;
     int32_t count;
@@ -18,7 +18,7 @@ struct JanetTable {
 typedef struct JanetTable JanetTable;
 ```
 
-## Functions
+## 函数
 
 @codeblock[c]```
 JANET_API JanetTable *janet_table(int32_t capacity);

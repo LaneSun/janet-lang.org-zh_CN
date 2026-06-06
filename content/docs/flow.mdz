@@ -1,58 +1,50 @@
-{:title "Flow"
+{:title "流程控制"
  :template "docpage.html"
  :order 6}
 ---
-
-Janet has only two built in primitives to change flow while inside a function.
-The first is the @code[if] special form, which behaves as expected in most
-functional languages. It takes two or three parameters: a condition, an
-expression to evaluate to if the condition is Boolean true (ie: not @code`nil`
-or @code`false`), and an optional condition to evaluate to when the condition is
-@code`nil` or @code`false`. If the optional parameter is omitted, the @code`if`
-form evaluates to @code`nil`.
+Janet 只有两个内置的原语用于在函数内部改变控制流。
+第一个是 @code[if] 特殊形式，其行为与大多数函数式语言中的
+预期一致。它接受两个或三个参数：一个条件、
+当条件为布尔真（即不是 @code`nil` 或 @code`false`）时求值的表达式，
+以及当条件为 @code`nil` 或 @code`false` 时求值的可选表达式。
+如果省略可选参数，@code`if` 形式会求值为 @code`nil`。
 
 @codeblock[janet](```
 (if (> 4 3)
   "4 is greater than 3"
-  "4 is not greater then three") # Evaluates to the first statement
+  "4 is not greater then three") # 求值为第一个语句
 
 (if true
-  (print "Hey")) # Will print
+  (print "Hey")) # 会打印
 
 (if false
-  (print "Oy!")) # Will not print
+  (print "Oy!")) # 不会打印
 ```)
 
-The second primitive control flow construct is the @code`while` loop. The
-@code`while` form behaves much the same as in many other programming languages,
-including C, Java, and Python. The @code`while` loop takes two or more
-parameters: the first is a condition (like in the @code`if` statement), that is
-checked before every iteration of the loop. If it is @code`nil` or @code`false`,
-the @code`while` loop ends and evaluates to @code`nil`. Otherwise, the rest of
-the parameters will be evaluated sequentially and then the program will return
-to the beginning of the loop.
+第二个原语控制流结构是 @code`while` 循环。
+@code`while` 形式的行为与许多其他编程语言（包括 C、Java 和 Python）
+非常相似。@code`while` 循环接受两个或更多参数：
+第一个是条件（类似于 @code`if` 语句），在每次循环迭代前进行检查。
+如果它是 @code`nil` 或 @code`false`，@code`while` 循环结束并求值为 @code`nil`。
+否则，其余参数将依次求值，然后程序返回到循环开头。
 
 @codeblock[janet](```
-# Loop from 100 down to 1 and print each time
+# 从 100 向下循环到 1，每次循环都打印
 (var i 100)
 (while (pos? i)
   (print "the number is " i)
   (-- i))
 
-# Print ... until a random number in range [0, 1) is >= 0.9
-# (math/random evaluates to a value between 0 and 1)
+# 不断打印... 直到范围 [0, 1) 内的随机数 >= 0.9
+# (math/random 求值为 0 到 1 之间的值)
 (while (> 0.9 (math/random))
   (print "..."))
 ```)
 
-Besides these special forms, Janet has many macros for both conditional testing
-and looping that are much better for the majority of cases. For conditional
-testing, the @code[cond], @code[case], and @code[when] macros can be used to
-great effect. @code[cond] can be used for making an if-else chain, where using
-just raw @code`if` forms would result in many parentheses. @code[case] is
-similar to @code`switch` in C without fall-through, or @code`case` in some
-Lisps, though simpler.  @code[when] is like @code`if`, but returns @code`nil` if
-the condition evaluates to @code`nil` or @code`false`, similar to the macro of
-the same name in Common Lisp and Clojure. For looping, @code[loop], @code[seq],
-and @code[generate] implement Janet's form of list comprehension, as in Python
-or Clojure.
+除了这些特殊形式之外，Janet 还有许多用于条件测试和循环的宏，它们在大多数情况下都更加好用。
+对于条件测试，@code[cond]、@code[case] 和 @code[when] 宏可以发挥很大的作用。
+@code[cond] 可用于构建 if-else 链，如果只使用原始的 @code`if` 形式会导致大量括号嵌套。
+@code[case] 类似于 C 语言中没有 fall-through 的 @code`switch`，或某些 Lisp 方言中的 @code`case`，
+不过更简单一些。@code[when] 类似于 @code`if`，但在条件为 @code`nil` 或 @code`false` 时返回 @code`nil`，
+与 Common Lisp 和 Clojure 中同名的宏类似。对于循环，@code[loop]、@code[seq] 和 @code[generate]
+实现了 Janet 风格的列表推导，类似于 Python 或 Clojure。

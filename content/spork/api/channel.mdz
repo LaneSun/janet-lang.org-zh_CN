@@ -3,12 +3,12 @@
 (setdyn :source-linker (partial gen-docs/github-source-linker "janet-lang/spork" gen-docs/spork-version))
 (setdyn :no-community-examples true)
 
-{:title "channel"
+{:title "通道"
  :template "docpage.html"}
  ---
 
-Channel utilities for Janet.
+Janet 通道工具。
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[channel/]

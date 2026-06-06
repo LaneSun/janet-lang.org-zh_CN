@@ -1,15 +1,13 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Array Module"
+{:title "数组模块"
  :order 0
  :nav-title "array"
  :template "docpage.html"}
 ---
 
-Arrays are the mutable indexed type in Janet. They contain a sequence of values
-that are keyed with an index. They can also be used to implement stacks and queues.
-See the @link[/docs/data_structures/arrays.html][Arrays] documentation for more info.
+数组是 Janet 中可变的有索引类型。它们包含一系列通过索引键化的值。它们也可以用于实现栈和队列。更多信息请参见 @link[/docs/data_structures/arrays.html][数组] 文档。
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[array/]

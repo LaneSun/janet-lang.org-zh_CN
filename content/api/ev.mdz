@@ -1,13 +1,13 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Event Module"
+{:title "事件模块"
  :order 0
  :nav-title "ev"
  :template "docpage.html"}
 ---
 
-Functions related to evented (asynchronous) IO and a fiber based event loop.
+与事件驱动（异步）IO 和基于 fiber 的事件循环相关的函数。
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[ev/]

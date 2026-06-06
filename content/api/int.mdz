@@ -1,12 +1,12 @@
 (import ../gen-docs :as gen-docs)
 
-{:title "Integer Types Module"
+{:title "整数类型模块"
  :order 0
  :nav-title "int"
  :template "docpage.html"}
 ---
 
-## Index
+## 索引
 
 @gen-docs/gen-prefix[int/]
 

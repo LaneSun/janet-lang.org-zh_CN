@@ -1,38 +1,31 @@
-{:title "Tuples"
+{:title "元组"
  :template "docpage.html"}
 ---
 
-Tuples are immutable, sequential types that are similar to arrays. They are
-represented in source code with either parentheses or brackets surrounding
-their items. Note that Janet differs from traditional Lisps here, which
-commonly use the term "lists" to describe forms wrapped in parentheses. Like
-all data structures, tuple contents can be retrieved with the @code`get`
-function and their length retrieved with the @code`length` function.
+元组是不可变的序列类型，与数组类似。在源代码中，它们通常用圆括号或方括号包围其元素来表示。请注意，Janet 在此处与传统的 Lisp 不同，后者通常使用"列表（list）"一词来描述用圆括号包裹的形式。与所有数据结构一样，元组的内容可以通过 @code`get` 函数获取，其长度可以通过 @code`length` 函数获取。
 
-The two most common ways to create a tuple are using the literal form with
-bracket characters @code`[]` or calling the @code`tuple` function directly.
+创建元组的两种最常用方法是使用方括号 @code`[]` 的字面量形式，或直接调用 @code`tuple` 函数。
 
 @codeblock[janet]```
-# Four ways to create the same tuple:
+# 创建相同元组的四种方法：
 
-(def mytup1 [1 2 3 4])       # using bracket literals
-(def mytup2 (tuple 1 2 3 4)) # using the (tuple) function
+(def mytup1 [1 2 3 4])       # 使用方括号字面量
+(def mytup2 (tuple 1 2 3 4)) # 使用 (tuple) 函数
 
-# the quote prevents form evaluation and returns the tuple directly
+# quote 阻止表达式求值，直接返回元组
 (def mytup3 '(1 2 3 4))
 
-# quasiquote works similarly to quote, but allows for some
-# forms to be evaluated inside via the , character
+# 准引用（quasiquote）与 quote 类似，但允许通过 , 字符
+# 对其中的某些形式进行求值
 (def mytup4 ~(1 2 3 ,(+ 2 2)))
 
-# these all result in the same tuple:
+# 这些都会得到相同的元组：
 (assert (= mytup1 mytup2 mytup3 mytup4)) # true
 ```
 
-## As table keys
+## 作为表键
 
-Tuples can be used as table keys because two tuples with the same contents are
-considered equal:
+元组可以用作表的键，因为两个内容相同的元组被视为相等：
 
 @codeblock[janet]```
 (def points @{[0 0] "A"
@@ -42,16 +35,12 @@ considered equal:
 (get points [0 0])       # "A"
 (get points (tuple 0 0)) # "A"
 (get points [1 3])       # "B"
-(get points [8 5])       # nil (ie: not found)
+(get points [8 5])       # nil（即：未找到）
 ```
 
-## Sorting tuples
+## 排序元组
 
-Tuples can also be used to sort items. When sorting tuples via the @code`<` or
-@code`>` comparators, the first elements are compared first. If those elements
-are equal, we move on to the second element, then the third, and so on. We
-could use this property of tuples to sort all kind of data, or sort one array
-by the contents of another array.
+元组还可以用于对项目进行排序。通过 @code`<` 或 @code`>` 比较器对元组进行排序时，会先比较第一个元素。如果这些元素相等，则继续比较第二个元素，然后是第三个，以此类推。我们可以利用元组的这一特性对各种数据进行排序，或者根据一个数组的内容对另一个数组进行排序。
 
 @codeblock[janet]```
 (def inventory [
@@ -73,21 +62,20 @@ by the contents of another array.
 # flamingo: 23
 ```
 
-## Bracketed tuples
+## 方括号元组
 
-Under the hood, there are two kinds of tuples:
-normal (aka paren or non-bracketed), and bracketed ones.
+在底层，有两种元组：普通元组（也称为圆括号元组或非方括号元组）和方括号元组。
 
 @codeblock[janet]```
-# bracket tuples
+# 方括号元组
 (def b-1 (tuple/brackets 1 2 3))
 (def b-2 '[1 2 3])
 
-# paren tuples
+# 圆括号元组
 (def p-1 (tuple 1 2 3))
 (def p-2 '(1 2 3))
 
-# tuple/type can distinguish between tuples
+# tuple/type 可以区分不同类型的元组
 (tuple/type b-1) # -> :brackets
 (tuple/type b-2) # -> :brackets
 
@@ -95,26 +83,23 @@ normal (aka paren or non-bracketed), and bracketed ones.
 (tuple/type p-2) # -> :parens
 ```
 
-The compiler interprets bracket tuples as a tuple constructor rather than
-a function call.
+编译器将方括号元组解释为元组构造器，而不是函数调用。
 
 @codeblock[janet]```
-# create a function object that returns a tuple
+# 创建一个返回元组的函数对象
 (def c-1 (compile (tuple/brackets 1 2 3)))
 
-# create and return a (paren) tuple with elements 1, 2 and 3
+# 创建并返回一个包含元素 1、2 和 3 的（圆括号）元组
 (c-2) # -> (1 2 3)
 
-# create a function object with a call to +
+# 创建一个包含对 + 调用的函数对象
 (def c-2 (compile (tuple '+ 1 2 3)))
 
-# call the function named by + with 1, 2 and 3 as arguments
+# 调用名为 + 的函数，传入参数 1、2 和 3
 (c-2) # -> 6
 ```
 
-Considering that functions evaluate their arguments and the tuple literal (@code`[]`)
-evaluates to a normal (paren) tuple, the behavior of @code`tuple/type` can be
-surprising. It's best to use it with quoted values.
+考虑到函数会对其参数进行求值，而元组字面量（@code`[]`）求值后得到的是普通（圆括号）元组，@code`tuple/type` 的行为可能会令人意外。最好在带引号的值上使用它。
 
 @codeblock[janet]```
 (tuple/type [1 2 3])  # -> :parens
@@ -126,8 +111,7 @@ surprising. It's best to use it with quoted values.
 (eval-string "'[1 2 3]") # -> [1 2 3]
 ```
 
-When printed via @code`pp`, bracket tuples are printed with square brackets
-instead of parentheses.
+当通过 @code`pp` 打印时，方括号元组会使用方括号而不是圆括号打印。
 
 @codeblock[janet]```
 (pp (tuple/brackets 1 2 3))
@@ -136,13 +120,12 @@ instead of parentheses.
 (pp (tuple 1 2 3))
 # (1 2 3)
 
-# this can be surprising
+# 这可能会令人意外
 (pp [1 2 3])
 # (1 2 3)
 ```
 
-Bracket and paren tuples with the same contents are not @code`=`,
-but are @code`deep=`.
+内容相同的方括号元组和圆括号元组不满足 @code`=`，但满足 @code`deep=`。
 
 @codeblock[janet]```
 (=     '() '[]) # -> false
@@ -152,13 +135,10 @@ but are @code`deep=`.
 (deep= '(1 2 3) '[1 2 3]) # -> true
 ```
 
-In all other ways, bracketed tuples behave identically to normal tuples.
+在其他所有方面，方括号元组的行为与普通元组相同。
 
-You should use bracketed tuples only in code that will be evaluated later
-(for example in macros).
+你应该仅在稍后会被求值的代码中使用方括号元组（例如在宏中）。
 
-## More functions
+## 更多函数
 
-Most functions in the core library that work on arrays also work on tuples, or
-have an analogous function for tuples. See the @link[/api/tuple.html][Tuple API]
-for a list of functions that operate on tuples.
+核心库中大多数适用于数组的函数也同样适用于元组，或者有针对元组的类似函数。有关操作元组的函数列表，请参阅 @link[/api/tuple.html][元组 API]。

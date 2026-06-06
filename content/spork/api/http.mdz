@@ -9,29 +9,28 @@
  :template "docpage.html"}
 ---
 
-The @code`http` module is an HTTP/1.1 parser, server and client module. It proves a simple server implementation, client, support for chunked encoding.
-The @code`http` module is also non-blocking, so a single thread can run
-many clients, servers, and connections at once.
+@code`http` 模块是一个 HTTP/1.1 解析器、服务器和客户端模块。它提供了一个简单的服务器实现、客户端以及对分块编码的支持。
+@code`http` 模块也是非阻塞的，因此单个线程可以同时运行多个客户端、服务器和连接。
 
-## Examples
+## 示例
 
-### Server
+### 服务器
 
 @codeblock[janet]```
 (import spork/http)
 
 (defn handler
- [req]
- (def method (get req :method))
- (case method
-  "GET" {:status 200 :body (get req :path)}
-  "POST" {:status 400 :body (http/read-body req)}
-  {:status 404}))
+  [req]
+  (def method (get req :method))
+  (case method
+   "GET" {:status 200 :body (get req :path)}
+   "POST" {:status 400 :body (http/read-body req)}
+   {:status 404}))
 
 (http/server handler "127.0.0.1" "9000")
 ```
 
-### Client
+### 客户端
 
 @codeblock[janet]```
 (import spork/http)
@@ -41,6 +40,6 @@ many clients, servers, and connections at once.
 (print body)
 ```
 
-## Reference
+## 参考
 
 @gen-docs/gen-prefix-current[http/]
