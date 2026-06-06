@@ -3,7 +3,7 @@
 (setdyn :source-linker (partial gen-docs/github-source-linker "janet-lang/spork" gen-docs/spork-version))
 (setdyn :no-community-examples true)
 
-{:title "通道"
+{:title "channel"
  :template "docpage.html"}
  ---
 

@@ -37,7 +37,7 @@ Janet 通过协程（coroutines）或 fiber 支持单核异步编程。Fiber 允
 (resume f) # -> 5
 (fiber/status f) # -> :dead
 (resume f) # -> 抛出错误，因为 fiber 已终止
-```
+```)
 
 ## 使用 fiber 捕获错误
 
@@ -55,7 +55,7 @@ Janet 通过协程（coroutines）或 fiber 支持单核异步编程。Fiber 允
 (if (= (fiber/status f) :error)
  (print "result contains the error")
  (print "result contains the good result"))
-```
+```)
 
 由于上述代码较为冗长，Janet 提供了一个 @code[try] 宏，类似于其他语言中的 try/catch。它将主体包装在一个新的 fiber 中，@code[resume] 该 fiber，然后检查结果。如果 fiber 出错，则会求值错误子句。
 
@@ -69,7 +69,7 @@ Janet 通过协程（coroutines）或 fiber 支持单核异步编程。Fiber 允
  (+ 1 2 3)
  ([err] (print "oops")))
 # 求值为 6 - 没有抛出错误
-```
+```)
 
 @code[signal] 函数可用于引发特定信号。该函数的第一个参数 @code[what] 指定信号类型，第二个参数 @code[x] 是任意载荷值。
 
@@ -83,7 +83,7 @@ Janet 通过协程（coroutines）或 fiber 支持单核异步编程。Fiber 允
   (signal :user4 :hello)
   (pp :unreached))
 # 仅打印 :hey
-```
+```)
 
 ## 惰性求值
 
