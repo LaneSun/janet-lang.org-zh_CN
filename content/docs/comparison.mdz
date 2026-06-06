@@ -83,7 +83,7 @@
 # 即使它们有相同的内容，这些也被视为 *不* 相等
 (assert (not= @{:a 1} @{:a 1}))
 (assert (not= @[:a :b] @[:a :b]))
-(assert (not= @\"abc\" @\"abc\"))
+(assert (not= @"abc" @"abc"))
 
 # 如果它们是同一个对象，原始等于将返回 true
 (let [x @{:a 1}]
@@ -104,8 +104,8 @@
 (assert (deep= "abc" "abc"))
 
 (assert (deep=
-  @{ :x @[@{:a 1} 3 @\"hi\"] :y 2 }
-  @{ :x @[@{:a 1} 3 @\"hi\"] :y 2 }))
+  @{ :x @[@{:a 1} 3 @"hi"] :y 2 }
+  @{ :x @[@{:a 1} 3 @"hi"] :y 2 }))
 
 # 注意：当值不是数组、表或缓冲区时，deep= 使用原始 =
 (assert (deep-not= @{ :x (int/s64 1) } @{ :x (int/u64 1) }))

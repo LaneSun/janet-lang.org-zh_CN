@@ -150,7 +150,7 @@ init.janet
 
 这将从 @code`./local.janet`（或 @code`./local.so`、@code`./local.jimage` 等）文件中导入，并使用 @code`local/` 前缀作为导入符号的前缀。
 
-### @-前缀导入
+### \@-前缀导入
 
 从 1.26.0 版本开始，Janet 允许通过在模块路径中使用 @code`@` 前缀来更方便地从自定义目录导入模块。
 
